@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f1a">
+<title>PixelHue — Color by Number</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="loading-logo">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+  </div>
+  <div class="loading-title">PixelHue</div>
+  <div class="loading-sub">Color by Number</div>
+  <div class="loading-bar-bg"><div class="loading-bar-fill" id="loading-bar"></div></div>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="toast"></div>
+
+<!-- HOME -->
+<div class="screen" id="home-screen">
+  <div class="screen-content">
+    <div class="home-header">
+      <div class="home-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" stroke="#fff"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <h1>Pixel<span>Hue</span></h1>
+      </div>
+      <div class="stats-pill">
+        <svg viewBox="0 0 24 24" class="fill-current" style="color:var(--yellow)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span id="home-streak">0 day streak</span>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value" id="stat-level">1</div><div class="stat-label">Level</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-completed">0</div><div class="stat-label">Completed</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-streak">0</div><div class="stat-label">Day Streak</div></div>
+    </div>
+    <div class="level-bar-wrap">
+      <div class="level-bar-header">
+        <span class="lv" id="level-label">Level 1 — Novice</span>
+        <span class="xp" id="xp-label">0 / 200 XP</span>
+      </div>
+      <div class="level-bar-bg"><div class="level-bar-fill" id="level-fill" style="width:0%"></div></div>
+    </div>
+    <div class="section-title">Daily <span>Challenge</span></div>
+    <div class="daily-card" id="daily-card">
+      <div class="daily-card-preview" id="daily-preview">
+        <canvas id="daily-mini-canvas" class="mini-canvas" width="160" height="130"></canvas>
+        <div class="daily-badge">Daily</div>
+      </div>
+      <div class="daily-info">
+        <h3 id="daily-title">Pixel Sunset</h3>
+        <p id="daily-desc">A beautiful evening sky with warm colors</p>
+        <div class="daily-meta">
+          <div class="xp-reward">
+            <svg viewBox="0 0 24 24" class="fill-current" style="color:var(--yellow)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            +150 XP
+          </div>
+          <button class="btn-primary" id="daily-play-btn">Paint Now</button>
+        </div>
+      </div>
+    </div>
+    <div class="section-title" style="margin-bottom:12px">Categories</div>
+    <div class="categories-scroll" id="cat-scroll">
+      <div class="cat-chip active" data-cat="all"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg><span>All</span></div>
+      <div class="cat-chip" data-cat="animals"><svg viewBox="0 0 24 24"><path d="M4 16c0 2.2 1.8 4 4 4s4-1.8 4-4V8c0-2.2-1.8-4-4-4S4 5.8 4 8"/><circle cx="18" cy="8" r="3"/></svg><span>Animals</span></div>
+      <div class="cat-chip" data-cat="nature"><svg viewBox="0 0 24 24"><path d="M12 22V12M12 12C12 7 7 4 3 6c4 1 7 4 9 6zM12 12c0-5 5-8 9-6-4 1-7 4-9 6z"/></svg><span>Nature</span></div>
+      <div class="cat-chip" data-cat="objects"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span>Objects</span></div>
+      <div class="cat-chip" data-cat="fantasy"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Fantasy</span></div>
+    </div>
+    <div class="section-title">All Artworks</div>
+
+    <div class="artwork-grid" id="artwork-grid"></div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div id="import-modal">
+  <div class="import-sheet">
+    <div class="import-handle"></div>
+    <div class="import-header">
+      <h3>Import Image</h3>
+      <button class="import-close-btn" id="import-close-btn">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="import-body">
+      <!-- Drop zone -->
+      <div class="drop-zone" id="drop-zone">
+        <div class="processing-overlay" id="processing-overlay">
+          <div class="processing-spinner"></div>
+          <div class="processing-label" id="processing-label">Analyzing image...</div>
+        </div>
+        <input type="file" id="import-file-input" accept="image/*">
+        <div class="drop-zone-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+        <h4>Tap to choose an image</h4>
+        <p>JPG, PNG, GIF, WebP supported</p>
+      </div>
+      <!-- Preview + settings (shown after image is loaded) -->
+      <div class="import-preview" id="import-preview">
+        <div class="preview-row">
+          <div class="preview-source"><img id="import-source-img" src="" alt="Source"></div>
+          <div class="preview-output"><canvas id="import-preview-canvas"></canvas></div>
+        </div>
+        <div class="import-settings">
+          <div class="import-setting">
+            <label>Grid Width</label>
+            <input type="range" id="grid-cols" min="8" max="250" value="32">
+            <div class="import-setting-val"><span id="grid-cols-val">32</span> cols</div>
+          </div>
+          <div class="import-setting">
+            <label>Grid Height</label>
+            <input type="range" id="grid-rows" min="8" max="250" value="32">
+            <div class="import-setting-val"><span id="grid-rows-val">32</span> rows</div>
+          </div>
+          <div class="import-setting">
+            <label>Max Colors</label>
+            <input type="range" id="max-colors" min="2" max="96" value="24">
+            <div class="import-setting-val"><span id="max-colors-val">24</span> colors</div>
+          </div>
+          <div class="import-setting">
+            <label>Dither</label>
+            <select id="dither-mode">
+              <option value="none">None (sharp)</option>
+              <option value="ordered" selected>Ordered</option>
+              <option value="floyd">Floyd-Steinberg</option>
+            </select>
+          </div>
+        </div>
+        <input class="import-title-input" id="import-title-input" type="text" placeholder="Artwork name..." maxlength="40">
+        <div class="import-info-row" id="import-info-row"></div>
+        <button class="btn-import-play" id="btn-start-import" disabled>Paint This Image</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="game-screen">
+  <div class="game-topbar">
+    <div class="btn-icon" id="game-back-btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="game-title-wrap">
+      <h2 id="game-artwork-title">Loading...</h2>
+      <p id="game-artwork-cat"></p>
+    </div>
+    <!-- Numbers toggle -->
+    <div class="btn-icon" id="btn-toggle-numbers" title="Toggle numbers">
+      <svg viewBox="0 0 24 24"><path d="M4 7h4M6 5v4M13 5l-2 7h5M13 12h-2M17 5v7M10 19h4M12 17v4"/></svg>
+    </div>
+    <!-- Zoom fit -->
+    <div class="btn-icon" id="btn-zoom-fit" title="Fit to screen">
+      <svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+    </div>
+    <div class="game-progress-ring" id="progress-ring-wrap">
+      <canvas id="progress-ring-canvas" width="38" height="38"></canvas>
+      <span id="progress-pct">0%</span>
+    </div>
+  </div>
+
+  <div id="canvas-container">
+    <div id="cells-left-counter">— cells left</div>
+    <div id="gesture-banner">Hold still to draw  |  Slide fast to pan</div>
+    <canvas id="pixel-canvas"></canvas>
+  </div>
+
+  <div class="game-bottom">
+    <div class="tools-row">
+      <!-- Mode toggle: Draw vs Pan -->
+      <div class="mode-toggle">
+        <div class="mode-btn active" id="mode-draw" title="Draw mode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22l9-9M12 3l9 9-4 4-9-9z"/><circle cx="6" cy="19" r="2"/></svg>
+          <span>Draw</span>
+        </div>
+        <div class="mode-btn" id="mode-pan" title="Move camera">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M12 12v.01"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+          <span>Move</span>
+        </div>
+      </div>
+      <div class="tools-divider"></div>
+      <div class="tool-btn" id="tool-wand" title="Magic Wand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 4V2m0 14v-2M8 9H2m14 0h-2M4.22 4.22l1.42 1.42m8.72 8.72 1.42 1.42M4.22 19.78l1.42-1.42M18.36 5.64l-1.42 1.42"/><path d="m2 22 10-10"/></svg>
+      </div>
+      <div class="tool-btn" id="tool-fill" title="Fill All">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 12h4l-8-9-8 9h4v6h8z"/><path d="M4 22h16"/></svg>
+      </div>
+      <div class="tool-btn" id="tool-hint" title="Hint">
+        <div class="badge">?</div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+      </div>
+      <div class="tools-divider"></div>
+      <div class="tool-btn" id="tool-undo" title="Undo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+      </div>
+      <div class="tool-btn" id="tool-redo" title="Redo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+      </div>
+    </div>
+    <div class="palette-scroll" id="palette-scroll"></div>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<div class="screen" id="gallery-screen">
+  <div class="screen-content">
+    <div class="gallery-header">
+      <h2>Gallery</h2>
+      <div class="stats-pill">
+        <svg viewBox="0 0 24 24" style="color:var(--green)"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="gallery-count">0 done</span>
+      </div>
+    </div>
+    <div class="filter-row" id="gallery-filter-row">
+      <div class="filter-chip active" data-filter="all">All</div>
+      <div class="filter-chip" data-filter="completed">Completed</div>
+      <div class="filter-chip" data-filter="in-progress">In Progress</div>
+    </div>
+    <div class="gallery-grid" id="gallery-grid"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="settings-screen">
+  <div class="screen-content">
+    <div class="settings-header"><h2>Settings</h2><p>Customize your experience</p></div>
+    <div class="settings-section">
+      <div class="settings-section-title">Gameplay</div>
+      <div class="settings-card">
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon"><svg viewBox="0 0 24 24" style="color:var(--red)"><circle cx="12" cy="12" r="9"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+            <div class="settings-item-text"><h4>Error Highlight</h4><p>Flash wrong color fills red</p></div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="s-errors" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon"><svg viewBox="0 0 24 24" style="color:var(--yellow)"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/></svg></div>
+            <div class="settings-item-text"><h4>Number Hints</h4><p>Show numbers inside cells</p></div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="s-numbers" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon"><svg viewBox="0 0 24 24" style="color:var(--accent2)"><rect x="2" y="2" width="9" height="9" rx="2"/><rect x="13" y="2" width="9" height="9" rx="2"/><rect x="2" y="13" width="9" height="9" rx="2"/><rect x="13" y="13" width="9" height="9" rx="2"/></svg></div>
+            <div class="settings-item-text"><h4>Auto-select Next Color</h4><p>Jump to next when color done</p></div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="s-autoselect" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Data</div>
+      <div class="settings-card">
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon"><svg viewBox="0 0 24 24" style="color:var(--text2)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div class="settings-item-text"><h4>Total XP Earned</h4><p id="total-xp-display">0 XP lifetime</p></div>
+          </div>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon"><svg viewBox="0 0 24 24" style="color:var(--text2)"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+            <div class="settings-item-text"><h4>App Version</h4><p>PixelHue v2.0.0</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Danger Zone</div>
+      <button class="btn-danger" id="reset-btn">Reset All Progress</button>
+    </div>
+    <div class="version-info">PixelHue — Built with passion &amp; pixels</div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div id="bottom-nav">
+  <button class="tab-btn active" data-screen="home-screen">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="tab-label">Home</span>
+  </button>
+  <button class="tab-btn" data-screen="gallery-screen">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    <span class="tab-label">Gallery</span>
+  </button>
+  <button class="tab-btn" data-screen="settings-screen">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span class="tab-label">Settings</span>
+  </button>
+</div>
+
+<!-- COMPLETION OVERLAY -->
+<div id="completion-overlay">
+  <div class="completion-card">
+    <div class="completion-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="completion-title">Masterpiece!</div>
+    <div class="completion-sub" id="comp-subtitle">You completed the artwork</div>
+    <div class="xp-burst" id="comp-xp">+150 XP</div>
+    <div class="completion-stats">
+      <div class="c-stat"><div class="c-stat-v" id="comp-time">--</div><div class="c-stat-l">Time</div></div>
+      <div class="c-stat"><div class="c-stat-v" id="comp-acc">--</div><div class="c-stat-l">Accuracy</div></div>
+      <div class="c-stat"><div class="c-stat-v" id="comp-cells">--</div><div class="c-stat-l">Cells</div></div>
+    </div>
+    <button class="btn-continue" id="comp-continue-btn">Back to Gallery</button>
+  </div>
+</div>
+
+<!-- GALLERY MODAL -->
+<div class="modal-overlay" id="gallery-modal">
+  <div class="modal-content">
+    <div class="modal-canvas-wrap"><canvas id="modal-preview-canvas" class="mini-canvas"></canvas></div>
+    <div class="modal-title" id="modal-title">Artwork</div>
+    <div class="modal-stats">
+      <div class="modal-stat"><label>Status</label><span id="modal-status">--</span></div>
+      <div class="modal-stat"><label>Completion</label><span id="modal-completion">--</span></div>
+      <div class="modal-stat"><label>XP</label><span id="modal-xp">--</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-close" id="modal-close-btn">Close</button>
+      <button class="modal-continue" id="modal-continue-btn">Continue</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,2280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Heartly</title>
+<!-- PWA / Home Screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Heartly">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#08000f">
+<!-- Icons -->
+<link rel="apple-touch-icon" href="assets/icon.jpg">
+<link rel="icon" type="image/jpeg" href="assets/icon.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
+<!-- CSS -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/intro.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/profile.css">
+<link rel="stylesheet" href="css/modals.css">
+<link rel="stylesheet" href="css/themes.css">
+<link rel="stylesheet" href="css/robert.css">
+<link rel="stylesheet" href="css/overlays.css">
+</head>
+
+</head>
+<body>
+<div id="P">
+  <!-- ════ INTRO SCREEN ════ -->
+  <div id="INTRO">
+    <div class="intro-logo">
+      <svg class="intro-heart" width="80" height="72" viewBox="0 0 72 64">
+        <path d="M36 60S5 43 5 23a16.5 16.5 0 0133-1 16.5 16.5 0 0133 1c0 20-31 37-31 37z"
+          fill="url(#introHG)" stroke="rgba(224,85,120,.25)" stroke-width="1.5"/>
+        <defs>
+          <linearGradient id="introHG" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#8a1840"/>
+            <stop offset="100%" stop-color="#f07090"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="intro-wordmark">Heartly</div>
+      <div class="intro-tagline">Love, unlocked daily</div>
+    </div>
+    <div class="intro-bar-wrap">
+      <div class="intro-bar-track">
+        <div class="intro-bar-fill"></div>
+      </div>
+      <div class="intro-bar-label">Loading</div>
+    </div>
+  </div>
+
+  <!-- ════ LOGIN SCREEN ════ -->
+  <div id="LOGIN">
+    <div class="lg-orb lg-orb1"></div>
+    <div class="lg-orb lg-orb2"></div>
+    <div class="lg-orb lg-orb3"></div>
+
+    <!-- Heart logo -->
+    <div class="lg-heart">
+      <svg width="68" height="60" viewBox="0 0 72 64">
+        <path d="M36 60S5 43 5 23a16.5 16.5 0 0133-1 16.5 16.5 0 0133 1c0 20-31 37-31 37z"
+          fill="url(#lgHG)" stroke="rgba(224,85,120,.25)" stroke-width="1.5"/>
+        <defs>
+          <linearGradient id="lgHG" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#8a1840"/>
+            <stop offset="100%" stop-color="#f07090"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="lg-title">Heartly</div>
+    <div class="lg-sub">Love, unlocked daily</div>
+
+    <!-- Account cards -->
+    <div class="lg-cards">
+      <div class="lg-card user rw" onclick="doLogin('nevasta.lui.robert');R(event,this)">
+        <div class="lg-card-avatar">A</div>
+        <div class="lg-card-info">
+          <div class="lg-card-name">Ana</div>
+          <div class="lg-card-handle">nevasta.lui.robert</div>
+        </div>
+        <div class="lg-card-badge">My Account</div>
+        <div class="lg-arrow">›</div>
+      </div>
+
+      <div class="lg-card dev rw" onclick="openDevPassword();R(event,this)">
+        <div class="lg-card-avatar">R</div>
+        <div class="lg-card-info">
+          <div class="lg-card-name">Developer</div>
+          <div class="lg-card-handle">developer.login</div>
+        </div>
+        <div class="lg-card-badge">Dev Mode</div>
+        <div class="lg-arrow">›</div>
+      </div>
+    </div>
+
+    <div class="lg-footer">
+      Tap your account to continue<br>
+      Tap your account to sign in 💕
+    </div>
+  </div>
+
+
+  <!-- ════ ANA'S WELCOME SCREEN ════ -->
+  <div id="WELCOME">
+    <div class="wlc-orb1"></div>
+    <div class="wlc-orb2"></div>
+    <div class="wlc-orb3"></div>
+
+    <div class="wlc-heart">💕</div>
+    <div class="wlc-from">A message from Robert</div>
+    <div class="wlc-title">This app is<br>made for you,<br>Ana.</div>
+    <div class="wlc-msg">Every letter, every surprise, every little detail in here — I put it all together just for you. Open it every day. I'll always be writing something new.</div>
+    <div class="wlc-sig">— With everything, always. Robert 🌹</div>
+
+    <button class="wlc-btn rw" onclick="closeWelcome();R(event,this)">Open Heartly 💌</button>
+    <div class="wlc-skip" onclick="closeWelcome()">Skip</div>
+  </div>
+
+  <!-- ── NOTIFICATION PANEL ── -->
+  <div id="NP">
+    <div class="np-inner">
+      <div class="np-head">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="np-title">Notifications</div>
+          <div class="np-badge" id="np-badge">0 new</div>
+        </div>
+        <div class="np-clear" onclick="clearNotifs()">Clear all</div>
+      </div>
+      <div id="np-list"></div>
+    </div>
+  </div>
+
+  <!-- ── BACKDROP DIMMER ── -->
+  <div id="NP-dim" onclick="closeNotif()"></div>
+
+  <!-- ── SPLASH / ONBOARDING ── -->
+  <div id="splash">
+    <div class="sp-orb sp-orb1"></div>
+    <div class="sp-orb sp-orb2"></div>
+    <div class="sp-orb sp-orb3"></div>
+
+    <div class="sp-heart-wrap">
+      <svg width="72" height="64" viewBox="0 0 72 64">
+        <path d="M36 60S5 43 5 23a16.5 16.5 0 0133-1 16.5 16.5 0 0133 1c0 20-31 37-31 37z"
+          fill="url(#spHG)" stroke="rgba(224,85,120,.25)" stroke-width="1.5"/>
+        <defs>
+          <linearGradient id="spHG" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#8a1840"/>
+            <stop offset="100%" stop-color="#f07090"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="sp-wordmark">Heartly</div>
+    <div class="sp-tag">Love, unlocked daily</div>
+
+    <div class="sp-slides">
+      <div class="sp-slide on" id="sl-0">
+        <div class="sp-slide-ico">🌙</div>
+        <div class="sp-slide-t">A letter, every night</div>
+        <div class="sp-slide-s">Robert writes you something real — no templates, no automation. Just him, thinking of you, putting it into words.</div>
+      </div>
+      <div class="sp-slide" id="sl-1">
+        <div class="sp-slide-ico">💕</div>
+        <div class="sp-slide-t">Made just for you, Ana</div>
+        <div class="sp-slide-s">This isn't a generic app. Robert built this for you specifically. Every letter, every surprise, every detail — yours.</div>
+      </div>
+      <div class="sp-slide" id="sl-2">
+        <div class="sp-slide-ico">🌹</div>
+        <div class="sp-slide-t">Distance doesn't win</div>
+        <div class="sp-slide-s">Open Heartly every day. Read what he wrote. Feel close. That's all this is — and it's more than enough.</div>
+      </div>
+    </div>
+
+    <div class="sp-dots">
+      <div class="sp-dot on" id="sd-0"></div>
+      <div class="sp-dot" id="sd-1"></div>
+      <div class="sp-dot" id="sd-2"></div>
+    </div>
+
+    <button class="sp-btn" id="sp-cta" onclick="spNext()">Get Started →</button>
+    <div class="sp-skip" onclick="spDone()">Skip intro</div>
+  </div>
+
+  <canvas id="bgc"></canvas>
+  <div id="toast"></div>
+
+  <!-- ════ PROFILE PAGE ════ -->
+  <div id="PROF">
+    <div id="PROF-bg"></div>
+    <div id="PROF-scroll">
+
+      <!-- Sticky header -->
+      <div class="prof-bar">
+        <button class="prof-back rw" onclick="closeProf();R(event,this)">
+          <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="prof-bar-title">Profile</div>
+        <button class="prof-edit rw" style="width:auto;margin:0;padding:7px 14px;font-size:12px;border-radius:var(--rp)" onclick="T('✏️ Edit profile — coming soon!');R(event,this)">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit
+        </button>
+      </div>
+
+      <!-- Hero -->
+      <div class="prof-hero">
+        <div class="prof-avatars">
+          <div class="prof-av ana">A</div>
+          <div class="prof-heart-badge">💕</div>
+          <div class="prof-av robert">R</div>
+        </div>
+        <div class="prof-names">Ana & Robert</div>
+        <div class="prof-since">Together since August 10, 2023 💕</div>
+      </div>
+
+      <!-- Live relationship timer -->
+      <div class="prof-timer">
+        <div class="pt-unit"><div class="pt-val" id="prof-d">--</div><div class="pt-lbl">Days</div></div>
+        <div class="pt-sep">:</div>
+        <div class="pt-unit"><div class="pt-val" id="prof-h">--</div><div class="pt-lbl">Hours</div></div>
+        <div class="pt-sep">:</div>
+        <div class="pt-unit"><div class="pt-val" id="prof-m">--</div><div class="pt-lbl">Mins</div></div>
+        <div class="pt-sep">:</div>
+        <div class="pt-unit"><div class="pt-val" id="prof-s">--</div><div class="pt-lbl">Secs</div></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="prof-stats">
+        <div class="pstat" style="animation-delay:.04s"><div class="pstat-val">147</div><div class="pstat-lbl">Letters Read</div></div>
+        <div class="pstat" style="animation-delay:.08s"><div class="pstat-val gd">12,500</div><div class="pstat-lbl">Points</div></div>
+        <div class="pstat" style="animation-delay:.12s"><div class="pstat-val" id="pstat-streak">0</div><div class="pstat-lbl">Day Streak</div></div>
+        <div class="pstat" style="animation-delay:.16s"><div class="pstat-val">48</div><div class="pstat-lbl">Games Played</div></div>
+        <div class="pstat" style="animation-delay:.20s"><div class="pstat-val rs">Lvl 5</div><div class="pstat-lbl">Level</div></div>
+        <div class="pstat" style="animation-delay:.24s"><div class="pstat-val lc">3</div><div class="pstat-lbl">Achievements</div></div>
+      </div>
+
+      <!-- Stats overview -->
+      <div class="prof-section">
+        <div class="prof-section-lbl">Your Stats</div>
+        <div class="ana-stat-grid">
+          <div class="ana-stat" style="animation-delay:.04s">
+            <div class="ana-stat-ico">📖</div>
+            <div class="ana-stat-val" id="prof-stat-read">147</div>
+            <div class="ana-stat-lbl">Letters Read</div>
+          </div>
+          <div class="ana-stat" style="animation-delay:.08s">
+            <div class="ana-stat-ico">🔥</div>
+            <div class="ana-stat-val rs" id="prof-stat-streak">14</div>
+            <div class="ana-stat-lbl">Day Streak</div>
+          </div>
+          <div class="ana-stat" style="animation-delay:.12s">
+            <div class="ana-stat-ico">🪙</div>
+            <div class="ana-stat-val gd" id="prof-stat-pts">3,200</div>
+            <div class="ana-stat-lbl">Points</div>
+          </div>
+          <div class="ana-stat" style="animation-delay:.16s">
+            <div class="ana-stat-ico">💕</div>
+            <div class="ana-stat-val mn" id="prof-stat-days">--</div>
+            <div class="ana-stat-lbl">Days Together</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Love languages -->
+      <div class="prof-section">
+        <div class="prof-section-lbl">Love Languages</div>
+        <div class="C" style="padding:14px 16px">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                <span style="font-size:12px;font-weight:700;color:#fff">Words of Affirmation</span>
+                <span style="font-size:11px;color:var(--rose-b);font-weight:700">85%</span>
+              </div>
+              <div class="ll-bar"><div class="ll-fill" style="--w:85%;background:linear-gradient(90deg,#a02050,var(--rose))"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                <span style="font-size:12px;font-weight:700;color:#fff">Quality Time</span>
+                <span style="font-size:11px;color:var(--gold);font-weight:700">72%</span>
+              </div>
+              <div class="ll-bar"><div class="ll-fill" style="--w:72%;background:linear-gradient(90deg,#b08020,var(--gold))"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                <span style="font-size:12px;font-weight:700;color:#fff">Acts of Service</span>
+                <span style="font-size:11px;color:var(--mint);font-weight:700">60%</span>
+              </div>
+              <div class="ll-bar"><div class="ll-fill" style="--w:60%;background:linear-gradient(90deg,#208060,var(--mint))"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                <span style="font-size:12px;font-weight:700;color:#fff">Receiving Gifts</span>
+                <span style="font-size:11px;color:#c8a8f0;font-weight:700">48%</span>
+              </div>
+              <div class="ll-bar"><div class="ll-fill" style="--w:48%;background:linear-gradient(90deg,#6030a0,#c8a8f0)"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="prof-section">
+        <div class="prof-section-lbl">Heartly Progress</div>
+        <div class="C" style="padding:14px 16px">
+          <div class="pt" style="margin-bottom:10px"><div class="pf" style="--w:45%"></div></div>
+          <div style="font-size:12.5px;color:var(--tx2);margin-bottom:4px">Universal Points: <span style="color:#fff;font-weight:700">450 of 1000</span></div>
+          <div style="font-size:12.5px;color:var(--tx2)">Next Milestone: <span style="color:var(--gold);font-weight:700">Memory Box ✨</span></div>
+        </div>
+      </div>
+
+      <!-- Favourite letters -->
+      <div class="prof-section">
+        <div class="prof-section-lbl">Favourite Letters</div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="prof-favs-list">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="prof-section" style="padding-bottom:20px">
+        <div class="prof-section-lbl" style="display:flex;align-items:center;justify-content:space-between">
+          <span>Achievements</span>
+          <span class="ach-total-badge" style="font-size:9px">12 / 30</span>
+        </div>
+        <div class="prof-ach-preview" onclick="go('logs');closeProf()">
+          <div class="prof-ach-icons" id="prof-ach-icons"><!-- filled by JS --></div>
+          <div class="prof-ach-cta">View all 30 achievements <span style="color:var(--rose-b)">›</span></div>
+        </div>
+      </div>
+
+      <!-- Switch Account -->
+      <div class="prof-section" style="padding-bottom:30px">
+        <div class="prof-section-lbl">Account</div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <button class="switch-account-btn rw" onclick="openSettings();R(event,this)" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)">
+            <div class="switch-acc-avatar" style="background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);font-size:18px">⚙️</div>
+            <div class="switch-acc-info">
+              <div class="switch-acc-name">⚙️ Settings</div>
+              <div class="switch-acc-handle">Language, theme, notifications</div>
+            </div>
+            <div class="switch-acc-arrow">›</div>
+          </button>
+          <button class="switch-account-btn rw" onclick="switchToRobert();R(event,this)">
+            <div class="switch-acc-avatar" style="background:linear-gradient(135deg,rgba(40,120,80,.4),rgba(110,232,180,.2));border:2px solid rgba(110,232,180,.25)">🛠️</div>
+            <div class="switch-acc-info">
+              <div class="switch-acc-name">Switch to Developer</div>
+              <div class="switch-acc-handle">developer.login</div>
+            </div>
+            <div class="switch-acc-arrow">›</div>
+          </button>
+          <button class="switch-logout-btn rw" onclick="switchToLogin();R(event,this)">
+            ↩ Sign out
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /PROF-scroll -->
+  </div><!-- /PROF -->
+
+
+  <!-- ════ LETTER PURCHASE SHEET ════ -->
+  <div id="BUY-SHEET">
+    <div id="BUY-INNER">
+      <div class="buy-handle"></div>
+      <div class="buy-tag" id="buy-tag">💌 Short Note</div>
+      <div class="buy-title" id="buy-title">Letter Title</div>
+      <div class="buy-preview" id="buy-preview">Preview of the letter...</div>
+      <div class="buy-cost-row">
+        <div>
+          <div class="buy-cost-label">Cost to unlock</div>
+        </div>
+        <div style="text-align:right">
+          <div class="buy-cost-val" id="buy-cost">0 pts</div>
+          <div class="buy-balance" id="buy-balance">You have 0 pts</div>
+        </div>
+      </div>
+      <button class="buy-confirm rw" id="buy-confirm-btn" onclick="confirmBuyLetter()">
+        🔓 Unlock this letter
+      </button>
+      <button class="buy-cancel rw" onclick="closeBuySheet()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- LETTER MODAL -->
+  <div id="MOD">
+    <!-- Letter content -->
+    <div id="MB">
+      <div class="mh"></div>
+      <button class="mcl rw" onclick="closeMod();R(event,this)">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div style="margin-top:6px">
+        <div id="m-from" style="font-size:9.5px;font-weight:800;letter-spacing:2px;color:rgba(224,85,120,.9);text-transform:uppercase;margin-bottom:10px"></div>
+        <div id="m-title" style="font-size:22px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:16px"></div>
+        <div id="m-body" style="font-size:14px;color:rgba(255,255,255,.72);line-height:1.9;font-style:italic"></div>
+        <div id="m-sig" style="margin-top:24px;font-size:14px;font-weight:700;color:rgba(224,85,120,.9)"></div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button onclick="saveToFavourites();R(event,this)" style="flex:1;background:linear-gradient(135deg,#a02050,var(--rose));border-radius:var(--rp);padding:11px;color:#fff;font-size:13px;font-weight:800;font-family:Nunito,sans-serif;box-shadow:0 4px 16px var(--rose-g)" id="fav-btn">♡ Save to Favourites</button>
+          <button onclick="closeMod();T('↩ Copied link to letter!')" style="padding:11px 16px;border:1px solid var(--border);border-radius:var(--rp);color:var(--tx2);font-size:13px;font-family:Nunito,sans-serif;background:rgba(255,255,255,.05)">Share</button>
+        </div>
+        <!-- Reactions -->
+        <div class="reaction-strip" id="reaction-strip">
+          <div class="reaction-lbl">React</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="UI">
+    <!-- APP BAR -->
+    <div id="ab">
+      <div style="position:relative">
+        <button class="abi rw" onclick="openProf();R(event,this)">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </button>
+      </div>
+      <div class="ab-mid">
+        <div class="ab-wm">Heartly</div>
+        <div class="ab-st" id="absub"></div>
+      </div>
+      <div style="position:relative">
+        <button class="abi rw" id="bell-btn" onclick="toggleNotif();R(event,this)">
+          <svg viewBox="0 0 24 24"><path d="M6 10a6 6 0 0112 0v4l2 2H4l2-2v-4z"/><path d="M9.5 18a2.5 2.5 0 005 0"/></svg>
+        </button>
+        <div class="ndot" id="ndot" style="display:none"></div>
+      </div>
+    </div>
+
+    <div id="SW">
+
+      <!-- ████ HOME ████ -->
+      <div class="SC on" id="s-home">
+        <div class="welcome">
+          <div class="wt">Welcome back,<br>Ana</div>
+          <svg class="hb-svg" width="34" height="30" viewBox="0 0 34 30">
+            <path d="M17 28S2 19 2 10a8 8 0 0116-1 8 8 0 0116 1c0 9-15 18-15 18z"
+              fill="url(#hg)" stroke="var(--rose-b)" stroke-opacity=".35" stroke-width="1"/>
+            <defs><linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="var(--rose)"/><stop offset="100%" stop-color="var(--rose-b)"/>
+            </linearGradient></defs>
+          </svg>
+        </div>
+
+        <!-- Streak -->
+        <div class="streak rw" onclick="T('🔥 ' + currentStreak + '-day streak! Keep it going!');R(event,this)">
+          <div class="str-l">
+            <div class="str-flame">🔥</div>
+            <div>
+              <div class="str-title">Daily Streak</div>
+              <div class="str-sub">Keep opening Heartly every day!</div>
+            </div>
+          </div>
+          <div><div class="str-num">0</div><div class="str-day">DAYS</div></div>
+        </div>
+
+        <!-- Letters -->
+        <div class="C" style="animation-delay:.08s">
+          <div class="slbl">Recently Unlocked Letters</div>
+          <div style="display:flex;flex-direction:column;gap:8px" id="home-letters-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Mood -->
+        <div class="C" style="animation-delay:.14s">
+          <div class="slbl">How are you feeling today?</div>
+          <div class="mood-row">
+            <div class="mood rw" onclick="pickMood(this,'😊','Happy & grateful today ✨');R(event,this)"><div>😊</div><div class="mood-lbl">Happy</div></div>
+            <div class="mood rw" onclick="pickMood(this,'🥰','So loved 💕');R(event,this)"><div>🥰</div><div class="mood-lbl">Loved</div></div>
+            <div class="mood rw" onclick="pickMood(this,'🌙','Dreamy & soft 🌙');R(event,this)"><div>🌙</div><div class="mood-lbl">Dreamy</div></div>
+            <div class="mood rw" onclick="pickMood(this,'💭','Missing someone... 💭');R(event,this)"><div>💭</div><div class="mood-lbl">Missing</div></div>
+          </div>
+        </div>
+
+        <!-- Goodnight Letter Countdown -->
+        <div class="C" style="animation-delay:.20s">
+          <div class="slbl">Goodnight Letter</div>
+          <div class="cd-inner">
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--tx2);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px" id="cd-label">Next letter</div>
+              <div style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-.3px" id="cdown">—</div>
+              <div style="font-size:11px;color:var(--tx3);margin-top:4px" id="cd-sub">Robert writes every 2 days 🌙</div>
+            </div>
+            <div class="lkb">
+              <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="C" style="animation-delay:.26s">
+          <div class="slbl">My Heartly Progress</div>
+          <div class="pt" style="margin-bottom:10px"><div class="pf" style="--w:45%"></div></div>
+          <div class="prog-line" style="font-size:12.5px;color:var(--tx2);margin-bottom:4px">Universal Points: <span style="color:#fff;font-weight:700">450 of 1000</span></div>
+          <div class="prog-line" style="font-size:12.5px;color:var(--tx2)">Next Milestone: <span style="color:var(--gold);font-weight:700">Memory Box ✨</span></div>
+        </div>
+
+        <!-- ── HOME HUB CARD — all home actions in one place ── -->
+        <div class="C home-hub-card" style="animation-delay:.32s">
+
+          <!-- Robert's Mood (unlocked via shop) -->
+          <div class="rob-mood-home" id="rob-mood-home-card" style="display:none;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,.06)">
+            <div class="slbl" style="margin-bottom:8px">Robert's Mood</div>
+            <div class="rob-mood-home-inner" id="rob-mood-home-inner">
+              <div class="rob-mood-home-empty">Robert hasn't shared his mood yet 🌙</div>
+            </div>
+          </div>
+
+          <!-- Wish List (unlocked via shop) -->
+          <div id="home-wishlist-row" style="display:none">
+            <div class="hub-divider"></div>
+            <button class="hub-row rw" onclick="openWishList();R(event,this)">
+              <div class="hub-row-ico" style="background:rgba(245,200,112,.12);color:rgba(245,200,112,.9)">✨</div>
+              <div class="hub-row-lbl">
+                <div class="hub-row-title" style="color:rgba(245,200,112,.9)">Wish List</div>
+                <div class="hub-row-sub">Ana &amp; Robert's dreams</div>
+              </div>
+              <svg class="hub-row-arrow" viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg>
+            </button>
+          </div>
+
+          <!-- Memory Jar (shown when shopMemoryJar is unlocked) -->
+          <div id="memory-jar-home" style="display:none">
+            <div class="hub-divider"></div>
+            <button class="hub-row rw" onclick="shakeMemoryJar();R(event,this)">
+              <div class="hub-row-ico" style="background:rgba(200,168,240,.12);color:rgba(200,168,240,.9)">🫙</div>
+              <div class="hub-row-lbl">
+                <div class="hub-row-title" style="color:rgba(200,168,240,.9)">Memory Jar</div>
+                <div class="hub-row-sub">Shake for a memory</div>
+              </div>
+              <svg class="hub-row-arrow" viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg>
+            </button>
+          </div>
+
+          <!-- Love Map (shown when shopLoveMap is unlocked) -->
+          <div id="love-map-home" style="display:none">
+            <div class="hub-divider"></div>
+            <div class="love-map-card" style="padding:0">
+              <div class="love-map-header">
+                <div class="love-map-header-ico">📍</div>
+                <div>
+                  <div class="love-map-header-title">Our Love Map</div>
+                  <div class="love-map-header-sub">Places Robert pinned for you</div>
+                </div>
+              </div>
+              <div id="love-map-pins-list"></div>
+            </div>
+          </div>
+
+          <!-- Dynamic shop cards injected here by JS (Daily Bonus, Lucky Spin, Gift Box, etc.) -->
+          <div id="home-hub-dynamic"></div>
+
+          <!-- Write to Robert (unlocked via shop) -->
+          <div id="home-write-row" style="display:none">
+            <div class="hub-divider"></div>
+            <button class="hub-row rw" onclick="openAnaWrite();R(event,this)">
+              <div class="hub-row-ico" style="background:rgba(224,85,120,.12);color:rgba(224,85,120,.9)">✍️</div>
+              <div class="hub-row-lbl">
+                <div class="hub-row-title">Write to Robert</div>
+                <div class="hub-row-sub">Send him a message</div>
+              </div>
+              <svg class="hub-row-arrow" viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg>
+            </button>
+          </div>
+
+        </div><!-- /home-hub-card -->
+
+      </div><!-- /home -->
+
+      <!-- ████ EXPLORE ████ -->
+      <div class="SC" id="s-explore">
+        <!-- Search banner — slides in from top -->
+        <div id="search-banner">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" id="search-input" placeholder="Search letters..." oninput="onSearchInput(this.value)">
+            <div id="search-clear" onclick="clearSearch()">✕</div>
+          </div>
+        </div>
+        <!-- Tabs row with search toggle -->
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="stabs" id="stabs" style="flex:1">
+            <button class="stab on" data-k="notes">Short Notes</button>
+            <button class="stab" data-k="surprises">Surprises</button>
+            <button class="stab" data-k="letters">Letters</button>
+          </div>
+          <button class="search-toggle-btn rw" id="search-toggle-btn" onclick="toggleSearchBar();R(event,this)">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </button>
+        </div>
+        <!-- Sort bar -->
+        <div class="sort-bar">
+          <button class="sort-btn on rw" onclick="setExploreSort('default',this);R(event,this)">✨ Default</button>
+          <button class="sort-btn rw" onclick="setExploreSort('newest',this);R(event,this)">🆕 Newest</button>
+          <button class="sort-btn rw" onclick="setExploreSort('oldest',this);R(event,this)">📅 Oldest</button>
+          <button class="sort-btn rw" onclick="setExploreSort('points',this);R(event,this)">🪙 By Points</button>
+        </div>
+        <div class="xg" id="xg"></div>
+      </div>
+
+
+      <!-- ████ PLAY ████ -->
+      <div class="SC" id="s-play">
+
+        <!-- Love Blast Hero Card -->
+        <div class="play-hero rw" onclick="openLoveBlast();R(event,this)">
+          <div class="ph-bg"></div>
+          <div class="ph-inner">
+            <div class="ph-tag"><div class="live-dot"></div>Puzzle · Available Now</div>
+            <div class="ph-ico" style="font-size:28px">💗</div>
+            <div class="ph-name">Love Blast</div>
+            <div class="ph-sub">Drag colorful blocks onto the grid — clear full rows &amp; columns to score big and chain combos</div>
+            <div class="ph-stats">
+              <div class="ph-s"><div class="sv">🎯</div><div class="sl">CLASSIC</div></div>
+              <div class="ph-s"><div class="sv">💥</div><div class="sl">CHAOS</div></div>
+              <div class="ph-s"><div class="sv">🔥</div><div class="sl">COMBOS</div></div>
+            </div>
+            <div class="ph-btns">
+              <button class="btn-play rw" onclick="openLoveBlast();R(event,this)">▶ Play Now</button>
+              <button class="btn-ghost rw" onclick="showHowToPlay('loveblast');R(event,this)">How to Play</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color by Number Hero Card -->
+        <div class="play-hero rw" onclick="openPixelArt();R(event,this)" style="animation-delay:.07s">
+          <div class="ph-bg"></div>
+          <div class="ph-inner">
+            <div class="ph-tag"><div class="live-dot"></div>Puzzle · Available Now</div>
+            <div class="ph-ico" style="font-size:28px">🎨</div>
+            <div class="ph-name">Color by Number</div>
+            <div class="ph-sub">Paint pixel art by tapping numbered cells — select a color from the palette and fill in the picture</div>
+            <div class="ph-stats">
+              <div class="ph-s"><div class="sv">🐶</div><div class="sl">PIXEL ART</div></div>
+              <div class="ph-s"><div class="sv">🪣</div><div class="sl">FILL TOOL</div></div>
+              <div class="ph-s"><div class="sv">🪙</div><div class="sl">EARN PTS</div></div>
+            </div>
+            <div class="ph-btns">
+              <button class="btn-play rw" onclick="openPixelArt();R(event,this)">▶ Play Now</button>
+              <button class="btn-ghost rw" onclick="showHowToPlay('pixelart');R(event,this)">How to Play</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Love Clicker Card -->
+        <div class="play-hero rw" onclick="openClicker();R(event,this)" style="animation-delay:.14s">
+          <div class="ph-bg"></div>
+          <div class="ph-inner">
+            <div class="ph-tag" style="background:rgba(255,180,100,.15);color:rgba(255,200,120,.9);border-color:rgba(255,180,100,.2)">
+              <div class="live-dot" style="background:rgba(255,180,100,.8);box-shadow:0 0 6px rgba(255,180,100,.6)"></div>
+              Clicker · Available Now
+            </div>
+            <div class="ph-ico" style="font-size:28px">💖</div>
+            <div class="ph-name">Love Clicker</div>
+            <div class="ph-sub">Tap to grow your love — upgrade your bond, unlock surprises and build your relationship click by click</div>
+            <div class="ph-stats">
+              <div class="ph-s"><div class="sv">💗</div><div class="sl">CLICKER</div></div>
+              <div class="ph-s"><div class="sv">⬆️</div><div class="sl">UPGRADES</div></div>
+              <div class="ph-s"><div class="sv">🪙</div><div class="sl">EARN PTS</div></div>
+            </div>
+            <div class="ph-btns">
+              <button class="btn-play rw" onclick="openClicker();R(event,this)">▶ Play Now</button>
+              <button class="btn-ghost rw" onclick="showHowToPlay('clicker');R(event,this)">How to Play</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- More games coming soon -->
+        <div style="text-align:center;padding:20px 0 6px;animation:fadeUp .4s ease .15s both">
+          <div style="font-size:10px;font-weight:800;letter-spacing:2.5px;color:var(--tx3);text-transform:uppercase">✨ &nbsp; More games coming soon &nbsp; ✨</div>
+        </div>
+
+      </div><!-- /play -->
+
+      <!-- ████ EXCHANGE ████ -->
+      <div class="SC" id="s-exchange">
+
+        <!-- Points Hero — animated counter -->
+        <div class="C pts-h" style="position:relative">
+          <div class="pts-lbl">Your Universal Points</div>
+          <div class="pts-num" style="display:flex;align-items:center;justify-content:center;gap:10px">
+            <span class="pts-num-val" id="pts-display">3,200</span>
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+              <circle cx="13" cy="13" r="11" stroke="rgba(224,85,120,.65)" stroke-width="1.5"/>
+              <circle cx="13" cy="13" r="8"  stroke="rgba(224,85,120,.35)" stroke-width="1"/>
+              <path d="M13 7v12M9 10l4-3 4 3M9 16l4 3 4-3" stroke="rgba(224,85,120,.78)" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="pts-chg" id="pts-chg">↑ +450 this week</div>
+          <!-- Rate row -->
+          <div class="pts-rate-row">
+            <div class="pts-rate"><div class="pts-rate-val">+50</div><div class="pts-rate-lbl">per letter</div></div>
+            <div class="pts-rate"><div class="pts-rate-val">+100</div><div class="pts-rate-lbl">per game</div></div>
+            <div class="pts-rate"><div class="pts-rate-val">+250</div><div class="pts-rate-lbl">challenge</div></div>
+            <div class="pts-rate"><div class="pts-rate-val spend">-500</div><div class="pts-rate-lbl">redeem</div></div>
+          </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="C" style="animation-delay:.12s">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="slbl" style="margin-bottom:0">Transaction History</div>
+            <div style="font-size:10px;font-weight:700;color:var(--tx3);cursor:pointer" onclick="toggleTxHistory()">Show all ↓</div>
+          </div>
+          <div class="tx-list" id="tx-list">
+            <div class="tx-item" style="animation-delay:.04s">
+              <div class="tx-ico earn">📖</div>
+              <div class="tx-body"><div class="tx-title">Letter read — "Missing Your Laugh"</div><div class="tx-date">Today, 9:41 AM</div></div>
+              <div class="tx-amt earn">+50</div>
+            </div>
+            <div class="tx-item" style="animation-delay:.08s">
+              <div class="tx-ico earn">🏆</div>
+              <div class="tx-body"><div class="tx-title">Daily challenge completed</div><div class="tx-date">Today, 8:20 AM</div></div>
+              <div class="tx-amt earn">+250</div>
+            </div>
+            <div class="tx-item" style="animation-delay:.12s">
+              <div class="tx-ico earn">🎮</div>
+              <div class="tx-body"><div class="tx-title">Daily challenge completed</div><div class="tx-date">Yesterday, 9:10 PM</div></div>
+              <div class="tx-amt earn">+120</div>
+            </div>
+            <div class="tx-item" style="animation-delay:.16s">
+              <div class="tx-ico free">🎨</div>
+              <div class="tx-body"><div class="tx-title">Midnight Rose theme redeemed</div><div class="tx-date">Yesterday</div></div>
+              <div class="tx-amt free">Free</div>
+            </div>
+          </div>
+          <!-- Hidden extra items -->
+          <div id="tx-extra" style="display:none">
+            <div class="tx-item"><div class="tx-ico earn">🔥</div><div class="tx-body"><div class="tx-title">7-day streak bonus</div><div class="tx-date">May 14</div></div><div class="tx-amt earn">+100</div></div>
+            <div class="tx-item"><div class="tx-ico spend">💌</div><div class="tx-body"><div class="tx-title">Letter unlock redeemed</div><div class="tx-date">May 14</div></div><div class="tx-amt spend">-500</div></div>
+            <div class="tx-item"><div class="tx-ico earn">📖</div><div class="tx-body"><div class="tx-title">Letter read — "Counting Stars"</div><div class="tx-date">May 13</div></div><div class="tx-amt earn">+50</div></div>
+            <div class="tx-item"><div class="tx-ico spend">🎁</div><div class="tx-body"><div class="tx-title">Daily Surprise redeemed</div><div class="tx-date">May 12</div></div><div class="tx-amt spend">-500</div></div>
+          </div>
+          <div class="tx-more" id="tx-toggle" onclick="toggleTxHistory()">▾ Show more history</div>
+        </div>
+
+        <!-- ════ SHOP ════ -->
+        <div class="slbl" style="margin-top:2px;display:flex;align-items:center;justify-content:space-between">
+          <span>🛍️ Shop</span>
+          <span style="font-size:10px;font-weight:700;color:var(--tx3)">Spend your points</span>
+        </div>
+
+        <!-- Themes section -->
+        <div class="C" style="padding:16px">
+          <div class="slbl" style="margin-bottom:14px">🎨 Themes</div>
+          <div style="display:flex;flex-direction:column;gap:10px" id="shop-themes-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Shop items -->
+        <div class="C" style="padding:16px">
+          <div id="shop-items-list"><!-- Rendered by JS --></div>
+        </div>
+
+            </div><!-- /exchange -->
+
+      <!-- ████ LOGS ████ -->
+      <div class="SC" id="s-logs">
+
+        <!-- Together hero — live timer -->
+        <div class="together-hero">
+          <div class="together-lbl">💕 Ana & Robert — Together for</div>
+          <div class="together-timer">
+            <div class="together-unit"><div class="together-val" id="tg-days">--</div><div class="together-unit-lbl">Days</div></div>
+            <div class="together-sep">:</div>
+            <div class="together-unit"><div class="together-val" id="tg-hours">--</div><div class="together-unit-lbl">Hours</div></div>
+            <div class="together-sep">:</div>
+            <div class="together-unit"><div class="together-val" id="tg-mins">--</div><div class="together-unit-lbl">Mins</div></div>
+            <div class="together-sep">:</div>
+            <div class="together-unit"><div class="together-val" id="tg-secs">--</div><div class="together-unit-lbl">Secs</div></div>
+          </div>
+          <div class="together-since">Since August 10, 2023 💕</div>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="sg">
+          <div class="sg-c" style="animation-delay:.04s"><div class="sg-ico">📖</div><div class="sg-val">147</div><div class="sg-lbl">Letters Read</div></div>
+          <div class="sg-c" style="animation-delay:.08s"><div class="sg-ico">💎</div><div class="sg-val gd" id="logs-pts">3,200</div><div class="sg-lbl">Points Earned</div></div>
+          <div class="sg-c" style="animation-delay:.12s"><div class="sg-ico">🔥</div><div class="sg-val rs">14</div><div class="sg-lbl">Day Streak</div></div>
+          <div class="sg-c" style="animation-delay:.16s"><div class="sg-ico">💌</div><div class="sg-val" id="logs-sent">3</div><div class="sg-lbl">Letters Sent</div></div>
+        </div>
+
+        <!-- Letter breakdown -->
+        <div class="C" style="animation-delay:.1s">
+          <div class="slbl">Letters by Category</div>
+          <div class="letter-breakdown">
+            <div class="lb-card" style="animation-delay:.04s"><div class="lb-ico">📝</div><div class="lb-val" id="lb-notes">5</div><div class="lb-lbl">Short Notes</div></div>
+            <div class="lb-card" style="animation-delay:.08s"><div class="lb-ico">🎁</div><div class="lb-val" id="lb-surprises">3</div><div class="lb-lbl">Surprises</div></div>
+            <div class="lb-card" style="animation-delay:.12s"><div class="lb-ico">💌</div><div class="lb-val" id="lb-letters">3</div><div class="lb-lbl">Letters</div></div>
+          </div>
+        </div>
+
+        <!-- Relationship Timeline -->
+        <div class="C" style="animation-delay:.15s">
+          <div class="slbl">Relationship Timeline</div>
+          <div class="timeline">
+
+            <div class="tl-item" style="animation-delay:.04s">
+              <div class="tl-left">
+                <div class="tl-dot done">💕</div>
+                <div class="tl-line done"></div>
+              </div>
+              <div class="tl-body">
+                <div class="tl-title">First day together</div>
+                <div class="tl-sub">Ana & Robert started their story</div>
+                <div class="tl-date">August 10, 2023</div>
+                <span class="tl-badge done">✓ Milestone</span>
+              </div>
+            </div>
+
+            <div class="tl-item" style="animation-delay:.07s">
+              <div class="tl-left">
+                <div class="tl-dot done">💌</div>
+                <div class="tl-line done"></div>
+              </div>
+              <div class="tl-body">
+                <div class="tl-title">First letter sent</div>
+                <div class="tl-sub">"Missing Your Laugh" — Robert's first goodnight letter</div>
+                <div class="tl-date">First letter on Heartly</div>
+                <span class="tl-badge done">✓ Milestone</span>
+              </div>
+            </div>
+
+            <div class="tl-item" style="animation-delay:.10s">
+              <div class="tl-left">
+                <div class="tl-dot done">🔥</div>
+                <div class="tl-line done"></div>
+              </div>
+              <div class="tl-body">
+                <div class="tl-title">14-day streak reached</div>
+                <div class="tl-sub">Ana opened Heartly every single day for 14 days</div>
+                <div class="tl-date">This week</div>
+                <span class="tl-badge done">✓ Streak record</span>
+              </div>
+            </div>
+
+            <div class="tl-item" style="animation-delay:.13s">
+              <div class="tl-left">
+                <div class="tl-dot special">💍</div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-body">
+                <div class="tl-title">1 Year Anniversary</div>
+                <div class="tl-sub">One full year of Ana & Robert</div>
+                <div class="tl-date" id="tl-anniversary-date">August 10, 2024</div>
+                <span class="tl-badge done" id="tl-1year-badge">✓ Passed</span>
+              </div>
+            </div>
+
+            <div class="tl-item" style="animation-delay:.16s">
+              <div class="tl-left">
+                <div class="tl-dot upcoming">🎂</div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-body">
+                <div class="tl-title">Next Anniversary</div>
+                <div class="tl-sub">Two full years together</div>
+                <div class="tl-date" id="tl-next-anniversary">August 10, 2025</div>
+                <span class="tl-badge soon" id="tl-anniversary-badge">Upcoming</span>
+              </div>
+            </div>
+
+            <div class="tl-item" style="animation-delay:.19s">
+              <div class="tl-left">
+                <div class="tl-dot upcoming">🌟</div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-body">
+                <div class="tl-title">500 letters milestone</div>
+                <div class="tl-sub">When Robert writes 500 letters to Ana</div>
+                <div class="tl-date">Future milestone</div>
+                <span class="tl-badge upcoming">Upcoming</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="C" style="animation-delay:.22s" id="ach-section">
+          <div class="slbl" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span>Achievements</span>
+            <span class="ach-total-badge" id="ach-total-badge">12 / 30</span>
+          </div>
+          <div class="ach-progress-bar"><div class="ach-progress-fill" id="ach-progress-fill" style="width:40%"></div></div>
+          <div id="ach-categories" style="margin-top:12px"></div>
+        </div>
+
+        <!-- Updates Log -->
+        <div class="C" style="animation-delay:.28s">
+          <div class="slbl" style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+            Updates &amp; What's New
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+
+            <div class="update-item">
+              <div class="update-version">v4.3.11</div>
+              <div class="update-date">Current version</div>
+              <ul class="update-list">
+                <li>Home screen cards merged into one hub</li>
+                <li>Love Clicker game added to Play</li>
+                <li>Updates log added to Logs</li>
+              </ul>
+            </div>
+
+            <div class="update-divider"></div>
+
+            <div class="update-item">
+              <div class="update-version">v4.3</div>
+              <div class="update-date">Previous update</div>
+              <ul class="update-list">
+                <li>Lucky Spin daily reward added</li>
+                <li>Daily Gift Box unlockable in shop</li>
+                <li>Relationship Milestones card</li>
+                <li>Mood Tracker for Robert</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Suggestion Box -->
+        <div class="C" id="suggestion-box-card" style="animation-delay:.25s">
+          <div class="slbl" style="margin-bottom:4px">Suggestion Box</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:12px">Share ideas, wishes or thoughts with Robert</div>
+          <div id="suggestion-list" style="margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px">
+            <textarea id="suggestion-input" class="rob-input" rows="2" placeholder="Write a suggestion..." maxlength="200" style="flex:1;resize:none"></textarea>
+            <button class="btn-send rw" onclick="saveSuggestion();R(event,this)" style="flex-shrink:0;padding:0 16px;align-self:stretch;border-radius:var(--r2);background:var(--rose-d);border:1px solid var(--rose-g);color:var(--rose-b);font-size:18px">↑</button>
+          </div>
+        </div>
+
+      </div><!-- /logs -->
+
+    </div><!-- /SW -->
+
+    <!-- TAB BAR -->
+    <div id="TB">
+      <div class="tb on rw" data-s="home" onclick="go('home');R(event,this)">
+        <div class="tb-ic"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div>
+        <div class="tb-lb">Home</div><div class="tb-dot"></div>
+      </div>
+      <div class="tb rw" data-s="explore" onclick="go('explore');R(event,this)">
+        <div class="tb-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+        <div class="tb-lb">Explore</div><div class="tb-dot"></div>
+      </div>
+      <div class="tb-play rw" id="pltb" onclick="go('play');R(event,this)">
+        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+      </div>
+      <div class="tb rw" data-s="exchange" onclick="go('exchange');R(event,this)">
+        <div class="tb-ic"><svg viewBox="0 0 24 24"><polyline points="17,1 21,5 17,9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7,23 3,19 7,15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></div>
+        <div class="tb-lb">Exchange</div><div class="tb-dot"></div>
+      </div>
+      <div class="tb rw" data-s="logs" onclick="go('logs');R(event,this)">
+        <div class="tb-ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="tb-lb">Logs</div><div class="tb-dot"></div>
+      </div>
+    </div>
+  </div>
+  <!-- ════ DEV PANEL ════ -->
+  <div id="DEV">
+    <div class="dev-bar">
+      <button class="dev-back rw" onclick="closeDev();R(event,this)">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="dev-bar-title">
+        🛠️ Dev Panel
+        <span class="dev-badge">EDITOR</span>
+      </div>
+      <div style="width:34px"></div>
+    </div>
+
+    <div id="DEV-scroll">
+      <!-- Category tabs -->
+      <div class="dev-tabs">
+        <div class="dev-tab on" data-dk="notes"     onclick="devTab('notes')">📝 Notes</div>
+        <div class="dev-tab"    data-dk="surprises" onclick="devTab('surprises')">🎁 Surprises</div>
+        <div class="dev-tab"    data-dk="letters"   onclick="devTab('letters')">💌 Letters</div>
+      </div>
+
+      <!-- List rendered by JS -->
+      <div id="dev-list"></div>
+
+      <!-- Add new -->
+      <button class="dev-add-btn rw" onclick="openDevEditor(null);R(event,this)">
+        ＋ Add New Letter
+      </button>
+
+      <!-- Dev Points Tool -->
+      <div style="margin-top:16px;background:rgba(245,200,112,.07);border:1px solid rgba(245,200,112,.2);border-radius:var(--r3);padding:14px 16px">
+        <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:rgba(245,200,112,.6);text-transform:uppercase;margin-bottom:12px">🪙 Add Points</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="dev-pts-btn rw" onclick="devAddPts(100);R(event,this)">+100</button>
+          <button class="dev-pts-btn rw" onclick="devAddPts(500);R(event,this)">+500</button>
+          <button class="dev-pts-btn rw" onclick="devAddPts(1000);R(event,this)">+1,000</button>
+          <button class="dev-pts-btn rw" onclick="devAddPts(5000);R(event,this)">+5,000</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="dev-custom-pts" placeholder="Custom amount..." min="1" max="99999"
+            style="flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(245,200,112,.2);border-radius:var(--rp);padding:9px 13px;color:#fff;font-size:13px;font-family:Nunito,sans-serif;outline:none">
+          <button class="dev-pts-btn rw" onclick="devAddCustomPts();R(event,this)" style="padding:9px 16px;flex-shrink:0">Add</button>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:rgba(245,200,112,.5);text-align:center">Current: <span id="dev-pts-display" style="color:var(--gold);font-weight:800">0</span> pts</div>
+      </div>
+    </div>
+
+    <!-- Editor sheet -->
+    <div id="dev-editor">
+      <div id="dev-editor-inner">
+        <div class="dev-editor-handle"></div>
+        <div class="dev-editor-title" id="dev-editor-title">✏️ Edit Letter</div>
+
+        <div class="dev-field">
+          <label>Card Label (shown on grid)</label>
+          <input type="text" id="dev-f-label" placeholder="e.g. Love Letter #2">
+        </div>
+        <div class="dev-field">
+          <label>Icon Type</label>
+          <select id="dev-f-icon">
+            <option value="letter">💌 Letter</option>
+            <option value="note">📝 Note</option>
+            <option value="tip">💬 Tip</option>
+            <option value="date">📅 Date</option>
+            <option value="gift">🎁 Gift</option>
+          </select>
+        </div>
+        <div class="dev-field">
+          <label>Title (shown in modal)</label>
+          <input type="text" id="dev-f-title" placeholder="e.g. A Letter for a Tuesday">
+        </div>
+        <div class="dev-field">
+          <label>Body text (use \n\n for paragraph breaks)</label>
+          <textarea id="dev-f-body" placeholder="Write the letter content here..."></textarea>
+        </div>
+        <div class="dev-field">
+          <label>Signature</label>
+          <input type="text" id="dev-f-sig" placeholder="e.g. — Always yours, Robert 🌹">
+        </div>
+        <div class="dev-field" style="display:flex;align-items:center;gap:10px">
+          <label style="margin-bottom:0;flex-shrink:0">Locked?</label>
+          <input type="checkbox" id="dev-f-locked" style="width:auto;accent-color:var(--rose-b);width:18px;height:18px">
+          <span style="font-size:11px;color:var(--tx2)">Check to keep hidden until unlocked</span>
+        </div>
+        <div class="dev-field">
+          <label>Tag (optional)</label>
+          <select id="dev-f-tag">
+            <option value="">None</option>
+            <option value="Romantic">💗 Romantic</option>
+            <option value="Funny">😄 Funny</option>
+            <option value="Deep">🌊 Deep</option>
+            <option value="Sweet">🍬 Sweet</option>
+          </select>
+        </div>
+        <div class="dev-field" style="display:flex;align-items:center;gap:10px">
+          <label style="margin-bottom:0;flex-shrink:0">Secret?</label>
+          <input type="checkbox" id="dev-f-secret" style="width:auto;accent-color:var(--lilac);width:18px;height:18px">
+          <span style="font-size:11px;color:var(--tx2)">Hidden as mystery — Robert reveals manually</span>
+        </div>
+
+        <button class="dev-save-btn rw" onclick="saveDevItem();R(event,this)">💾 Save</button>
+        <button class="dev-cancel-btn rw" onclick="closeDevEditor();R(event,this)">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════ ROBERT'S VIEW ════ -->
+  <div id="ROBERT">
+    <!-- Canvas background (shared) -->
+
+    <!-- Top bar -->
+    <div id="rob-topbar">
+      <div class="rob-topbar-avatar">R</div>
+      <div class="rob-topbar-info">
+        <div class="rob-topbar-name">Robert</div>
+        <div class="rob-topbar-handle">developer.login</div>
+        <div class="rob-topbar-stats">
+          <div class="rob-topbar-stat">
+            <div class="rob-topbar-stat-val" id="rob-prof-sent">0</div>
+            <div class="rob-topbar-stat-lbl">Letters</div>
+          </div>
+          <div class="rob-topbar-divider"></div>
+          <div class="rob-topbar-stat">
+            <div class="rob-topbar-stat-val mn" id="rob-prof-days">--</div>
+            <div class="rob-topbar-stat-lbl">Days</div>
+          </div>
+          <div class="rob-topbar-divider"></div>
+          <div class="rob-topbar-stat">
+            <div class="rob-topbar-stat-val gd" id="rob-prof-pts">--</div>
+            <div class="rob-topbar-stat-lbl">Ana's pts</div>
+          </div>
+        </div>
+      </div>
+      <div class="rob-topbar-ana-btn rw" onclick="switchToAna();R(event,this)">
+        <div class="rob-topbar-ana-avatar">A</div>
+        <div class="rob-topbar-ana-lbl">Ana</div>
+      </div>
+    </div>
+
+    <!-- Scroll area -->
+    <div id="rob-scroll">
+
+      <!-- ████ WRITE LETTER ████ -->
+      <div class="rob-SC on" id="rob-write">
+
+        <div class="C">
+          <div class="rob-section-lbl">Letter Type</div>
+          <div class="letter-type-row">
+            <button class="letter-type-btn on" data-type="note" onclick="setLetterType(this)">📝 Short Note</button>
+            <button class="letter-type-btn" data-type="surprise" onclick="setLetterType(this)">🎁 Surprise</button>
+            <button class="letter-type-btn" data-type="letter" onclick="setLetterType(this)">💌 Letter</button>
+          </div>
+        </div>
+
+        <div class="C">
+          <div class="rob-section-lbl">Compose</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div>
+              <div class="rob-field-lbl">Title</div>
+              <input type="text" class="rob-input" id="rob-title" placeholder="Give your letter a title..." maxlength="60" oninput="updatePreview()">
+            </div>
+            <div>
+              <div class="rob-field-lbl">Message</div>
+              <textarea class="rob-input" id="rob-body" rows="7" placeholder="Write from the heart... Use blank lines to separate paragraphs." oninput="updatePreview();updateCharCount()"></textarea>
+              <div class="rob-char-count"><span id="rob-char-count">0</span> / 1000</div>
+            </div>
+            <div>
+              <div class="rob-field-lbl">Signature</div>
+              <input type="text" class="rob-input" id="rob-sig" value="— Always yours, Robert 🌹" maxlength="80" oninput="updatePreview()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="C">
+          <div class="rob-section-lbl">Preview</div>
+          <div class="send-preview">
+            <div class="send-preview-label">💌 From Robert · Preview</div>
+            <div class="send-preview-title" id="prev-title">Your title will appear here</div>
+            <div class="send-preview-body" id="prev-body">Start writing to see a preview of your letter...</div>
+            <div class="send-preview-sig" id="prev-sig">— Always yours, Robert 🌹</div>
+          </div>
+        </div>
+
+        <!-- Schedule toggle -->
+        <div class="C" style="padding:12px 14px">
+          <div class="schedule-toggle rw" id="schedule-toggle" onclick="toggleSchedule();R(event,this)">
+            <div class="schedule-toggle-ico">🕐</div>
+            <div class="schedule-toggle-txt">Schedule for a specific date</div>
+            <div class="schedule-switch" id="schedule-switch"></div>
+          </div>
+          <div class="schedule-date-row" id="schedule-date-row">
+            <div class="schedule-date-inner">
+              <label>Unlocks on</label>
+              <input type="date" id="rob-schedule-date" min="">
+            </div>
+          </div>
+        </div>
+
+        <button class="rob-send-btn rw" id="rob-send-btn" onclick="sendLetter();R(event,this)">
+          💌 &nbsp; Send to Ana
+        </button>
+
+      </div><!-- /write -->
+
+      <!-- ████ ANA'S ACTIVITY ████ -->
+      <div class="rob-SC" id="rob-activity">
+
+        <!-- Robert's own mood picker -->
+        <div class="C">
+          <div class="rob-section-lbl">Your Mood Today</div>
+          <div style="font-size:11px;color:var(--tx2);margin-bottom:10px">Ana sees this on her home screen 💕</div>
+          <div class="mood-row">
+            <div class="mood rw" onclick="pickRobMood(this,'😊','Happy');R(event,this)"><div>😊</div><div class="mood-lbl">Happy</div></div>
+            <div class="mood rw" onclick="pickRobMood(this,'🥰','Loved');R(event,this)"><div>🥰</div><div class="mood-lbl">Loved</div></div>
+            <div class="mood rw" onclick="pickRobMood(this,'🌙','Dreamy');R(event,this)"><div>🌙</div><div class="mood-lbl">Dreamy</div></div>
+            <div class="mood rw" onclick="pickRobMood(this,'💭','Missing');R(event,this)"><div>💭</div><div class="mood-lbl">Missing</div></div>
+          </div>
+        </div>
+
+        <!-- Mood -->
+        <div class="ana-mood-card">
+          <div class="ana-mood-ico">🥰</div>
+          <div>
+            <div class="ana-mood-title">Ana is feeling loved</div>
+            <div class="ana-mood-sub">She picked "Loved 💕" today — last opened the app 2 hours ago.</div>
+          </div>
+        </div>
+
+        <!-- Mood history -->
+        <div class="C">
+          <div class="rob-section-lbl">Mood History</div>
+          <div id="rob-mood-history">
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+              <div style="font-size:20px">😊</div>
+              <div style="flex:1;font-size:12px;font-weight:700;color:#fff">Happy</div>
+              <div style="font-size:10px;color:var(--tx3)">Yesterday</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+              <div style="font-size:20px">💭</div>
+              <div style="flex:1;font-size:12px;font-weight:700;color:#fff">Missing</div>
+              <div style="font-size:10px;color:var(--tx3)">2 days ago</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0">
+              <div style="font-size:20px">🥰</div>
+              <div style="flex:1;font-size:12px;font-weight:700;color:#fff">Loved</div>
+              <div style="font-size:10px;color:var(--tx3)">3 days ago</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="ana-stat-grid">
+          <div class="ana-stat" style="animation-delay:.04s">
+            <div class="ana-stat-ico">📖</div>
+            <div class="ana-stat-val" id="rob-stat-read">147</div>
+            <div class="ana-stat-lbl">Letters Read</div>
+          </div>
+          <div class="ana-stat" style="animation-delay:.08s">
+            <div class="ana-stat-ico">🔥</div>
+            <div class="ana-stat-val rs" id="rob-stat-streak">14</div>
+            <div class="ana-stat-lbl">Day Streak</div>
+          </div>
+          <div class="ana-stat" style="animation-delay:.12s">
+            <div class="ana-stat-ico">🪙</div>
+            <div class="ana-stat-val gd" id="rob-stat-pts">3,200</div>
+            <div class="ana-stat-lbl">Points Earned</div>
+          </div>
+          <div class="ana-stat" style="animation-delay:.16s">
+            <div class="ana-stat-ico">💕</div>
+            <div class="ana-stat-val mn" id="rob-timer-days">--</div>
+            <div class="ana-stat-lbl">Days Together</div>
+          </div>
+        </div>
+
+        <!-- Recent activity -->
+        <div class="C">
+          <div class="rob-section-lbl">Recent Activity</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="ana-activity-row" style="animation-delay:.04s">
+              <div class="ana-act-ico" style="background:rgba(224,85,120,.15)">💌</div>
+              <div style="flex:1">
+                <div class="ana-act-title">Read "Missing Your Laugh"</div>
+                <div class="ana-act-time">Today, 9:41 AM</div>
+              </div>
+              <div class="ana-act-badge" style="background:rgba(110,232,180,.1);color:var(--mint);border:1px solid rgba(110,232,180,.2)">Read ✓</div>
+            </div>
+            <div class="ana-activity-row" style="animation-delay:.08s">
+              <div class="ana-act-ico" style="background:rgba(245,200,112,.12)">🔥</div>
+              <div style="flex:1">
+                <div class="ana-act-title">Maintained 14-day streak</div>
+                <div class="ana-act-time">Today, 9:38 AM</div>
+              </div>
+              <div class="ana-act-badge" style="background:rgba(245,200,112,.1);color:var(--gold);border:1px solid rgba(245,200,112,.2)">Streak</div>
+            </div>
+            <div class="ana-activity-row" style="animation-delay:.12s">
+              <div class="ana-act-ico" style="background:rgba(200,168,240,.1)">😊</div>
+              <div style="flex:1">
+                <div class="ana-act-title">Mood: Happy & grateful</div>
+                <div class="ana-act-time">Today, 9:35 AM</div>
+              </div>
+              <div class="ana-act-badge" style="background:rgba(200,168,240,.1);color:var(--lilac);border:1px solid rgba(200,168,240,.2)">Mood</div>
+            </div>
+            <div class="ana-activity-row" style="animation-delay:.16s">
+              <div class="ana-act-ico" style="background:rgba(110,232,180,.1)">🪙</div>
+              <div style="flex:1">
+                <div class="ana-act-title">Collected 450 passive coins</div>
+                <div class="ana-act-time">Yesterday, 10:20 PM</div>
+              </div>
+              <div class="ana-act-badge" style="background:rgba(110,232,180,.1);color:var(--mint);border:1px solid rgba(110,232,180,.2)">Coins</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ana's Wish List -->
+        <div class="C">
+          <div class="rob-section-lbl">Ana's Wish List ✨</div>
+          <!-- Tabs: Ana's wishes | Robert's wishes | Suggestions -->
+          <div class="dv-tabs" style="margin-bottom:10px">
+            <button class="dv-tab-btn on" onclick="dvWishTab('ana',this)">✨ Ana's</button>
+            <button class="dv-tab-btn" onclick="dvWishTab('rob',this)">📋 Robert's</button>
+            <button class="dv-tab-btn" onclick="dvWishTab('suggest',this)">💬 Suggestions</button>
+          </div>
+          <!-- Ana's wishes -->
+          <div id="dv-wish-ana">
+            <div id="rob-wish-list">
+              <div style="text-align:center;padding:16px 0;font-size:12px;color:var(--tx3)">Ana hasn't added any wishes yet 💭</div>
+            </div>
+          </div>
+
+          <!-- Robert's wishes -->
+          <div id="dv-wish-rob" style="display:none">
+            <div id="rob-own-wish-list" style="margin-bottom:10px"></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input class="dv-input" id="rob-wish-input" placeholder="Add a wish..." maxlength="120">
+              <div style="display:flex;gap:8px">
+                <select class="dv-input dv-select" id="rob-wish-cat" style="flex:1">
+                  <option value="Experiences">🌍 Experiences</option>
+                  <option value="Gifts">🎁 Gifts</option>
+                  <option value="Dates">🌹 Dates</option>
+                  <option value="Dreams">✨ Dreams</option>
+                </select>
+                <button class="dv-btn small" style="flex-shrink:0" onclick="dvAddRobWish()">＋ Add</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suggestions from Ana -->
+          <div id="dv-wish-suggest" style="display:none">
+            <div id="rob-suggestion-list"></div>
+            <div style="margin-top:8px;font-size:10px;color:rgba(0,255,180,.3);text-align:center">Suggestions Ana sent from her Logs page</div>
+          </div>
+
+        </div>
+
+        <!-- Memory Jar — Robert's manager (shown when unlocked) -->
+        <div class="C" id="rob-memory-jar-card" style="display:none">
+          <div class="rob-section-lbl">🫙 Memory Jar</div>
+          <div id="rob-memory-list"></div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <input type="text" id="rob-memory-input" class="rob-input" placeholder="Add a memory…" maxlength="120" style="flex:1">
+            <button class="dev-pts-btn rw" onclick="addMemory(document.getElementById('rob-memory-input').value);document.getElementById('rob-memory-input').value='';R(event,this)" style="flex-shrink:0;padding:10px 14px">Add</button>
+          </div>
+        </div>
+
+        <!-- Love Map — Robert's manager (shown when unlocked) -->
+        <div class="C" id="rob-love-map-card" style="display:none">
+          <div class="rob-section-lbl">📍 Love Map</div>
+          <div id="rob-love-map-list"></div>
+          <button class="dev-pts-btn rw" onclick="openLoveMapAdmin();R(event,this)" style="width:100%;margin-top:10px;padding:10px 14px">
+            + Add a place
+          </button>
+        </div>
+        <div class="C" id="rob-ana-messages-card">
+          <div class="rob-section-lbl">From Ana 💕</div>
+          <div id="rob-ana-messages-list">
+            <div style="text-align:center;padding:12px 0;font-size:12px;color:var(--tx3)">No messages yet — Ana hasn't written yet 💭</div>
+          </div>
+        </div>
+
+        <!-- Next letter countdown -->
+        <div class="C">
+          <div class="rob-section-lbl">Your Next Goodnight Letter</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:26px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums" id="rob-cd">--:--:--</div>
+              <div style="font-size:11px;color:var(--tx2);margin-top:3px">until Ana expects your next letter 🌙</div>
+            </div>
+            <div style="font-size:34px;animation:float 3s ease infinite">🌙</div>
+          </div>
+        </div>
+
+      </div><!-- /activity -->
+
+      <!-- ████ DEV TOOLS ████ -->
+      <div class="rob-SC" id="rob-dev">
+
+        <!-- ── HEADER STATUS ── -->
+        <div class="dv-card" style="background:linear-gradient(135deg,rgba(0,255,180,.06),rgba(0,0,0,0))">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(0,255,180,.6);text-transform:uppercase">DEV CONSOLE</div>
+              <div style="font-size:16px;font-weight:900;color:#fff">Heartly Control</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:14px">
+              <div class="dv-stat"><div class="dv-stat-val" id="dv-pts-val">—</div><div class="dv-stat-lbl">Ana's pts</div></div>
+              <div style="width:1px;background:rgba(0,255,180,.12)"></div>
+              <div class="dv-stat"><div class="dv-stat-val" style="color:var(--gold)" id="dv-sent-val">—</div><div class="dv-stat-lbl">Sent</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SUB-TABS ── -->
+        <div class="dv-tabs" id="dv-tabs">
+          <button class="dv-tab-btn on" data-dv="content"   onclick="dvTab('content')">📝 Content</button>
+          <button class="dv-tab-btn"    data-dv="shop"      onclick="dvTab('shop')">🛒 Shop</button>
+          <button class="dv-tab-btn"    data-dv="features"  onclick="dvTab('features')">⚙️ Features</button>
+          <button class="dv-tab-btn"    data-dv="pts"       onclick="dvTab('pts')">🪙 Points</button>
+          <button class="dv-tab-btn"    data-dv="tools"     onclick="dvTab('tools')">🔧 Tools</button>
+          <button class="dv-tab-btn"    data-dv="pixelart"  onclick="dvTab('pixelart')">🎨 Pixel Art</button>
+        </div>
+
+        <!-- ══ CONTENT TAB ══ -->
+        <div id="dv-content" class="dv-pane">
+
+          <!-- Calendar -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Letter Calendar</div></div>
+            <div class="rob-cal">
+              <div class="rob-cal-header">
+                <button class="rob-cal-nav rw" onclick="calPrevMonth();R(event,this)">‹</button>
+                <div class="rob-cal-title" id="rob-cal-title">—</div>
+                <button class="rob-cal-nav rw" onclick="calNextMonth();R(event,this)">›</button>
+              </div>
+              <div class="rob-cal-grid" style="margin-bottom:2px">
+                <div class="rob-cal-dow">Mo</div><div class="rob-cal-dow">Tu</div><div class="rob-cal-dow">We</div>
+                <div class="rob-cal-dow">Th</div><div class="rob-cal-dow">Fr</div><div class="rob-cal-dow">Sa</div><div class="rob-cal-dow">Su</div>
+              </div>
+              <div class="rob-cal-grid" id="rob-cal-grid"></div>
+              <div class="rob-cal-pop" id="rob-cal-pop" style="display:none"></div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:14px;font-size:10px;color:rgba(0,255,180,.4)">
+              <span><span style="color:var(--rose-b)">●</span> Sent</span>
+              <span><span style="color:var(--gold)">●</span> Scheduled</span>
+            </div>
+          </div>
+
+          <!-- Letter Library -->
+          <div class="dv-card">
+            <div class="dv-head">
+              <div class="dv-head-dot"></div>
+              <div class="dv-head-lbl">Letter Library</div>
+              <div class="dv-head-badge" id="rob-dev-count">0 letters</div>
+            </div>
+            <div class="dv-tabs" style="margin-bottom:10px">
+              <button class="dv-tab-btn on" data-dk="notes"     onclick="devTab('notes');_robDevListDirty=true;renderDevListRob()">📝 Notes</button>
+              <button class="dv-tab-btn"    data-dk="surprises" onclick="devTab('surprises');_robDevListDirty=true;renderDevListRob()">🎁 Surprises</button>
+              <button class="dv-tab-btn"    data-dk="letters"   onclick="devTab('letters');_robDevListDirty=true;renderDevListRob()">💌 Letters</button>
+            </div>
+            <div id="dev-list-rob"></div>
+            <button class="dv-btn" style="margin-top:10px" onclick="openDevEditor(null);R(event,this)">＋ Add New Letter</button>
+          </div>
+
+        </div><!-- /content -->
+
+        <!-- ══ SHOP TAB ══ -->
+        <div id="dv-shop" class="dv-pane" style="display:none">
+
+          <!-- Shop items status + config -->
+          <div class="dv-card" id="dv-shop-status">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Shop Items — Robert Config</div></div>
+            <div id="dv-shop-list"><!-- rendered by JS --></div>
+          </div>
+
+        </div><!-- /shop -->
+
+        <!-- ══ FEATURES TAB ══ -->
+        <div id="dv-features" class="dv-pane" style="display:none">
+
+          <!-- Couple Song -->
+          <div class="dv-card" id="dv-feat-couple-song" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🎵 Couple Song</div></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input class="dv-input" id="dv-song-title"  placeholder="Song title…">
+              <input class="dv-input" id="dv-song-artist" placeholder="Artist name…">
+            </div>
+            <button class="dv-btn" style="margin-top:10px" onclick="dvSetCoupleSong()">💾 Save Song</button>
+          </div>
+
+          <!-- Memory Jar -->
+          <div class="dv-card" id="dv-feat-memory-jar" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🫙 Memory Jar</div></div>
+            <div id="dv-memory-list" style="margin-bottom:10px;max-height:180px;overflow-y:auto"></div>
+            <div style="display:flex;gap:8px">
+              <input class="dv-input" id="dv-memory-input" placeholder="Write a memory…" maxlength="160" style="flex:1">
+              <button class="dv-btn small" onclick="dvAddMemory()">Add</button>
+            </div>
+          </div>
+
+          <!-- Countdown Timer -->
+          <div class="dv-card" id="dv-feat-countdown" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">📅 Countdown Timer</div></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input class="dv-input" id="dv-cd-label" placeholder="Event label (e.g. Our Trip to Paris)">
+              <input class="dv-input dv-select" id="dv-cd-date" type="date">
+            </div>
+            <button class="dv-btn" style="margin-top:10px" onclick="dvSetCountdown()">💾 Save Countdown</button>
+          </div>
+
+          <!-- Good Night Mode -->
+          <div class="dv-card" id="dv-feat-goodnight" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🌙 Good Night Mode</div></div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="font-size:12px;color:rgba(255,255,255,.6);flex:1">Send goodnight card at:</div>
+              <input class="dv-input" id="dv-gn-time" type="time" value="22:00" style="width:110px;text-align:center">
+            </div>
+            <button class="dv-btn" style="margin-top:10px" onclick="dvSetGoodNight()">💾 Save Time</button>
+          </div>
+
+          <!-- Couple Goals -->
+          <div class="dv-card" id="dv-feat-couple-goals" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">💑 Couple Goals</div></div>
+            <div id="dv-goals-list" style="margin-bottom:10px;max-height:160px;overflow-y:auto"></div>
+            <div style="display:flex;gap:8px">
+              <input class="dv-input" id="dv-goal-input" placeholder="Add a couple goal…" maxlength="100" style="flex:1">
+              <button class="dv-btn small" onclick="dvAddGoal()">Add</button>
+            </div>
+          </div>
+
+          <!-- Memory Timeline -->
+          <div class="dv-card" id="dv-feat-timeline" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🗓️ Memory Timeline</div></div>
+            <div id="dv-timeline-list" style="margin-bottom:10px;max-height:160px;overflow-y:auto"></div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <input class="dv-input" id="dv-tl-title" placeholder="Milestone title…">
+              <input class="dv-input dv-select" id="dv-tl-date" type="date">
+              <input class="dv-input" id="dv-tl-note" placeholder="Short note…" maxlength="120">
+              <button class="dv-btn" onclick="dvAddTimeline()">＋ Add Milestone</button>
+            </div>
+          </div>
+
+          <!-- Date Night -->
+          <div class="dv-card" id="dv-feat-date-night" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🎲 Date Night Ideas</div></div>
+            <div id="dv-datenight-list" style="margin-bottom:10px;max-height:140px;overflow-y:auto"></div>
+            <div style="display:flex;gap:8px">
+              <input class="dv-input" id="dv-dn-input" placeholder="Add a date idea…" maxlength="80" style="flex:1">
+              <button class="dv-btn small" onclick="dvAddDateNight()">Add</button>
+            </div>
+          </div>
+
+          <!-- Daily Question -->
+          <div class="dv-card" id="dv-feat-daily-q" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">💬 Daily Question</div></div>
+            <input class="dv-input" id="dv-dq-input" placeholder="Today's question for Ana…" maxlength="160">
+            <button class="dv-btn" style="margin-top:10px" onclick="dvSetDailyQuestion()">💾 Set Question</button>
+          </div>
+
+          <!-- Playlist -->
+          <div class="dv-card" id="dv-feat-playlist" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🎵 Playlist Builder</div></div>
+            <div id="dv-playlist-list" style="margin-bottom:10px;max-height:140px;overflow-y:auto"></div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <input class="dv-input" id="dv-pl-title"  placeholder="Song title…">
+              <input class="dv-input" id="dv-pl-artist" placeholder="Artist…">
+              <button class="dv-btn" onclick="dvAddPlaylistItem()">＋ Add Song</button>
+            </div>
+          </div>
+
+          <!-- Flower Delivery -->
+          <div class="dv-card" id="dv-feat-flower" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🌹 Flower Delivery</div></div>
+            <textarea class="dv-input" id="dv-flower-note" rows="3" placeholder="Write a personal note with the bouquet…" maxlength="200"></textarea>
+            <button class="dv-btn" style="margin-top:10px" onclick="dvSendFlower()">💌 Send Bouquet</button>
+          </div>
+
+          <!-- Photo of the Day -->
+          <div class="dv-card" id="dv-feat-photo" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">📸 Photo of the Day</div></div>
+            <label style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(0,255,180,.05);border:1.5px dashed rgba(0,255,180,.2);border-radius:10px;padding:14px;cursor:pointer;color:rgba(0,255,180,.7);font-size:12px;font-weight:800">
+              📂 Choose Photo
+              <input type="file" id="dv-photo-file" accept="image/*" style="display:none" onchange="dvSetPhotoOfDay(this)">
+            </label>
+            <div id="dv-photo-preview" style="margin-top:8px;font-size:11px;color:rgba(0,255,180,.4);text-align:center"></div>
+          </div>
+
+          <!-- Puzzle of the Week -->
+          <div class="dv-card" id="dv-feat-puzzle" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🧩 Puzzle of the Week</div></div>
+            <textarea class="dv-input" id="dv-puzzle-msg" rows="3" placeholder="Secret message (Ana solves the puzzle to reveal it)…" maxlength="200"></textarea>
+            <button class="dv-btn" style="margin-top:10px" onclick="dvSetPuzzle()">💾 Set Puzzle</button>
+          </div>
+
+          <!-- Mini Challenge -->
+          <div class="dv-card" id="dv-feat-challenge" style="display:none">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🎪 Mini Challenge</div></div>
+            <input class="dv-input" id="dv-chal-input" placeholder="Set today's challenge for Ana…" maxlength="140">
+            <button class="dv-btn" style="margin-top:10px" onclick="dvSetChallenge()">💾 Set Challenge</button>
+          </div>
+
+          <!-- No features unlocked yet -->
+          <div id="dv-no-features" class="dv-card" style="text-align:center;padding:28px 16px">
+            <div style="font-size:32px;margin-bottom:10px">🔒</div>
+            <div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.4)">No configurable features unlocked yet</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:4px">Ana buys items in the Shop tab — you configure them here</div>
+          </div>
+
+        </div><!-- /features -->
+
+        <!-- ══ POINTS TAB ══ -->
+        <div id="dv-pts" class="dv-pane" style="display:none">
+
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Ana's Points</div></div>
+            <div style="text-align:center;padding:8px 0 14px">
+              <div style="font-size:36px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums" id="dv-pts-big">3,200</div>
+              <div style="font-size:10px;color:rgba(245,200,112,.5);font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-top:2px">current balance</div>
+            </div>
+            <div class="dv-pts-row" style="margin-bottom:10px">
+              <div class="dv-pts-chip rw" onclick="dvAddPts(100);R(event,this)">+100</div>
+              <div class="dv-pts-chip rw" onclick="dvAddPts(500);R(event,this)">+500</div>
+              <div class="dv-pts-chip rw" onclick="dvAddPts(1000);R(event,this)">+1K</div>
+              <div class="dv-pts-chip rw" onclick="dvAddPts(5000);R(event,this)">+5K</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <input class="dv-input" id="dv-custom-pts" type="number" placeholder="Custom amount…" min="1" max="99999" style="flex:1">
+              <button class="dv-btn small warn" onclick="dvAddCustomPts()">Add</button>
+            </div>
+            <button class="dv-btn danger" style="margin-top:10px" onclick="dvResetPts()">⚠️ Reset to 0</button>
+          </div>
+
+          <!-- Ana's shop unlocks overview -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Shop Unlock Status</div></div>
+            <div id="dv-unlock-status"><!-- rendered by JS --></div>
+          </div>
+
+        </div><!-- /pts -->
+
+        <!-- ══ TOOLS TAB ══ -->
+        <div id="dv-tools" class="dv-pane" style="display:none">
+
+          <!-- Robert's mood picker -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Your Mood (Ana Sees This)</div></div>
+            <div style="font-size:11px;color:rgba(0,255,180,.4);margin-bottom:10px">Ana sees this on her home screen</div>
+            <div class="mood-row">
+              <div class="mood rw" onclick="pickRobMood(this,'😊','Happy');R(event,this)"><div>😊</div><div class="mood-lbl">Happy</div></div>
+              <div class="mood rw" onclick="pickRobMood(this,'🥰','Loved');R(event,this)"><div>🥰</div><div class="mood-lbl">Loved</div></div>
+              <div class="mood rw" onclick="pickRobMood(this,'🌙','Dreamy');R(event,this)"><div>🌙</div><div class="mood-lbl">Dreamy</div></div>
+              <div class="mood rw" onclick="pickRobMood(this,'💭','Missing');R(event,this)"><div>💭</div><div class="mood-lbl">Missing</div></div>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Notifications</div></div>
+            <button class="dv-btn" onclick="devTestPushNotif();R(event,this)" style="margin-bottom:8px">🔔 Test Push Notification</button>
+            <button class="dv-btn warn" onclick="devTestInAppNotif();R(event,this)">⚡ Test In-App Notification</button>
+          </div>
+
+          <!-- Theme control -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Theme</div></div>
+            <div class="theme-selector">
+              <div class="theme-opt on rw" onclick="applyThemeFromSettings('rose',this);R(event,this)" id="rob-sett-theme-rose">
+                <div class="theme-opt-swatches"><div class="theme-opt-dot" style="background:#a02050"></div><div class="theme-opt-dot" style="background:#e05578"></div><div class="theme-opt-dot" style="background:#f5c870"></div><div class="theme-opt-dot" style="background:#6ee8b4"></div></div>
+                <div class="theme-opt-name">Midnight Rose</div>
+              </div>
+              <div class="theme-opt rw" onclick="applyThemeFromSettings('royal',this);R(event,this)" id="rob-sett-theme-royal">
+                <div class="theme-opt-swatches"><div class="theme-opt-dot" style="background:#2c2fa0"></div><div class="theme-opt-dot" style="background:#6b70e0"></div><div class="theme-opt-dot" style="background:#9ba0f0"></div><div class="theme-opt-dot" style="background:#d4d7ff"></div></div>
+                <div class="theme-opt-name">Royal Blue</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot" style="background:var(--dev-red);box-shadow:0 0 8px var(--dev-red)"></div><div class="dv-head-lbl" style="color:rgba(255,79,79,.8)">Danger Zone</div></div>
+            <button class="dv-btn danger" style="margin-bottom:8px" onclick="devResetLocalStorage();R(event,this)">🗑️ Reset All Data</button>
+            <button class="dv-btn danger" onclick="dvForceUnlockAllShop()">🔓 Force Unlock All Shop Items</button>
+          </div>
+
+        </div><!-- /tools -->
+
+        <!-- ══ PIXEL ART TAB ══ -->
+        <div id="dv-pixelart" class="dv-pane" style="display:none">
+
+          <!-- Import new artwork -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🎨 Import Pixel Art</div></div>
+            <div style="font-size:11px;color:rgba(0,255,180,.5);margin-bottom:12px;line-height:1.6">
+              Upload any image — it gets converted to pixel art and added to Ana's game gallery automatically.
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input class="dv-input" id="dv-pa-title" placeholder="Artwork title…" maxlength="40">
+              <div style="display:flex;gap:8px">
+                <select class="dv-input dv-select" id="dv-pa-category" style="flex:1">
+                  <option value="custom">Custom</option>
+                  <option value="nature">Nature</option>
+                  <option value="love">Love</option>
+                  <option value="animals">Animals</option>
+                  <option value="food">Food</option>
+                  <option value="fantasy">Fantasy</option>
+                </select>
+                <input class="dv-input" id="dv-pa-cols" type="number" value="48" min="8" max="64" placeholder="Cols" style="width:64px;flex-shrink:0;text-align:center">
+                <input class="dv-input" id="dv-pa-rows" type="number" value="48" min="8" max="64" placeholder="Rows" style="width:64px;flex-shrink:0;text-align:center">
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div style="font-size:11px;color:rgba(0,255,180,.5);flex:1">Max colors:</div>
+                <input class="dv-input" id="dv-pa-colors" type="number" value="24" min="4" max="32" style="width:72px;text-align:center">
+              </div>
+              <label style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(0,255,180,.05);border:1.5px dashed rgba(0,255,180,.2);border-radius:10px;padding:14px;cursor:pointer;color:rgba(0,255,180,.7);font-size:12px;font-weight:800">
+                📂 Choose Image
+                <input type="file" id="dv-pa-file" accept="image/*" style="display:none" onchange="dvPaPreview(this)">
+              </label>
+              <canvas id="dv-pa-preview" style="display:none;width:100%;border-radius:8px;image-rendering:pixelated;background:rgba(255,255,255,.04);border:1px solid rgba(0,255,180,.1);max-height:140px;object-fit:contain"></canvas>
+              <div id="dv-pa-info" style="font-size:10px;color:rgba(0,255,180,.4);text-align:center;min-height:14px"></div>
+            </div>
+            <button class="dv-btn" style="margin-top:10px" id="dv-pa-import-btn" onclick="dvPaImport()">＋ Add to Ana's Game</button>
+          </div>
+
+          <!-- Existing custom artworks -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Custom Artworks</div><div class="dv-head-badge" id="dv-pa-count">0</div></div>
+            <div id="dv-pa-list">
+              <div style="font-size:11px;color:rgba(0,255,180,.25);text-align:center;padding:14px 0">No custom artworks yet</div>
+            </div>
+            <button class="dv-btn" style="margin-top:10px" onclick="dvPaRefreshList()">↻ Refresh List</button>
+          </div>
+
+        </div><!-- /pixelart -->
+
+      </div><!-- /dev -->
+
+      <!-- ████ SENT LETTERS ████ -->
+      <div class="rob-SC" id="rob-sent">
+        <div id="sent-list">
+          <!-- Rendered by JS -->
+        </div>
+        <div style="text-align:center;padding:10px 0;font-size:11px;color:var(--tx3)">
+          Letters you write are saved here 💌
+        </div>
+      </div><!-- /sent -->
+
+      <!-- ████ ROB SETTINGS ████ -->
+      <div class="rob-SC" id="rob-robsettings">
+
+        <div class="C">
+          <div class="rob-section-lbl">🎨 Theme</div>
+          <div class="theme-selector">
+            <div class="theme-opt on rw" onclick="applyThemeFromSettings('rose',this);R(event,this)" id="rob-sett-theme-rose">
+              <div class="theme-opt-swatches">
+                <div class="theme-opt-dot" style="background:#a02050"></div>
+                <div class="theme-opt-dot" style="background:#e05578"></div>
+                <div class="theme-opt-dot" style="background:#f5c870"></div>
+                <div class="theme-opt-dot" style="background:#6ee8b4"></div>
+              </div>
+              <div class="theme-opt-name">Midnight Rose</div>
+            </div>
+            <div class="theme-opt rw" onclick="applyThemeFromSettings('royal',this);R(event,this)" id="rob-sett-theme-royal">
+              <div class="theme-opt-swatches">
+                <div class="theme-opt-dot" style="background:#2c2fa0"></div>
+                <div class="theme-opt-dot" style="background:#6b70e0"></div>
+                <div class="theme-opt-dot" style="background:#9ba0f0"></div>
+                <div class="theme-opt-dot" style="background:#d4d7ff"></div>
+              </div>
+              <div class="theme-opt-name">Royal Blue</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="C">
+          <div class="rob-section-lbl">👤 Account</div>
+          <button class="switch-account-btn rw" onclick="switchToAna();R(event,this)" style="width:100%;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)">
+            <div class="switch-acc-avatar" style="background:linear-gradient(135deg,#c0305a,#e05578);border:2px solid rgba(255,255,255,.2);font-size:18px;font-weight:900;font-family:'Nunito',sans-serif;color:#fff">A</div>
+            <div class="switch-acc-info">
+              <div class="switch-acc-name">Switch to Ana</div>
+              <div class="switch-acc-handle">nevasta.lui.robert</div>
+            </div>
+            <div class="switch-acc-arrow">›</div>
+          </button>
+          <button class="switch-logout-btn rw" onclick="switchToLogin();R(event,this)" style="margin-top:8px;width:100%">↩ Sign out</button>
+        </div>
+
+      </div><!-- /robsettings -->
+
+    </div><!-- /rob-scroll -->
+
+    <!-- Robert tab bar -->
+    <div id="rob-tabs">
+      <div class="rob-tab on" data-rs="write" onclick="robNav('write');R(event,this)">
+        <div class="rob-tab-ic">✍️</div>
+        <div class="rob-tab-lb">Write</div>
+      </div>
+      <div class="rob-tab" data-rs="activity" onclick="robNav('activity');R(event,this)">
+        <div class="rob-tab-ic">📊</div>
+        <div class="rob-tab-lb">Ana</div>
+      </div>
+      <div class="rob-tab" data-rs="dev" onclick="robNav('dev');R(event,this)">
+        <div class="rob-tab-ic">🛠️</div>
+        <div class="rob-tab-lb">Dev</div>
+      </div>
+      <div class="rob-tab" data-rs="sent" onclick="robNav('sent');R(event,this)">
+        <div class="rob-tab-ic">💌</div>
+        <div class="rob-tab-lb">Sent</div>
+      </div>
+      <div class="rob-tab" data-rs="robsettings" onclick="robNav('robsettings');R(event,this)">
+        <div class="rob-tab-ic">⚙️</div>
+        <div class="rob-tab-lb">Settings</div>
+      </div>
+    </div>
+
+    <!-- Dev editor sheet (shared) -->
+  </div><!-- /ROBERT -->
+
+  <!-- Dev floating trigger -->
+  <div id="dev-trigger" onclick="openDev()" title="Dev Panel">🛠️</div>
+
+
+</div>
+
+
+  <!-- ════ BLOCK BLAST OVERLAY ════ -->
+  <div id="bb-overlay">
+    <div id="bb-topbar">
+      <button id="bb-close-btn" onclick="closeLoveBlast()">← Back</button>
+      <div id="bb-frame-title">💗 Love Blast</div>
+    </div>
+    <iframe id="bb-frame" src="loveblast/index.html" scrolling="no" allow="autoplay"></iframe>
+  </div>
+
+    <!-- ════ COLOR BY NUMBER OVERLAY ════ -->
+  <div id="cbn-overlay">
+    <iframe id="cbn-frame" src="about:blank" scrolling="no" allow="autoplay" style="flex:1;border:none;width:100%;height:100%"></iframe>
+  </div>
+
+  <!-- ════ HOW TO PLAY MODAL ════ -->
+  <div id="htp-modal" style="position:fixed;inset:0;z-index:9100;background:rgba(7,0,16,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s">
+    <div id="htp-sheet" style="background:rgba(14,3,22,.98);border:1px solid rgba(255,255,255,.09);border-radius:28px 28px 0 0;padding:20px 20px max(env(safe-area-inset-bottom),24px);width:100%;max-width:480px;max-height:80vh;overflow-y:auto;transform:translateY(40px);transition:transform .28s cubic-bezier(.34,1.56,.64,1)">
+      <div style="width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:999px;margin:0 auto 18px"></div>
+      <div id="htp-ico" style="font-size:36px;text-align:center;margin-bottom:8px"></div>
+      <div id="htp-title" style="font-size:18px;font-weight:900;color:#fff;text-align:center;margin-bottom:4px"></div>
+      <div id="htp-sub" style="font-size:11px;font-weight:700;color:var(--rose-b);text-align:center;letter-spacing:.5px;text-transform:uppercase;margin-bottom:18px"></div>
+      <div id="htp-steps" style="display:flex;flex-direction:column;gap:12px"></div>
+      <button onclick="closeHowToPlay()" style="width:100%;margin-top:20px;padding:14px;background:linear-gradient(135deg,#a02050,var(--rose));color:#fff;border:none;border-radius:999px;font-size:14px;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer">Got it! Let's Play ▶</button>
+    </div>
+  </div>
+
+    <!-- ════ LOVE CLICKER OVERLAY ════ -->
+  <div id="clicker-overlay">
+    <iframe id="clicker-frame" src="about:blank" scrolling="no" allow="autoplay"></iframe>
+  </div>
+
+
+    <!-- ════ ANA WRITE SHEET ════ -->
+  <div id="ANA-WRITE">
+    <div id="ANA-WRITE-INNER">
+      <div class="buy-handle"></div>
+      <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(224,85,120,.8);text-transform:uppercase;margin-bottom:6px">✍️ Write to Robert</div>
+      <div style="font-size:16px;font-weight:900;color:#fff;margin-bottom:16px">Send him a message 💕</div>
+      <textarea id="ana-write-input" placeholder="Write something from the heart..." maxlength="300"
+        style="width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(224,85,120,.2);border-radius:var(--r2);padding:13px 14px;color:#fff;font-size:14px;font-family:'Nunito',sans-serif;outline:none;resize:none;line-height:1.7;min-height:110px;transition:border .2s"
+        oninput="document.getElementById('ana-write-count').textContent=this.value.length"></textarea>
+      <div style="text-align:right;font-size:10px;color:var(--tx3);margin-top:5px;margin-bottom:14px"><span id="ana-write-count">0</span> / 300</div>
+      <button class="buy-confirm rw" onclick="sendAnaMessage();R(event,this)">💌 &nbsp; Send to Robert</button>
+      <button class="buy-cancel rw" onclick="closeAnaWrite()">Cancel</button>
+    </div>
+  </div>
+  <div id="ANA-WRITE-dim" onclick="closeAnaWrite()"></div>
+
+  <!-- ════ WISH LIST SHEET ════ -->
+  <div id="WISH-SHEET">
+    <div id="WISH-SHEET-INNER">
+      <div class="sheet-handle"></div>
+      <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(245,200,112,.8);text-transform:uppercase;margin-bottom:6px">✨ Wish List</div>
+      <div style="font-size:16px;font-weight:900;color:#fff;margin-bottom:14px">Ana &amp; Robert's dreams 💛</div>
+      <div id="wish-sheet-tabs"></div>
+      <div id="wish-list" style="display:flex;flex-direction:column;gap:8px;max-height:45vh;overflow-y:auto;margin-bottom:16px"></div>
+      <button class="wish-add-btn rw" onclick="openAddWish();R(event,this)" id="wish-add-btn">＋ &nbsp; Add a Wish</button>
+      <button class="buy-cancel rw" style="margin-top:10px" onclick="closeWishList()">Done</button>
+    </div>
+  </div>
+  <div id="WISH-dim" onclick="closeWishList()"></div>
+
+  <!-- ════ ADD WISH SHEET ════ -->
+  <div id="ADD-WISH-SHEET">
+    <div id="ADD-WISH-SHEET-INNER">
+      <div class="sheet-handle"></div>
+      <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(245,200,112,.8);text-transform:uppercase;margin-bottom:6px">✨ Add a Wish</div>
+      <div style="font-size:16px;font-weight:900;color:#fff;margin-bottom:14px">What do you dream of? 💛</div>
+      <div id="wish-cat-row" class="wish-cat-row"></div>
+      <textarea id="wish-input" placeholder="Describe your wish..." maxlength="120"
+        style="width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(245,200,112,.2);border-radius:var(--r2);padding:13px 14px;color:#fff;font-size:14px;font-family:'Nunito',sans-serif;outline:none;resize:none;line-height:1.7;min-height:80px;transition:border .2s;box-sizing:border-box"></textarea>
+      <button class="buy-confirm rw" style="background:linear-gradient(135deg,rgba(180,140,0,.6),rgba(245,200,112,.3));border-color:rgba(245,200,112,.4);margin-top:14px" onclick="saveWish();R(event,this)">✨ &nbsp; Add Wish</button>
+      <button class="buy-cancel rw" onclick="closeAddWish()">Cancel</button>
+    </div>
+  </div>
+  <div id="ADD-WISH-dim" onclick="closeAddWish()"></div>
+
+
+  <!-- ════ DEV PASSWORD MODAL ════ -->
+  <div id="DEV-PW">
+    <div id="DEV-PW-BOX">
+      <div class="pw-ico">🔐</div>
+      <div class="pw-title">Developer Access</div>
+      <div class="pw-sub">Enter your password to continue</div>
+      <div class="pw-input-wrap">
+        <input type="password" id="dev-pw-input" placeholder="Password"
+               onkeydown="if(event.key==='Enter') submitDevPassword()"
+               oninput="document.getElementById('pw-error').textContent=''">
+        <button class="pw-toggle" id="pw-eye" onclick="togglePwVisibility()">👁</button>
+      </div>
+      <div class="pw-error" id="pw-error"></div>
+      <button class="pw-btn rw" onclick="submitDevPassword();R(event,this)">Unlock Dev Mode</button>
+      <button class="pw-cancel rw" onclick="closeDevPassword();R(event,this)">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ════ SETTINGS ════ -->
+  <div id="SETTINGS">
+    <div class="settings-bar">
+      <button class="settings-back rw" onclick="closeSettings();R(event,this)">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="settings-title">Settings</div>
+    </div>
+    <div class="settings-scroll">
+
+      <!-- ── Notifications ── -->
+      <div class="settings-section">
+        <div class="settings-section-lbl">Notifications</div>
+
+        <div class="sett-notif-status" id="sett-notif-status">
+          <div class="sett-notif-status-ico" id="sett-notif-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </div>
+          <div class="sett-notif-status-body">
+            <div class="sett-notif-status-title" id="sett-notif-title">Push notifications off</div>
+            <div class="sett-notif-status-sub" id="sett-notif-sub">Tap to enable alerts on your iPhone</div>
+          </div>
+          <button class="sett-notif-enable-btn rw" id="sett-notif-btn" onclick="requestPushPermission();R(event,this)">Enable</button>
+        </div>
+
+        <div class="notif-toggle-row">
+          <div class="notif-toggle-lbl-wrap">
+            <span class="notif-toggle-lbl">New letters from Robert</span>
+            <span class="notif-toggle-sub">Get notified when a new letter arrives</span>
+          </div>
+          <div class="toggle-switch on rw" id="tog-letters" onclick="toggleNotifPref('letters',this);R(event,this)"></div>
+        </div>
+        <div class="notif-toggle-row">
+          <div class="notif-toggle-lbl-wrap">
+            <span class="notif-toggle-lbl">Streak reminders</span>
+            <span class="notif-toggle-sub">Daily nudge to keep your streak alive</span>
+          </div>
+          <div class="toggle-switch on rw" id="tog-streak" onclick="toggleNotifPref('streak',this);R(event,this)"></div>
+        </div>
+        <div class="notif-toggle-row">
+          <div class="notif-toggle-lbl-wrap">
+            <span class="notif-toggle-lbl">Goodnight letter ready</span>
+            <span class="notif-toggle-sub">Alert when Robert's nightly letter unlocks</span>
+          </div>
+          <div class="toggle-switch on rw" id="tog-goodnight" onclick="toggleNotifPref('goodnight',this);R(event,this)"></div>
+        </div>
+        <div class="notif-toggle-row">
+          <div class="notif-toggle-lbl-wrap">
+            <span class="notif-toggle-lbl">Relationship milestones</span>
+            <span class="notif-toggle-sub">Celebrate anniversaries & special dates</span>
+          </div>
+          <div class="toggle-switch on rw" id="tog-milestone" onclick="toggleNotifPref('milestone',this);R(event,this)"></div>
+        </div>
+        <div class="notif-toggle-row">
+          <div class="notif-toggle-lbl-wrap">
+            <span class="notif-toggle-lbl">Daily surprise countdown</span>
+            <span class="notif-toggle-sub">Reminder when your daily gift is ready</span>
+          </div>
+          <div class="toggle-switch on rw" id="tog-surprise" onclick="toggleNotifPref('surprise',this);R(event,this)"></div>
+        </div>
+        <div class="notif-toggle-row">
+          <div class="notif-toggle-lbl-wrap">
+            <span class="notif-toggle-lbl">Points &amp; rewards</span>
+            <span class="notif-toggle-sub">Updates on point earnings and shop unlocks</span>
+          </div>
+          <div class="toggle-switch on rw" id="tog-points" onclick="toggleNotifPref('points',this);R(event,this)"></div>
+        </div>
+      </div>
+
+      <!-- ── Appearance ── -->
+      <div class="settings-section">
+        <div class="settings-section-lbl">Appearance</div>
+
+        <div class="settings-card">
+          <div class="settings-card-lbl">Theme</div>
+          <div class="theme-selector">
+            <div class="theme-opt on rw" onclick="applyThemeFromSettings('rose',this);R(event,this)" id="sett-theme-rose">
+              <div class="theme-opt-swatches">
+                <div class="theme-opt-dot" style="background:#a02050"></div>
+                <div class="theme-opt-dot" style="background:#e05578"></div>
+                <div class="theme-opt-dot" style="background:#f5c870"></div>
+                <div class="theme-opt-dot" style="background:#6ee8b4"></div>
+              </div>
+              <div class="theme-opt-name">Midnight Rose</div>
+            </div>
+            <div class="theme-opt rw" onclick="applyThemeFromSettings('royal',this);R(event,this)" id="sett-theme-royal">
+              <div class="theme-opt-swatches">
+                <div class="theme-opt-dot" style="background:#2c2fa0"></div>
+                <div class="theme-opt-dot" style="background:#6b70e0"></div>
+                <div class="theme-opt-dot" style="background:#9ba0f0"></div>
+                <div class="theme-opt-dot" style="background:#d4d7ff"></div>
+              </div>
+              <div class="theme-opt-name">Royal Blue</div>
+            </div>
+            <div class="theme-opt rw" onclick="applyThemeFromSettings('sakura',this);R(event,this)" id="sett-theme-sakura">
+              <div class="theme-opt-swatches">
+                <div class="theme-opt-dot" style="background:#b83060"></div>
+                <div class="theme-opt-dot" style="background:#e06080"></div>
+                <div class="theme-opt-dot" style="background:#f0a0b8"></div>
+                <div class="theme-opt-dot" style="background:#ffe0ea"></div>
+              </div>
+              <div class="theme-opt-name">Sakura</div>
+            </div>
+            <div class="theme-opt rw" onclick="applyThemeFromSettings('golden',this);R(event,this)" id="sett-theme-golden">
+              <div class="theme-opt-swatches">
+                <div class="theme-opt-dot" style="background:#a06000"></div>
+                <div class="theme-opt-dot" style="background:#d49020"></div>
+                <div class="theme-opt-dot" style="background:#f0c840"></div>
+                <div class="theme-opt-dot" style="background:#fff0b0"></div>
+              </div>
+              <div class="theme-opt-name">Golden Hour</div>
+            </div>
+            <div class="theme-opt rw" onclick="applyThemeFromSettings('starlight',this);R(event,this)" id="sett-theme-starlight">
+              <div class="theme-opt-swatches">
+                <div class="theme-opt-dot" style="background:#402880"></div>
+                <div class="theme-opt-dot" style="background:#8050d0"></div>
+                <div class="theme-opt-dot" style="background:#c080f0"></div>
+                <div class="theme-opt-dot" style="background:#e8d0ff"></div>
+              </div>
+              <div class="theme-opt-name">Starlight</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Reduce motion</div>
+            <div class="settings-row-sub">Simplify animations and transitions</div>
+          </div>
+          <div class="toggle-switch rw" id="tog-reduce-motion" onclick="toggleReduceMotion(this);R(event,this)"></div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Language</div>
+            <div class="settings-row-sub" id="sett-lang-val">English</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+      </div>
+
+      <!-- ── Display & Format ── -->
+      <div class="settings-section">
+        <div class="settings-section-lbl">Display &amp; Format</div>
+
+        <div class="settings-row sett-tap" onclick="cycleDate(this)">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Date format</div>
+            <div class="settings-row-sub" id="sett-date-fmt">DD / MM / YYYY</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+        <div class="settings-row sett-tap" onclick="cycleTimeFmt(this)">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Time format</div>
+            <div class="settings-row-sub" id="sett-time-fmt">24-hour clock</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Show relationship timer</div>
+            <div class="settings-row-sub">Live counter on Logs &amp; Profile</div>
+          </div>
+          <div class="toggle-switch on rw" id="tog-timer" onclick="this.classList.toggle('on');R(event,this)"></div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Confetti on milestones</div>
+            <div class="settings-row-sub">Celebrate achievements with effects</div>
+          </div>
+          <div class="toggle-switch on rw" id="tog-confetti" onclick="this.classList.toggle('on');R(event,this)"></div>
+        </div>
+
+      </div>
+
+      <!-- ── Privacy & Security ── -->
+      <div class="settings-section">
+        <div class="settings-section-lbl">Privacy &amp; Security</div>
+
+        <div class="settings-row">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">App lock</div>
+            <div class="settings-row-sub">Require Face ID / passcode to open</div>
+          </div>
+          <div class="toggle-switch rw" id="tog-applock" onclick="this.classList.toggle('on');T('Face ID lock coming soon');R(event,this)"></div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Hide letter previews</div>
+            <div class="settings-row-sub">Don't show letter content in notifications</div>
+          </div>
+          <div class="toggle-switch rw" id="tog-hideprev" onclick="this.classList.toggle('on');R(event,this)"></div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Screenshot protection</div>
+            <div class="settings-row-sub">Blur content when app is in background</div>
+          </div>
+          <div class="toggle-switch on rw" id="tog-screenshot" onclick="this.classList.toggle('on');R(event,this)"></div>
+        </div>
+
+        <div class="settings-row sett-tap" onclick="T('Backup coming in a future update')">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 16 20 20 4 20 4 16"/><polyline points="8 10 12 6 16 10"/><line x1="12" y1="6" x2="12" y2="18"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Backup &amp; restore</div>
+            <div class="settings-row-sub">Export your letters and memories</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+      </div>
+
+      <!-- ── Relationship ── -->
+      <div class="settings-section">
+        <div class="settings-section-lbl">Relationship</div>
+
+        <div class="settings-row sett-tap" onclick="editCoupleNames();R(event,this)">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Couple names</div>
+            <div class="settings-row-sub" id="sett-couple-names-sub">Ana &amp; Robert</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+        <div class="settings-row sett-tap" onclick="editAnniversaryDate();R(event,this)">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Anniversary date</div>
+            <div class="settings-row-sub" id="sett-anniversary-sub">August 10, 2023</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+        <div class="settings-row sett-tap" onclick="editCoupleSongFromSettings();R(event,this)">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Couple song</div>
+            <div class="settings-row-sub" id="sett-couple-song-sub">Set your relationship anthem</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+        <div class="settings-row sett-tap" onclick="editLoveLanguageFromSettings();R(event,this)">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Love language</div>
+            <div class="settings-row-sub" id="sett-love-lang-sub">Words of Affirmation &amp; Acts of Service</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+      </div>
+
+      <!-- ── About ── -->
+      <div class="settings-section">
+        <div class="settings-section-lbl">About</div>
+
+        <div class="settings-row">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Heartly</div>
+            <div class="settings-row-sub">Version 4.3.11 — Made with love</div>
+          </div>
+        </div>
+
+        <div class="settings-row sett-tap" onclick="T('Changelog opens in Logs tab')">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">What's new</div>
+            <div class="settings-row-sub">Latest changes and improvements</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+        <div class="settings-row sett-tap" onclick="T('Sending feedback... thank you!')">
+          <div class="settings-row-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Send feedback</div>
+            <div class="settings-row-sub">Help improve Heartly</div>
+          </div>
+          <div class="settings-row-arrow">›</div>
+        </div>
+
+      </div>
+
+      <!-- ── Danger Zone ── -->
+      <div class="settings-section">
+        <div class="settings-section-lbl">Data</div>
+        <div class="settings-danger-card">
+          <button class="settings-danger-btn rw" onclick="settClearCache();R(event,this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Clear app cache
+          </button>
+          <button class="settings-danger-btn danger rw" onclick="settResetData();R(event,this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            Reset all data
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<!-- JS — order matters: state first, canvas second, then everything else -->
+<script src="js/state.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/router.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/exchange.js"></script>
+<script src="js/login.js"></script>
+<script src="js/dev.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/robert.js"></script>
+<script src="js/letters.js"></script>
+<script src="js/app.js"></script>
+
+  <!-- ════ MEMORY REVEAL ════ -->
+  <div id="memory-reveal" style="position:fixed;inset:0;z-index:9000;background:rgba(7,0,16,.88);backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;opacity:0;pointer-events:none;transition:opacity .3s">
+    <div style="font-size:60px;margin-bottom:14px;animation:hb 2s ease infinite">🫙</div>
+    <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--rose-b);text-transform:uppercase;margin-bottom:8px">A Memory from Robert</div>
+    <div id="memory-reveal-text" style="font-size:16px;font-weight:700;color:#fff;text-align:center;line-height:1.7;margin-bottom:10px;max-width:280px"></div>
+    <div id="memory-reveal-date" style="font-size:11px;color:var(--tx3);margin-bottom:28px"></div>
+    <button style="background:linear-gradient(135deg,#a02050,var(--rose));color:#fff;border:none;border-radius:var(--rp);padding:14px 36px;font-size:14px;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer" onclick="document.getElementById('memory-reveal').style.opacity=0;setTimeout(()=>document.getElementById('memory-reveal').style.pointerEvents='none',300)">Close</button>
+  </div>
+
+  <script src="js/wishlist.js"></script>
+<script src="js/intro.js"></script>
+<script src="js/achievements.js"></script>
+<script>
+/* ── Service Worker registration (PWA / iOS Safari) ── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+      window._swReg = reg;
+    }).catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
