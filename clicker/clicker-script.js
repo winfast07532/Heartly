@@ -422,14 +422,31 @@ function buildUpgradeCard(def) {
       renderStats();
     }
   }
-  let _upgTouched = false;
+  let touchStartX = 0, touchStartY = 0, touchMoved = false;
+
   card.addEventListener("touchstart", e => {
+    if (e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+  }, { passive: true });
+
+  card.addEventListener("touchmove", e => {
+    if (e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) touchMoved = true;
+  }, { passive: true });
+
+  card.addEventListener("touchend", e => {
+    if (touchMoved) return;
     e.preventDefault();
     _upgTouched = true;
     doUpgradePurchase();
+    setTimeout(() => { _upgTouched = false; }, 350);
   }, { passive: false });
-  card.addEventListener("touchend", e => { e.preventDefault(); _upgTouched = false; }, { passive: false });
-  card.addEventListener("click", () => { if(!_upgTouched) doUpgradePurchase(); });
+
+  card.addEventListener("click", () => { if (!_upgTouched) doUpgradePurchase(); });
 
   return card;
 }

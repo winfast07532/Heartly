@@ -975,10 +975,17 @@ function setupInput(){
   el.addEventListener('touchend',     onTouchEnd,    {passive:false});
   el.addEventListener('touchcancel',  onTouchEnd,    {passive:false});
 
+  // Mouse / trackpad (desktop)
+  el.addEventListener('mousedown', onMouseDown);
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', onMouseUp);
+
   // Mouse wheel zoom (desktop / trackpad)
   el.addEventListener('wheel', onWheel, {passive:false});
   el.addEventListener('contextmenu', e=>e.preventDefault());
 }
+
+let mouseActive = false;
 
 // ── Helpers ──────────────────────────────────────────────────
 function clearLongPress(){
@@ -1006,57 +1013,101 @@ function resetPinchState(){
   T.pinching=false;
 }
 
+function beginSinglePointer(cx,cy){
+  clearLongPress();
+  resetPanState();
+  resetPinchState();
+
+  T.startX=cx; T.startY=cy;
+  T.moved=false; T.lastCell=-1;
+
+  const now=Date.now();
+  const ddx=Math.abs(cx-T.lastTapX), ddy=Math.abs(cy-T.lastTapY);
+  if(now-T.lastTapTime<320 && ddx<30 && ddy<30){
+    T.lastTapTime=0;
+    handleDoubleTap(cx,cy);
+    return;
+  }
+  T.lastTapTime=now; T.lastTapX=cx; T.lastTapY=cy;
+
+  if(ENGINE.inputMode==='pan'){
+    T.drawing=false;
+    T.panning=true;
+    T.panCamX=ENGINE.cam.x; T.panCamY=ENGINE.cam.y;
+    return;
+  }
+
+  T.drawing=true;
+  ENGINE.lastPaintedCell=-1;
+
+  const idx=screenToCell(cx,cy);
+  if(idx>=0) handleDraw(idx);
+
+  longPressTimer=setTimeout(()=>{
+    if(T.drawing && !T.moved){
+      const i=screenToCell(T.startX,T.startY);
+      if(i>=0){doMagicWand(i);showRipple(T.startX,T.startY);}
+      resetDrawState();
+    }
+  }, LONG_PRESS_MS);
+}
+
+function moveSinglePointer(cx,cy){
+  const dx=cx-T.startX, dy=cy-T.startY;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+
+  if(dist>4){clearLongPress();T.moved=true;}
+
+  if(T.drawing){
+    const idx=screenToCell(cx,cy);
+    if(idx>=0 && idx!==T.lastCell){
+      handleDraw(idx);
+      T.lastCell=idx;
+    }
+  } else if(T.panning){
+    ENGINE.cam.x=T.panCamX+dx;
+    ENGINE.cam.y=T.panCamY+dy;
+    clampCamera(); applyTransform();
+  }
+}
+
+function endSinglePointer(){
+  clearLongPress();
+  ENGINE.lastPaintedCell=-1;
+  resetDrawState();
+  resetPanState();
+  resetPinchState();
+}
+
+function onMouseDown(e){
+  if(e.button!==0) return;
+  e.preventDefault();
+  mouseActive=true;
+  beginSinglePointer(e.clientX,e.clientY);
+}
+
+function onMouseMove(e){
+  if(!mouseActive) return;
+  e.preventDefault();
+  moveSinglePointer(e.clientX,e.clientY);
+}
+
+function onMouseUp(e){
+  if(!mouseActive) return;
+  if(e.button!==0) return;
+  e.preventDefault();
+  mouseActive=false;
+  endSinglePointer();
+}
+
 // ── touchstart ───────────────────────────────────────────────
 function onTouchStart(e){
   e.preventDefault();
   const touches=e.touches;
 
   if(touches.length===1){
-    clearLongPress();
-    resetPanState();
-    resetPinchState();
-
     const t=touches[0];
-    const cx=t.clientX, cy=t.clientY;
-
-    T.startX=cx; T.startY=cy;
-    T.moved=false; T.lastCell=-1;
-
-    // Double-tap?
-    const now=Date.now();
-    const ddx=Math.abs(cx-T.lastTapX), ddy=Math.abs(cy-T.lastTapY);
-    if(now-T.lastTapTime<320 && ddx<30 && ddy<30){
-      T.lastTapTime=0;
-      handleDoubleTap(cx,cy);
-      return;
-    }
-    T.lastTapTime=now; T.lastTapX=cx; T.lastTapY=cy;
-
-    if(ENGINE.inputMode==='pan'){
-      // PAN mode: 1 finger drags the camera
-      T.drawing=false;
-      T.panning=true;
-      T.startX=cx; T.startY=cy;          // reuse startX/Y as pan anchor
-      T.panCamX=ENGINE.cam.x; T.panCamY=ENGINE.cam.y;
-      return;
-    }
-
-    // DRAW mode
-    T.drawing=true;
-    ENGINE.lastPaintedCell=-1;           // clear dedup so new stroke always registers
-
-    // Paint the cell immediately on touch-down
-    const idx=screenToCell(cx,cy);
-    if(idx>=0) handleDraw(idx);
-
-    // Long-press timer for magic wand
-    longPressTimer=setTimeout(()=>{
-      if(T.drawing && !T.moved){
-        const i=screenToCell(T.startX,T.startY);
-        if(i>=0){doMagicWand(i);showRipple(T.startX,T.startY);}
-        resetDrawState();
-      }
-    }, LONG_PRESS_MS);
+    beginSinglePointer(t.clientX,t.clientY);
 
   } else if(touches.length===2){
     // Second finger landed — stop drawing immediately
@@ -1104,25 +1155,7 @@ function onTouchMove(e){
 
   if(touches.length===1){
     const t=touches[0];
-    const cx=t.clientX, cy=t.clientY;
-    const dx=cx-T.startX, dy=cy-T.startY;
-    const dist=Math.sqrt(dx*dx+dy*dy);
-
-    if(dist>4) { clearLongPress(); T.moved=true; }
-
-    if(T.drawing){
-      // DRAW mode — paint every cell the finger crosses
-      const idx=screenToCell(cx,cy);
-      if(idx>=0 && idx!==T.lastCell){
-        handleDraw(idx);
-        T.lastCell=idx;
-      }
-    } else if(T.panning){
-      // PAN mode — move camera
-      ENGINE.cam.x=T.panCamX+dx;
-      ENGINE.cam.y=T.panCamY+dy;
-      clampCamera(); applyTransform();
-    }
+    moveSinglePointer(t.clientX,t.clientY);
   }
 }
 
@@ -1133,11 +1166,7 @@ function onTouchEnd(e){
   const remaining=e.touches.length;
 
   if(remaining===0){
-    // All fingers lifted
-    ENGINE.lastPaintedCell=-1;
-    resetDrawState();
-    resetPanState();
-    resetPinchState();
+    endSinglePointer();
   } else if(remaining===1){
     // Went from 2 fingers → 1 finger
     // Re-initialise 1-finger state for potential continued pan/draw
@@ -1350,7 +1379,6 @@ window.addEventListener('resize',()=>{
 //  EVENT BINDINGS
 // ============================================================
 function bindEvents(){
-  setupImport();
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.addEventListener('click',()=>navigateTo(btn.dataset.screen));
   });
@@ -1451,6 +1479,7 @@ function bindEvents(){
   });
 
   setupInput();
+  setupImport();
 }
 
 // ============================================================
@@ -1475,14 +1504,19 @@ function closeImportModal(){
 }
 
 function setupImport(){
-  document.getElementById('open-import-btn').addEventListener('click', openImportModal);
-  document.getElementById('import-close-btn').addEventListener('click', closeImportModal);
-  document.getElementById('import-modal').addEventListener('click', e=>{
-    if(e.target===document.getElementById('import-modal')) closeImportModal();
-  });
-
+  const openBtn = document.getElementById('open-import-btn');
+  const closeBtn = document.getElementById('import-close-btn');
+  const modal = document.getElementById('import-modal');
   const fileInput = document.getElementById('import-file-input');
-  const dropZone  = document.getElementById('drop-zone');
+  const dropZone = document.getElementById('drop-zone');
+  const startBtn = document.getElementById('btn-start-import');
+  if(!modal || !fileInput || !dropZone) return;
+
+  if(openBtn) openBtn.addEventListener('click', openImportModal);
+  if(closeBtn) closeBtn.addEventListener('click', closeImportModal);
+  modal.addEventListener('click', e=>{
+    if(e.target===modal) closeImportModal();
+  });
 
   fileInput.addEventListener('change', e=>{
     if(e.target.files[0]) loadImportFile(e.target.files[0]);
@@ -1494,9 +1528,10 @@ function setupImport(){
     if(e.dataTransfer.files[0]) loadImportFile(e.dataTransfer.files[0]);
   });
 
-  // Sliders + select → re-run preview with debounce
   ['grid-cols','grid-rows','max-colors','dither-mode'].forEach(id=>{
-    document.getElementById(id).addEventListener('input', ()=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('input', ()=>{
       if(id==='grid-cols') document.getElementById('grid-cols-val').textContent=document.getElementById('grid-cols').value;
       if(id==='grid-rows') document.getElementById('grid-rows-val').textContent=document.getElementById('grid-rows').value;
       if(id==='max-colors') document.getElementById('max-colors-val').textContent=document.getElementById('max-colors').value;
@@ -1504,7 +1539,7 @@ function setupImport(){
     });
   });
 
-  document.getElementById('btn-start-import').addEventListener('click', ()=>{
+  if(startBtn) startBtn.addEventListener('click', ()=>{
     if(IMPORT.pendingArtwork) launchImportedArtwork();
   });
 }

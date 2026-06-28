@@ -302,6 +302,7 @@ window.closeLoveBlast = closeLoveBlast;
 // (keeps level progress state alive — same pattern as blockblast)
 let _pixelArtLoaded = false;
 function openPixelArt() {
+  if (typeof closeHowToPlay === 'function') closeHowToPlay();
   const overlay = document.getElementById('cbn-overlay');
   overlay.classList.add('show');
   if (!_pixelArtLoaded) {
@@ -315,6 +316,7 @@ window.openCBN = openPixelArt; // alias
 function closePixelArt() {
   document.getElementById('cbn-overlay').classList.remove('show');
   document.getElementById('cbn-frame').src = 'about:blank';
+  _pixelArtLoaded = false;
 }
 window.closePixelArt = closePixelArt;
 window.closeCBN = closePixelArt; // alias
@@ -404,6 +406,7 @@ window.settResetData = settResetData;
 /* ═══ LOVE CLICKER ═══ */
 let _clickerLoaded = false;
 function openClicker() {
+  if (typeof closeHowToPlay === 'function') closeHowToPlay();
   const overlay = document.getElementById('clicker-overlay');
   overlay.classList.add('show');
   if (!_clickerLoaded) {
@@ -415,6 +418,8 @@ window.openClicker = openClicker;
 
 function closeClicker() {
   document.getElementById('clicker-overlay').classList.remove('show');
+  document.getElementById('clicker-frame').src = 'about:blank';
+  _clickerLoaded = false;
 }
 window.closeClicker = closeClicker;
 

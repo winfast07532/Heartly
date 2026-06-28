@@ -190,25 +190,17 @@ document.getElementById('BUY-SHEET').addEventListener('click', e=>{
    LOGS — TOGETHER TIMER
 ═══════════════════════════ */
 function startTogetherTimer(){
-  const REL = new Date('2023-08-10T00:00:00');
   function update(){
-    const diff = new Date() - REL;
-    const d = Math.floor(diff/86400000);
-    const h = Math.floor((diff%86400000)/3600000);
-    const m = Math.floor((diff%3600000)/60000);
-    const s = Math.floor((diff%60000)/1000);
-    const pad = n => String(n).padStart(2,'0');
+    const { years, months, days } = relationshipYMD(relStartDate());
+    const el_y = document.getElementById('tg-years');
+    const el_m = document.getElementById('tg-months');
     const el_d = document.getElementById('tg-days');
-    const el_h = document.getElementById('tg-hours');
-    const el_m = document.getElementById('tg-mins');
-    const el_s = document.getElementById('tg-secs');
-    if(el_d) el_d.textContent = d.toLocaleString();
-    if(el_h) el_h.textContent = pad(h);
-    if(el_m) el_m.textContent = pad(m);
-    if(el_s) el_s.textContent = pad(s);
+    if(el_y) el_y.textContent = years;
+    if(el_m) el_m.textContent = months;
+    if(el_d) el_d.textContent = days;
   }
   update();
-  setInterval(update, 1000);
+  setInterval(update, 60000);
 }
 startTogetherTimer();
 

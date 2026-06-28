@@ -768,13 +768,11 @@
         <div class="together-hero">
           <div class="together-lbl">💕 Ana & Robert — Together for</div>
           <div class="together-timer">
+            <div class="together-unit"><div class="together-val" id="tg-years">--</div><div class="together-unit-lbl">Years</div></div>
+            <div class="together-sep">:</div>
+            <div class="together-unit"><div class="together-val" id="tg-months">--</div><div class="together-unit-lbl">Months</div></div>
+            <div class="together-sep">:</div>
             <div class="together-unit"><div class="together-val" id="tg-days">--</div><div class="together-unit-lbl">Days</div></div>
-            <div class="together-sep">:</div>
-            <div class="together-unit"><div class="together-val" id="tg-hours">--</div><div class="together-unit-lbl">Hours</div></div>
-            <div class="together-sep">:</div>
-            <div class="together-unit"><div class="together-val" id="tg-mins">--</div><div class="together-unit-lbl">Mins</div></div>
-            <div class="together-sep">:</div>
-            <div class="together-unit"><div class="together-val" id="tg-secs">--</div><div class="together-unit-lbl">Secs</div></div>
           </div>
           <div class="together-since">Since August 10, 2023 💕</div>
         </div>
@@ -1800,7 +1798,11 @@
 
     <!-- ════ COLOR BY NUMBER OVERLAY ════ -->
   <div id="cbn-overlay">
-    <iframe id="cbn-frame" src="about:blank" scrolling="no" allow="autoplay" style="flex:1;border:none;width:100%;height:100%"></iframe>
+    <div id="cbn-topbar">
+      <button id="cbn-close-btn" onclick="closePixelArt()">← Back</button>
+      <div id="cbn-frame-title">🎨 Pixel Art</div>
+    </div>
+    <iframe id="cbn-frame" src="about:blank" scrolling="no" allow="autoplay"></iframe>
   </div>
 
   <!-- ════ HOW TO PLAY MODAL ════ -->

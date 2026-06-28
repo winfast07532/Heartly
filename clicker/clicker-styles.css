@@ -30,6 +30,7 @@
   --font: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --nav-h: 62px;
+  --nav-total: calc(62px + env(safe-area-inset-bottom, 0px));
   --top-h: 52px;
 }
 
@@ -154,9 +155,10 @@ html, body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  touch-action: pan-y;
   padding: 8px;
+  padding-bottom: 16px;
   display: flex; flex-direction: column; gap: 6px;
-  /* Force height to fill remaining space */
   min-height: 0;
 }
 #upgrade-list::-webkit-scrollbar { width: 3px; }
@@ -170,8 +172,8 @@ html, body {
   border-radius: var(--radius-md);
   cursor: pointer; transition: all 0.15s;
   position: relative; overflow: hidden;
-  flex-shrink: 0; /* don't compress cards */
-  touch-action: manipulation;
+  flex-shrink: 0;
+  touch-action: pan-y;
   /* Minimum tap target */
   min-height: 56px;
 }
@@ -354,17 +356,23 @@ html, body {
 .c-stat-val   { font-size: 12px; font-weight: 700; font-family: var(--font-mono); color: var(--text-primary); }
 
 /* ── RIGHT PANEL SCROLL ── */
-#achievement-list, #milestone-list {
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
-  padding: 8px; display: flex; flex-direction: column; gap: 5px;
+#right-panel-scroll {
+  flex: 1;
   min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  padding-bottom: 12px;
 }
-#achievement-list { flex: 0 0 auto; max-height: 220px; }
-#milestone-list   { flex: 1; }
-#achievement-list::-webkit-scrollbar,
-#milestone-list::-webkit-scrollbar { width: 3px; }
-#achievement-list::-webkit-scrollbar-thumb,
-#milestone-list::-webkit-scrollbar-thumb   { background: var(--border-bright); border-radius: 4px; }
+#achievement-list, #milestone-list {
+  padding: 8px;
+  display: flex; flex-direction: column; gap: 5px;
+  flex-shrink: 0;
+}
+#achievement-list { flex: 0 0 auto; }
+#milestone-list   { flex: 0 0 auto; }
 
 .ach-card {
   display: flex; align-items: center; gap: 10px;
@@ -397,12 +405,45 @@ html, body {
 .milestone-row.reached .milestone-name { color: var(--text-primary); }
 .milestone-val  { font-size: 10px; font-family: var(--font-mono); color: var(--text-muted); }
 
+#right-panel-scroll::-webkit-scrollbar { width: 3px; }
+#right-panel-scroll::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 4px; }
+
+/* Desktop: split scroll — achievements capped, milestones fill rest */
+@media (min-width: 681px) {
+  #right-panel { overflow: hidden; }
+  #right-panel-scroll {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+  #achievement-list {
+    flex: 0 0 auto;
+    max-height: 220px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+  #milestone-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+  #achievement-list::-webkit-scrollbar,
+  #milestone-list::-webkit-scrollbar { width: 3px; }
+  #achievement-list::-webkit-scrollbar-thumb,
+  #milestone-list::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 4px; }
+}
+
 /* ── MOBILE NAV ── */
 #mobile-nav {
   display: none;
   position: fixed; bottom: 0; left: 0; right: 0;
-  height: var(--nav-h);
-  padding-bottom: max(env(safe-area-inset-bottom), 4px);
+  height: var(--nav-total);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
   background: rgba(10,10,18,0.97);
   backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
   border-top: 1px solid var(--border);
@@ -508,19 +549,19 @@ html, body {
   /* Center fills all space, nav sits on top via padding */
   #center-panel {
     width: 100%;
-    padding-bottom: calc(var(--nav-h) + 8px);
+    padding-bottom: calc(var(--nav-total) + 8px);
     gap: 16px;
   }
 
-  /* Side panels are full-screen overlays, hidden by default */
+  /* Side panels are full-screen overlays above the bottom nav */
   .panel {
     position: absolute;
-    inset: 0;
+    top: 0; left: 0; right: 0;
+    bottom: var(--nav-total);
     width: 100%;
     z-index: 20;
     transform: translateX(-110%);
     transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-    /* Critical: panel must be full height and scroll internally */
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -528,21 +569,24 @@ html, body {
   #right-panel { transform: translateX(110%); }
   .panel.mobile-visible { transform: translateX(0) !important; }
 
-  /* Upgrade list gets all remaining height */
   #left-panel #upgrade-list {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    padding-bottom: 20px;
   }
 
-  /* Right panel scrolls too */
-  #right-panel {
+  #right-panel { overflow: hidden; }
+  #right-panel-scroll {
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    padding-bottom: 20px;
   }
-  #achievement-list { max-height: none; flex: 0 0 auto; }
-  #milestone-list   { flex: 0 0 auto; }
 
   /* Hide header stats on small screens */
   #header-stats { display: none; }
@@ -564,8 +608,8 @@ html, body {
   .upg-cost-val { font-size: 12px; }
 
   /* Toast repositioned above nav */
-  #toast-container { bottom: calc(var(--nav-h) + 10px); top: auto; right: 12px; }
-  #save-indicator  { bottom: calc(var(--nav-h) + 10px); }
+  #toast-container { bottom: calc(var(--nav-total) + 10px); top: auto; right: 12px; }
+  #save-indicator  { bottom: calc(var(--nav-total) + 10px); }
 }
 
 @media (max-width: 380px) {

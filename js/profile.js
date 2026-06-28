@@ -43,6 +43,22 @@ function setCoupleNames(ana, robert){
 function relStartDate(){
   return new Date(getRelationshipDate() + 'T00:00:00');
 }
+function relationshipYMD(fromDate, toDate = new Date()){
+  const start = fromDate instanceof Date ? fromDate : new Date(fromDate + 'T00:00:00');
+  const end = toDate instanceof Date ? toDate : new Date(toDate);
+  let years = end.getFullYear() - start.getFullYear();
+  let months = end.getMonth() - start.getMonth();
+  let days = end.getDate() - start.getDate();
+  if(days < 0){
+    months--;
+    days += new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+  }
+  if(months < 0){
+    years--;
+    months += 12;
+  }
+  return { years, months, days };
+}
 function formatRelDatePretty(dateStr){
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-US',{month:'long', day:'numeric', year:'numeric'});
