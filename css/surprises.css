@@ -1,0 +1,173 @@
+/* ═══════════════════════════════════════════
+   SURPRISE PLAYER — shared overlay shell for all
+   15 interactive surprises (js/surprises.js).
+   All visuals below are real drawn SVG/CSS shapes.
+═══════════════════════════════════════════ */
+#surprise-player{
+  position:fixed;inset:0;z-index:600;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(4,0,10,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+#surprise-player.show{display:flex}
+
+/* Note Card — lightweight display for Short Notes tab.
+   Unlike the letter modal (#MOD/#MB), this has no From/Save/Share
+   footer or big bottom-sheet chrome — just the note itself. */
+#note-card-overlay{
+  position:fixed;inset:0;z-index:610;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(4,0,10,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  padding:24px;box-sizing:border-box;
+}
+#note-card-overlay.show{display:flex}
+#note-card{
+  position:relative;width:100%;max-width:320px;
+  background:var(--card);border:1px solid rgba(224,85,120,.25);
+  border-radius:22px;padding:36px 28px;box-sizing:border-box;
+  text-align:center;
+  animation:noteCardIn .35s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+@keyframes noteCardIn{from{opacity:0;transform:scale(.85) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.nc-close{
+  position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;
+  border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;
+}
+#nc-body{font-family:'Nunito',sans-serif;font-size:17px;font-weight:700;color:#fff;line-height:1.6}
+#nc-sig{margin-top:16px;font-size:12px;font-weight:700;color:var(--rose-b);font-family:'Nunito',sans-serif}
+#sp-close{
+  position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:18px;
+  width:38px;height:38px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.1);color:#fff;font-size:16px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;
+}
+#sp-stage{
+  width:100%;max-width:420px;padding:32px 24px;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:14px;min-height:320px;position:relative;overflow:hidden;
+}
+.sp-msg{font-family:'Nunito',sans-serif;font-size:15px;color:#fff;line-height:1.6;
+  opacity:0;transform:translateY(10px);transition:all .6s ease;max-width:320px}
+.sp-msg.in{opacity:1;transform:translateY(0)}
+.sp-hint{font-size:11px;color:rgba(255,255,255,.4);font-family:'Nunito',sans-serif;letter-spacing:.3px}
+
+/* 1. Flower bouquet */
+.sp-bouquet-wrap{width:130px;height:130px;transition:all .6s cubic-bezier(.34,1.56,.64,1);cursor:pointer}
+.sp-bouquet-wrap .sp-cone{width:100%;height:100%}
+.sp-bouquet-wrap.open{transform:scale(1.15) rotate(-6deg);opacity:0}
+.sp-flowers{display:flex;gap:4px;margin-top:-30px}
+.sp-flower{width:52px;height:52px;opacity:0;transform:scale(.3) translateY(10px);transition:all .5s cubic-bezier(.34,1.56,.64,1)}
+.sp-flower.in{opacity:1;transform:scale(1) translateY(0)}
+
+/* 2. Growing flower */
+.sp-grow-scene{display:flex;flex-direction:column;align-items:center;position:relative;height:180px;justify-content:flex-end}
+.sp-grow-stem{width:20px;height:110px}
+.sp-grow-head{width:0;height:0;opacity:0;position:absolute;bottom:96px;
+  transition:width .4s cubic-bezier(.34,1.56,.64,1), height .4s cubic-bezier(.34,1.56,.64,1), opacity .4s ease}
+.sp-grow-pot{width:64px;height:32px;margin-top:-4px}
+.sp-grow-btn{padding:10px 22px;border-radius:20px;background:rgba(224,85,120,.18);
+  border:1px solid rgba(224,85,120,.4);color:#fff;font-family:'Nunito',sans-serif;
+  font-weight:700;font-size:13px;cursor:pointer;margin-top:8px}
+
+/* 3. Petal shower */
+.sp-petal-shape{position:absolute;top:-30px;width:18px;height:22px;pointer-events:none;
+  animation:petalFall linear forwards}
+@keyframes petalFall{
+  0%{transform:translateY(0) translateX(0) rotate(0deg);opacity:.9}
+  100%{transform:translateY(420px) translateX(var(--drift,20px)) rotate(360deg);opacity:0}
+}
+
+/* 4. Gift unwrap */
+.sp-gift-box{width:140px;height:104px;cursor:pointer;transition:transform .3s;position:relative}
+.sp-gift-box .sp-gift-body{position:absolute;bottom:0;left:0;width:100%;height:70%}
+.sp-gift-box .sp-gift-lid{position:absolute;top:0;left:0;width:100%;height:34%;
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1)}
+.sp-gift-box.open .sp-gift-lid{transform:translateY(-34px) rotate(-20deg);opacity:0}
+.sp-gift-box.open{transform:scale(1.08)}
+
+/* 5. Balloon pop */
+.sp-balloon-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sp-balloon{width:58px;height:86px;cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+.sp-balloon.popped{transform:scale(0);opacity:0}
+
+/* 6. Floating hearts */
+#sp-heart-zone{width:100%;height:220px;position:relative;border-radius:16px;
+  background:rgba(255,255,255,.03);overflow:hidden;cursor:pointer}
+.sp-fheart{position:absolute;width:26px;height:22px;pointer-events:none;animation:heartFloat 1.8s ease-out forwards}
+@keyframes heartFloat{0%{transform:translateY(0) scale(.8);opacity:1}100%{transform:translateY(-160px) scale(1.3);opacity:0}}
+
+/* 7. Fireworks */
+#sp-fw-zone{width:100%;height:220px;position:relative;cursor:pointer}
+.sp-fw-particle{position:absolute;width:5px;height:5px;pointer-events:none;
+  animation:fwBurst .9s ease-out forwards}
+@keyframes fwBurst{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--fx),var(--fy)) scale(.2);opacity:0}}
+
+/* 8. Confetti cannon — reuses global fireConfetti() */
+.sp-cannon{width:76px;height:76px;cursor:pointer;transition:transform .2s}
+.sp-cannon:active{transform:scale(.9) rotate(-8deg)}
+
+/* 9. Scratch card */
+.sp-scratch-wrap{position:relative;width:280px;height:160px;border-radius:16px;overflow:hidden}
+.sp-scratch-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:16px;font-family:'Nunito',sans-serif;font-size:14px;color:#fff;text-align:center;
+  background:linear-gradient(135deg,rgba(224,85,120,.25),rgba(150,80,200,.25))}
+#sp-scratch-canvas{position:absolute;inset:0;touch-action:none}
+
+/* 10. Music box */
+.sp-crank{width:56px;height:56px;cursor:pointer;transition:transform .15s;margin:0 auto}
+.sp-wind-ring{width:70px;height:70px;border-radius:50%;border:4px solid rgba(255,255,255,.12);
+  position:relative;display:flex;align-items:center;justify-content:center;margin:8px auto}
+.sp-wind-ring::before{content:'';position:absolute;inset:-4px;border-radius:50%;
+  background:conic-gradient(var(--rose-b) calc(var(--pct,0)*1%), transparent 0);z-index:-1}
+.sp-box-lid{width:76px;height:68px}
+
+/* 11. Snow globe */
+.sp-globe{width:180px;height:180px;border-radius:50%;position:relative;overflow:hidden;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.15),rgba(120,140,220,.15));
+  border:3px solid rgba(255,255,255,.15);cursor:pointer}
+.sp-snowflake{position:absolute;top:-10px;width:8px;height:8px;pointer-events:none;
+  animation:snowFall linear forwards}
+@keyframes snowFall{0%{transform:translateY(0) translateX(0);opacity:.9}100%{transform:translateY(190px) translateX(var(--sdrift,10px));opacity:0}}
+
+/* 12. Candle blow-out */
+.sp-cake-scene{display:flex;flex-direction:column;align-items:center;position:relative}
+.sp-cake{width:180px;height:116px}
+.sp-candle-row{display:flex;gap:8px;justify-content:center;position:absolute;top:-16px}
+.sp-flame{width:14px;height:22px;transition:all .3s;transform-origin:bottom center}
+.sp-flame.out{opacity:0;transform:scale(0)}
+.sp-blow-btn{width:64px;height:64px;border-radius:50%;position:relative;
+  background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.15);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;margin-top:12px}
+.sp-blow-ring{position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(var(--mint) calc(var(--pct,0)*1%), transparent 0)}
+
+/* 13. Pop-up card */
+.sp-card{width:220px;height:150px;position:relative;perspective:600px;cursor:pointer}
+.sp-card-flap{position:absolute;inset:0;background:rgba(224,85,120,.14);border:1px solid rgba(224,85,120,.3);
+  border-radius:12px;transform-origin:left center;transition:transform .6s cubic-bezier(.34,1.56,.64,1);
+  display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
+.sp-card.open .sp-card-flap{transform:rotateY(-140deg)}
+.sp-card-heart{position:absolute;width:44px;height:38px;top:56px;left:88px;
+  opacity:0;transform:scale(0);transition:all .5s cubic-bezier(.34,1.56,.64,1) .3s}
+.sp-card.open .sp-card-heart{opacity:1;transform:scale(1)}
+
+/* 14. Firefly jar */
+.sp-jar{width:90px;height:100px;cursor:pointer;margin:0 auto}
+#sp-firefly-zone{width:100%;height:180px;position:relative}
+.sp-firefly{position:absolute;width:6px;height:6px;border-radius:50%;background:#fff59d;
+  box-shadow:0 0 8px 3px rgba(255,245,157,.7);pointer-events:none;
+  animation:fireflyDrift 3s ease-in-out forwards}
+@keyframes fireflyDrift{
+  0%{transform:translate(0,0);opacity:0}
+  15%{opacity:1}
+  100%{transform:translate(var(--jx),var(--jy));opacity:0}
+}
+
+/* 15. Wax seal letter */
+.sp-seal{width:70px;height:70px;cursor:pointer;transition:all .5s cubic-bezier(.34,1.56,.64,1);margin:0 auto}
+.sp-seal.cracked{transform:scale(1.3) rotate(25deg);opacity:0}
+.sp-envelope-wrap{position:relative;width:140px;height:100px;margin:0 auto}
+.sp-envelope{position:absolute;inset:0;width:100%;height:80px}
+.sp-letter-slide{position:absolute;top:0;left:20px;width:100px;height:70px;
+  transition:transform .6s cubic-bezier(.34,1.56,.64,1);transform:translateY(0)}
+.sp-letter-slide.out{transform:translateY(-34px)}

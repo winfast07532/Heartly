@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Love Blast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="loading-screen">
+  <div class="loading-logo">
+    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/></svg>
+  </div>
+  <div class="loading-title">Love Blast</div>
+  <div class="loading-sub">Block Puzzle</div>
+  <div class="loading-bar-bg"><div class="loading-bar-fill" id="loading-bar"></div></div>
+</div>
+<canvas id="bg-canvas"></canvas>
+<div id="game-wrap">
+  <div id="hdr">
+    <button id="back-btn" onclick="showMenu()">← Back</button>
+    <div id="title-area">
+      <div id="game-title">💗 Love Blast</div>
+      <div id="mode-badge">Classic Mode</div>
+    </div>
+    <div id="score-area">
+      <div id="score-val">0</div>
+      <div id="score-lbl">Score</div>
+    </div>
+  </div>
+  <div id="combo-bar">
+    <div id="combo-pill">
+      <div id="combo-ico">💗</div>
+      <div id="combo-txt">COMBO ×2</div>
+    </div>
+  </div>
+  <div id="grid-wrap">
+    <canvas id="grid-canvas"></canvas>
+    <canvas id="flash-canvas"></canvas>
+  </div>
+  <div id="hand-wrap"></div>
+  <div id="drag-ghost"><canvas id="ghost-canvas"></canvas></div>
+</div>
+
+<!-- MENU -->
+<div class="overlay" id="ov-menu">
+  <div class="ov-bg"></div>
+  <div class="ov-content">
+    <div class="ov-ico">💗</div>
+    <div class="ov-title">Love Blast</div>
+    <div class="ov-sub">Drag pieces onto the grid.<br>Clear full rows &amp; columns to score.</div>
+    <div class="mode-cards">
+      <div class="mode-card on" id="mc-classic" onclick="selectMode('classic')">
+        <div class="mode-card-ico">🎯</div>
+        <div class="mode-card-name">Classic</div>
+        <div class="mode-card-desc">8×8 grid<br>3 pieces</div>
+      </div>
+      <div class="mode-card" id="mc-chaos" onclick="selectMode('chaos')">
+        <div class="mode-card-ico">💥</div>
+        <div class="mode-card-name">Chaos</div>
+        <div class="mode-card-desc">10×10 grid<br>5 pieces</div>
+      </div>
+    </div>
+    <div id="menu-best"></div>
+    <button class="ov-btn primary" onclick="startGame()">▶ Play Now</button>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div class="overlay hidden" id="ov-gameover">
+  <div class="ov-bg"></div>
+  <div class="ov-content">
+    <div class="ov-ico">💔</div>
+    <div class="ov-title">No More Moves</div>
+    <div class="ov-score-card">
+      <div class="ov-score-big" id="go-score">0</div>
+      <div class="ov-score-lbl">Final Score</div>
+      <div class="ov-best-row">
+        <div class="ov-best-ico" id="go-best-ico">🏆</div>
+        <div class="ov-best-txt" id="go-best-txt">New Best!</div>
+      </div>
+    </div>
+    <button class="ov-btn primary" onclick="startGame()">▶ Play Again</button>
+    <button class="ov-btn ghost" onclick="showMenu()">↩ Menu</button>
+  </div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>

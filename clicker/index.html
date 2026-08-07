@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Love Clicker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="clicker-styles.css">
+</head>
+<body>
+<div id="loading-screen">
+  <div class="loading-logo">
+    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/></svg>
+  </div>
+  <div class="loading-title">Love Clicker</div>
+  <div class="loading-sub">Tap &amp; Dodge</div>
+  <div class="loading-bar-bg"><div class="loading-bar-fill" id="loading-bar"></div></div>
+</div>
+
+<canvas id="bg-canvas"></canvas>
+
+<div id="game-wrap">
+  <div id="hdr">
+    <button id="back-btn" onclick="quitToMenu()">
+      <svg class="btn-icon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back
+    </button>
+    <div id="title-area">
+      <div id="game-title">
+        <svg class="title-icon" viewBox="0 0 24 24">
+          <defs><linearGradient id="gTitle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8fab"/><stop offset="1" stop-color="#e05c7a"/></linearGradient></defs>
+          <path fill="url(#gTitle)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/>
+        </svg>
+        Love Clicker
+      </div>
+      <div id="time-badge">75s</div>
+    </div>
+    <div id="score-area">
+      <div id="score-val">0</div>
+      <div id="score-lbl">Score</div>
+    </div>
+  </div>
+  <div id="timer-track"><div id="timer-fill"></div></div>
+  <div id="combo-bar">
+    <div id="combo-pill">
+      <div id="combo-ico">
+        <svg viewBox="0 0 24 24">
+          <defs><linearGradient id="gCombo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8fab"/><stop offset="1" stop-color="#e05c7a"/></linearGradient></defs>
+          <path fill="url(#gCombo)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/>
+        </svg>
+      </div>
+      <div id="combo-txt">COMBO ×1</div>
+    </div>
+  </div>
+  <div id="board-wrap">
+    <div id="board"></div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div class="overlay" id="ov-menu">
+  <div class="ov-bg"></div>
+  <div class="ov-content">
+    <div class="ov-ico">
+      <svg viewBox="0 0 24 24">
+        <defs><linearGradient id="gMenuIco" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8fab"/><stop offset="1" stop-color="#a02050"/></linearGradient></defs>
+        <path fill="url(#gMenuIco)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/>
+      </svg>
+    </div>
+    <div class="ov-title">Love Clicker</div>
+    <div class="ov-sub">Tap the hearts before they fade.<br>Dodge the broken ones — one wrong tap breaks your combo.</div>
+    <div id="menu-best"></div>
+    <button class="ov-btn primary" onclick="startGame()">
+      <svg class="btn-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+      Play Now
+    </button>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div class="overlay hidden" id="ov-gameover">
+  <div class="ov-bg"></div>
+  <div class="ov-content">
+    <div class="ov-ico" id="go-ico"></div>
+    <div class="ov-title">Time's Up!</div>
+    <div class="ov-score-card">
+      <div class="ov-score-big" id="go-score">0</div>
+      <div class="ov-score-lbl">Final Score</div>
+      <div class="ov-best-row">
+        <div class="ov-best-ico" id="go-best-ico"></div>
+        <div class="ov-best-txt" id="go-best-txt">New Best!</div>
+      </div>
+      <div class="ov-stats-row">
+        <div class="ov-stat"><div class="ov-stat-val" id="go-tapped">0</div><div class="ov-stat-lbl">Hearts Tapped</div></div>
+        <div class="ov-stat"><div class="ov-stat-val" id="go-combo">×1</div><div class="ov-stat-lbl">Best Combo</div></div>
+        <div class="ov-stat"><div class="ov-stat-val" id="go-missed">0</div><div class="ov-stat-lbl">Missed/Wrong</div></div>
+      </div>
+    </div>
+    <button class="ov-btn primary" onclick="startGame()">
+      <svg class="btn-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+      Play Again
+    </button>
+    <button class="ov-btn ghost" onclick="showMenu()">
+      <svg class="btn-icon" viewBox="0 0 24 24"><path d="M9 14l-5-5 5-5M4 9h9a5 5 0 0 1 5 5v4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Menu
+    </button>
+  </div>
+</div>
+
+<script src="clicker-script.js"></script>
+</body>
+</html>
