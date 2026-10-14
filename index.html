@@ -323,9 +323,9 @@
       <div class="prof-section">
         <div class="prof-section-lbl">Heartly Progress</div>
         <div class="C" style="padding:14px 16px">
-          <div class="pt" style="margin-bottom:10px"><div class="pf" style="--w:45%"></div></div>
-          <div style="font-size:12.5px;color:var(--tx2);margin-bottom:4px">Universal Points: <span style="color:#fff;font-weight:700">450 of 1000</span></div>
-          <div style="font-size:12.5px;color:var(--tx2)">Next Milestone: <span style="color:var(--gold);font-weight:700">Memory Box ✨</span></div>
+          <div class="pt" style="margin-bottom:10px"><div class="pf" id="milestone-bar-prof" style="--w:0%"></div></div>
+          <div style="font-size:12.5px;color:var(--tx2);margin-bottom:4px">Universal Points: <span style="color:#fff;font-weight:700" id="milestone-pts-prof">0 of --</span></div>
+          <div style="font-size:12.5px;color:var(--tx2)">Next Milestone: <span style="color:var(--gold);font-weight:700" id="milestone-label-prof">--</span></div>
         </div>
       </div>
 
@@ -341,7 +341,7 @@
       <div class="prof-section" style="padding-bottom:20px">
         <div class="prof-section-lbl" style="display:flex;align-items:center;justify-content:space-between">
           <span>Achievements</span>
-          <span class="ach-total-badge" style="font-size:9px">12 / 30</span>
+          <span class="ach-total-badge" id="ach-total-badge-prof" style="font-size:9px">0 / 30</span>
         </div>
         <div class="prof-ach-preview" onclick="go('logs');closeProf()">
           <div class="prof-ach-icons" id="prof-ach-icons"><!-- filled by JS --></div>
@@ -519,9 +519,9 @@
         <!-- Progress -->
         <div class="C" style="animation-delay:.26s">
           <div class="slbl">My Heartly Progress</div>
-          <div class="pt" style="margin-bottom:10px"><div class="pf" style="--w:45%"></div></div>
-          <div class="prog-line" style="font-size:12.5px;color:var(--tx2);margin-bottom:4px">Universal Points: <span style="color:#fff;font-weight:700">450 of 1000</span></div>
-          <div class="prog-line" style="font-size:12.5px;color:var(--tx2)">Next Milestone: <span style="color:var(--gold);font-weight:700">Memory Box ✨</span></div>
+          <div class="pt" style="margin-bottom:10px"><div class="pf" id="milestone-bar-home" style="--w:0%"></div></div>
+          <div class="prog-line" style="font-size:12.5px;color:var(--tx2);margin-bottom:4px">Universal Points: <span style="color:#fff;font-weight:700" id="milestone-pts-home">0 of --</span></div>
+          <div class="prog-line" style="font-size:12.5px;color:var(--tx2)">Next Milestone: <span style="color:var(--gold);font-weight:700" id="milestone-label-home">--</span></div>
         </div>
 
         <!-- ── HOME HUB CARD — all home actions in one place ── -->
@@ -637,27 +637,27 @@
               <div class="ph-s"><div class="sv">🔥</div><div class="sl">COMBOS</div></div>
             </div>
             <div class="ph-btns">
-              <button class="btn-play rw" onclick="openLoveBlast();R(event,this)">▶ Play Now</button>
-              <button class="btn-ghost rw" onclick="showHowToPlay('loveblast');R(event,this)">How to Play</button>
+              <button class="btn-play rw" onclick="event.stopPropagation();openLoveBlast();R(event,this)">▶ Play Now</button>
+              <button class="btn-ghost rw" onclick="event.stopPropagation();showHowToPlay('loveblast');R(event,this)">How to Play</button>
             </div>
           </div>
         </div>
 
         <!-- Color by Number Hero Card -->
-        <div class="play-hero rw maintenance" style="animation-delay:.07s">
+        <div class="play-hero rw" style="animation-delay:.07s">
           <div class="ph-bg"></div>
           <div class="ph-inner">
-            <div class="ph-tag" style="background:rgba(255,180,60,.15);color:#ffb43c"><div class="live-dot" style="background:#ffb43c;box-shadow:0 0 6px #ffb43c"></div>Under Maintenance</div>
+            <div class="ph-tag"><div class="live-dot"></div>Solo Coloring</div>
             <div class="ph-ico" style="font-size:28px">🎨</div>
             <div class="ph-name">Color by Number</div>
-            <div class="ph-sub">This game is temporarily down for maintenance. Check back soon!</div>
+            <div class="ph-sub">A little color. A little calm. Bring lovely pictures to life, one number at a time.</div>
             <div class="ph-stats">
               <div class="ph-s"><div class="sv">🐶</div><div class="sl">PIXEL ART</div></div>
               <div class="ph-s"><div class="sv">🪣</div><div class="sl">FILL TOOL</div></div>
               <div class="ph-s"><div class="sv">🪙</div><div class="sl">EARN PTS</div></div>
             </div>
             <div class="ph-btns">
-              <button class="btn-play rw" disabled style="opacity:.45;cursor:not-allowed" onclick="T('🛠️ Color by Number is under maintenance — check back soon!')">🛠️ Under Maintenance</button>
+              <button class="btn-play rw" onclick="openPixelArt();R(event,this)">Start Coloring</button>
               <button class="btn-ghost rw" onclick="showHowToPlay('pixelart');R(event,this)">How to Play</button>
             </div>
           </div>
@@ -681,8 +681,8 @@
               <div class="ph-s"><div class="sv">🪙</div><div class="sl">EARN PTS</div></div>
             </div>
             <div class="ph-btns">
-              <button class="btn-play rw" onclick="openClicker();R(event,this)">▶ Play Now</button>
-              <button class="btn-ghost rw" onclick="showHowToPlay('clicker');R(event,this)">How to Play</button>
+              <button class="btn-play rw" onclick="event.stopPropagation();openClicker();R(event,this)">▶ Play Now</button>
+              <button class="btn-ghost rw" onclick="event.stopPropagation();showHowToPlay('clicker');R(event,this)">How to Play</button>
             </div>
           </div>
         </div>
@@ -725,33 +725,7 @@
             <div style="font-size:10px;font-weight:700;color:var(--tx3);cursor:pointer" onclick="toggleTxHistory()">Show all ↓</div>
           </div>
           <div class="tx-list" id="tx-list">
-            <div class="tx-item" style="animation-delay:.04s">
-              <div class="tx-ico earn">📖</div>
-              <div class="tx-body"><div class="tx-title">Letter read — "Missing Your Laugh"</div><div class="tx-date">Today, 9:41 AM</div></div>
-              <div class="tx-amt earn">+50</div>
-            </div>
-            <div class="tx-item" style="animation-delay:.08s">
-              <div class="tx-ico earn">🏆</div>
-              <div class="tx-body"><div class="tx-title">Daily challenge completed</div><div class="tx-date">Today, 8:20 AM</div></div>
-              <div class="tx-amt earn">+250</div>
-            </div>
-            <div class="tx-item" style="animation-delay:.12s">
-              <div class="tx-ico earn">🎮</div>
-              <div class="tx-body"><div class="tx-title">Daily challenge completed</div><div class="tx-date">Yesterday, 9:10 PM</div></div>
-              <div class="tx-amt earn">+120</div>
-            </div>
-            <div class="tx-item" style="animation-delay:.16s">
-              <div class="tx-ico free">🎨</div>
-              <div class="tx-body"><div class="tx-title">Midnight Rose theme redeemed</div><div class="tx-date">Yesterday</div></div>
-              <div class="tx-amt free">Free</div>
-            </div>
-          </div>
-          <!-- Hidden extra items -->
-          <div id="tx-extra" style="display:none">
-            <div class="tx-item"><div class="tx-ico earn">🔥</div><div class="tx-body"><div class="tx-title">7-day streak bonus</div><div class="tx-date">May 14</div></div><div class="tx-amt earn">+100</div></div>
-            <div class="tx-item"><div class="tx-ico spend">💌</div><div class="tx-body"><div class="tx-title">Letter unlock redeemed</div><div class="tx-date">May 14</div></div><div class="tx-amt spend">-500</div></div>
-            <div class="tx-item"><div class="tx-ico earn">📖</div><div class="tx-body"><div class="tx-title">Letter read — "Counting Stars"</div><div class="tx-date">May 13</div></div><div class="tx-amt earn">+50</div></div>
-            <div class="tx-item"><div class="tx-ico spend">🎁</div><div class="tx-body"><div class="tx-title">Daily Surprise redeemed</div><div class="tx-date">May 12</div></div><div class="tx-amt spend">-500</div></div>
+            <!-- Rendered by renderTxHistory() from real txLog data -->
           </div>
           <div class="tx-more" id="tx-toggle" onclick="toggleTxHistory()">▾ Show more history</div>
         </div>
@@ -890,7 +864,16 @@
           <label>Card Label (shown on grid)</label>
           <input type="text" id="dev-f-label" placeholder="e.g. Love Letter #2">
         </div>
-        <div class="dev-field">
+        <div class="dev-field" id="dev-f-template-row" style="display:none">
+          <label>📄 Load from Template</label>
+          <div style="display:flex;gap:8px">
+            <select id="dev-f-template-select" style="flex:1">
+              <option value="">— Select a template —</option>
+            </select>
+            <button type="button" class="dev-btn edit" onclick="applyTemplateToEditor();R(event,this)">Apply</button>
+          </div>
+        </div>
+        <div class="dev-field" id="dev-f-icon-row">
           <label>Icon Type</label>
           <select id="dev-f-icon">
             <option value="letter">💌 Letter</option>
@@ -912,7 +895,7 @@
           <label>Signature</label>
           <input type="text" id="dev-f-sig" placeholder="e.g. — Always yours, Robert 🌹">
         </div>
-        <div class="dev-field" style="display:flex;align-items:center;gap:10px">
+        <div class="dev-field" id="dev-f-locked-row" style="display:flex;align-items:center;gap:10px">
           <label style="margin-bottom:0;flex-shrink:0">Locked?</label>
           <input type="checkbox" id="dev-f-locked" style="width:auto;accent-color:var(--rose-b);width:18px;height:18px" onchange="document.getElementById('dev-f-price-row').style.display=this.checked?'block':'none';document.getElementById('dev-f-preview-row').style.display=this.checked?'flex':'none'">
           <span style="font-size:11px;color:var(--tx2)">Check to keep hidden until unlocked</span>
@@ -926,7 +909,7 @@
           <input type="checkbox" id="dev-f-preview-once" style="width:auto;accent-color:var(--mint);width:18px;height:18px">
           <span style="font-size:11px;color:var(--tx2)">Ana can open it free once, then it locks again at full price</span>
         </div>
-        <div class="dev-field">
+        <div class="dev-field" id="dev-f-tag-row">
           <label>Tag (optional)</label>
           <select id="dev-f-tag">
             <option value="">None</option>
@@ -936,13 +919,14 @@
             <option value="Sweet">🍬 Sweet</option>
           </select>
         </div>
-        <div class="dev-field" style="display:flex;align-items:center;gap:10px">
+        <div class="dev-field" id="dev-f-secret-row" style="display:flex;align-items:center;gap:10px">
           <label style="margin-bottom:0;flex-shrink:0">Secret?</label>
           <input type="checkbox" id="dev-f-secret" style="width:auto;accent-color:var(--lilac);width:18px;height:18px">
           <span style="font-size:11px;color:var(--tx2)">Hidden as mystery — Robert reveals manually</span>
         </div>
 
         <button class="dev-save-btn rw" onclick="saveDevItem();R(event,this)">💾 Save</button>
+        <button class="dev-save-btn rw" id="dev-save-as-template-btn" style="display:none;background:rgba(200,168,240,.15);border:1px solid rgba(200,168,240,.3);color:var(--lilac)" onclick="saveCurrentAsTemplate();R(event,this)">📄 Save as Template</button>
         <button class="dev-cancel-btn rw" onclick="closeDevEditor();R(event,this)">Cancel</button>
       </div>
   </div>
@@ -1055,45 +1039,6 @@
           </div>
         </div>
 
-        <!-- Recent activity -->
-        <div class="C">
-          <div class="rob-section-lbl">Recent Activity</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div class="ana-activity-row" style="animation-delay:.04s">
-              <div class="ana-act-ico" style="background:rgba(224,85,120,.15)">💌</div>
-              <div style="flex:1">
-                <div class="ana-act-title">Read "Missing Your Laugh"</div>
-                <div class="ana-act-time">Today, 9:41 AM</div>
-              </div>
-              <div class="ana-act-badge" style="background:rgba(110,232,180,.1);color:var(--mint);border:1px solid rgba(110,232,180,.2)">Read ✓</div>
-            </div>
-            <div class="ana-activity-row" style="animation-delay:.08s">
-              <div class="ana-act-ico" style="background:rgba(245,200,112,.12)">🔥</div>
-              <div style="flex:1">
-                <div class="ana-act-title">Maintained 14-day streak</div>
-                <div class="ana-act-time">Today, 9:38 AM</div>
-              </div>
-              <div class="ana-act-badge" style="background:rgba(245,200,112,.1);color:var(--gold);border:1px solid rgba(245,200,112,.2)">Streak</div>
-            </div>
-            <div class="ana-activity-row" style="animation-delay:.12s">
-              <div class="ana-act-ico" style="background:rgba(200,168,240,.1)">😊</div>
-              <div style="flex:1">
-                <div class="ana-act-title">Mood: Happy & grateful</div>
-                <div class="ana-act-time">Today, 9:35 AM</div>
-              </div>
-              <div class="ana-act-badge" style="background:rgba(200,168,240,.1);color:var(--lilac);border:1px solid rgba(200,168,240,.2)">Mood</div>
-            </div>
-            <div class="ana-activity-row" style="animation-delay:.16s">
-              <div class="ana-act-ico" style="background:rgba(110,232,180,.1)">🪙</div>
-              <div style="flex:1">
-                <div class="ana-act-title">Collected 450 passive coins</div>
-                <div class="ana-act-time">Yesterday, 10:20 PM</div>
-              </div>
-              <div class="ana-act-badge" style="background:rgba(110,232,180,.1);color:var(--mint);border:1px solid rgba(110,232,180,.2)">Coins</div>
-            </div>
-          </div>
-        </div>
-
         <!-- Ana's Wish List -->
         <div class="C">
           <div class="rob-section-lbl">Ana's Wish List ✨</div>
@@ -1135,51 +1080,6 @@
 
         </div>
 
-        <!-- Memory Jar — Robert's manager (shown when unlocked) -->
-        <div class="C" id="rob-memory-jar-card" style="display:none">
-          <div class="rob-section-lbl">🫙 Memory Jar</div>
-          <div id="rob-memory-list"></div>
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <input type="text" id="rob-memory-input" class="rob-input" placeholder="Add a memory…" maxlength="120" style="flex:1">
-            <button class="dev-pts-btn rw" onclick="addMemory(document.getElementById('rob-memory-input').value);document.getElementById('rob-memory-input').value='';R(event,this)" style="flex-shrink:0;padding:10px 14px">Add</button>
-          </div>
-        </div>
-
-        <!-- Love Map — Robert's manager (shown when unlocked) -->
-        <div class="C" id="rob-love-map-card" style="display:none">
-          <div class="rob-section-lbl">📍 Love Map</div>
-          <div id="rob-love-map-list"></div>
-          <button class="dev-pts-btn rw" onclick="openLoveMapAdmin();R(event,this)" style="width:100%;margin-top:10px;padding:10px 14px">
-            + Add a place
-          </button>
-        </div>
-
-        <!-- Relationship Timeline — Robert's manager (always available, shown to Ana in Logs) -->
-        <div class="C">
-          <div class="rob-section-lbl">🗓️ Relationship Timeline</div>
-          <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Entries you add here show up on Ana's Logs page, in order.</div>
-          <div id="rob-timeline-list"></div>
-          <button class="dev-pts-btn rw" onclick="openTimelineAdmin();R(event,this)" style="width:100%;margin-top:10px;padding:10px 14px">
-            + Add a timeline entry
-          </button>
-        </div>
-
-        <!-- Surprises Pricing — edit price of each of the 15 interactive surprises -->
-        <div class="C">
-          <div class="rob-section-lbl">🎁 Surprises Pricing</div>
-          <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Edit what each surprise costs Ana to unlock in Explore.</div>
-          <div id="rob-surprises-pricing-list"></div>
-        </div>
-
-        <!-- Updates & What's New — Robert's manager (always available, shown to Ana in Logs) -->
-        <div class="C">
-          <div class="rob-section-lbl">📋 Updates &amp; What's New</div>
-          <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Post a real update — shows on Ana's Logs page, newest first.</div>
-          <div id="rob-updates-list"></div>
-          <button class="dev-pts-btn rw" onclick="openUpdatesAdmin();R(event,this)" style="width:100%;margin-top:10px;padding:10px 14px">
-            + Post an update
-          </button>
-        </div>
         <div class="C" id="rob-ana-messages-card">
           <div class="rob-section-lbl">From Ana 💕</div>
           <div id="rob-ana-messages-list">
@@ -1187,15 +1087,19 @@
           </div>
         </div>
 
-        <!-- Next letter countdown -->
+        <!-- Goodnight Letter scheduler — real control, replaces what used
+             to be a fake "every 2 days" countdown that didn't check
+             anything Robert actually did -->
         <div class="C">
-          <div class="rob-section-lbl">Your Next Goodnight Letter</div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div>
-              <div style="font-size:26px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums" id="rob-cd">--:--:--</div>
-              <div style="font-size:11px;color:var(--tx2);margin-top:3px">until Ana expects your next letter 🌙</div>
-            </div>
-            <div style="font-size:34px;animation:float 3s ease infinite">🌙</div>
+          <div class="rob-section-lbl">🌙 Goodnight Letter</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:10px" id="rob-gn-status">Nothing scheduled yet</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input type="date" id="rob-gn-date" style="flex:1;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;font-family:inherit;box-sizing:border-box">
+            <button class="dev-pts-btn rw" onclick="dvSetGoodnightLetter();R(event,this)" style="padding:0 18px">Save</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="dev-btn rw" style="flex:1;background:rgba(0,255,180,.08);border-color:rgba(0,255,180,.2);color:#00ffb4" onclick="dvGoodnightTonight();R(event,this)">🌙 Ready tonight</button>
+            <button class="dev-btn rw" style="flex:1" onclick="dvClearGoodnightLetter();R(event,this)">✕ Clear</button>
           </div>
         </div>
 
@@ -1205,7 +1109,7 @@
       <div class="rob-SC on" id="rob-dev">
 
         <!-- ── HEADER STATUS ── -->
-        <div class="dv-card" style="background:linear-gradient(135deg,rgba(0,255,180,.06),rgba(0,0,0,0))">
+        <div class="dv-card dv-hero">
           <div style="display:flex;align-items:center;gap:16px">
             <div style="display:flex;flex-direction:column;gap:2px">
               <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(0,255,180,.6);text-transform:uppercase">DEV CONSOLE</div>
@@ -1229,6 +1133,12 @@
 
         <!-- ══ CONTENT TAB ══ -->
         <div id="dv-content" class="dv-pane">
+
+          <!-- Ana's Love Languages (read-only — she sets these herself in Settings) -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">💕 Ana's Love Languages</div></div>
+            <div id="dv-love-lang-list"></div>
+          </div>
 
           <!-- Calendar -->
           <div class="dv-card">
@@ -1263,9 +1173,10 @@
               <button class="dv-tab-btn on" data-dk="notes"     onclick="devTab('notes');R(event,this)">📝 Notes</button>
               <button class="dv-tab-btn"    data-dk="surprises" onclick="devTab('surprises');R(event,this)">🎁 Surprises</button>
               <button class="dv-tab-btn"    data-dk="letters"   onclick="devTab('letters');R(event,this)">💌 Letters</button>
+              <button class="dv-tab-btn"    data-dk="templates" onclick="devTab('templates');R(event,this)">📄 Templates</button>
             </div>
             <div id="dev-list-rob"></div>
-            <button class="dv-btn" style="margin-top:10px" onclick="openDevEditor(null);R(event,this)">＋ Add New Letter</button>
+            <button class="dv-btn" id="dev-add-new-btn" style="margin-top:10px" onclick="openDevEditor(null);R(event,this)">＋ Add New Letter</button>
           </div>
 
         </div><!-- /content -->
@@ -1277,6 +1188,12 @@
           <div class="dv-card" id="dv-shop-status">
             <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Shop Items — Robert Config</div></div>
             <div id="dv-shop-list"><!-- rendered by JS --></div>
+          </div>
+
+          <!-- Achievements status + grant/revoke -->
+          <div class="dv-card" id="dv-ach-status">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">🏆 Achievements — Grant/Revoke</div></div>
+            <div id="dv-ach-list"><!-- rendered by JS --></div>
           </div>
 
           <!-- Couple Song -->
@@ -1427,11 +1344,21 @@
 
           <div style="font-size:11px;color:var(--tx3);text-align:center;padding:2px 0">Theme is managed in the Settings tab</div>
 
+          <!-- Cloud Backups -->
+          <div class="dv-card">
+            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">☁️ Cloud Backups</div></div>
+            <div id="dv-backups-status" style="font-size:11px;color:var(--dev-tx2);margin-bottom:10px">Loading…</div>
+            <button id="dv-backup-now-btn" class="dv-btn" style="margin-bottom:12px" onclick="dvBackupNow();R(event,this)">☁️ Backup Now</button>
+            <div id="dv-backups-list"></div>
+          </div>
+
           <!-- Danger zone -->
           <div class="dv-card">
             <div class="dv-head"><div class="dv-head-dot" style="background:var(--dev-red);box-shadow:0 0 8px var(--dev-red)"></div><div class="dv-head-lbl" style="color:rgba(255,79,79,.8)">Danger Zone</div></div>
             <button class="dv-btn danger" style="margin-bottom:8px" onclick="devResetLocalStorage();R(event,this)">🗑️ Reset All Data</button>
             <button class="dv-btn danger" style="margin-bottom:8px" onclick="dvForceUnlockAllShop()">🔓 Force Unlock All Shop Items</button>
+            <button class="dv-btn danger" style="margin-bottom:8px" onclick="dvGrantAllAchievements()">🏆 Grant ALL Achievements</button>
+            <button class="dv-btn danger" style="margin-bottom:8px" onclick="dvRevokeAllAchievements()">🚫 Revoke ALL Achievements</button>
             <button class="dv-btn warn" style="margin-bottom:8px" onclick="dvSimulateAchievementStats();R(event,this)">🏆 Simulate All Achievement Stats</button>
             <button class="dv-btn danger" onclick="dvResetAchievementStats();R(event,this)">↩️ Reset Achievement Stats</button>
           </div>
@@ -1497,6 +1424,70 @@
 
       <!-- ████ ROB SETTINGS ████ -->
       <div class="rob-SC" id="rob-robsettings">
+        <!-- ═══════════════════════════════════════════
+             CONTENT & FEATURES — everything you write for
+             Ana and every price/reward you configure lives here.
+        ═══════════════════════════════════════════ -->
+        <div style="font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--tx3);text-transform:uppercase;margin:4px 2px 2px">Content &amp; Features</div>
+        <!-- Memory Jar — Robert's manager (shown when unlocked) -->
+        <div class="C" id="rob-memory-jar-card" style="display:none">
+          <div class="rob-section-lbl">🫙 Memory Jar</div>
+          <div id="rob-memory-list"></div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <input type="text" id="rob-memory-input" class="rob-input" placeholder="Add a memory…" maxlength="120" style="flex:1">
+            <button class="dev-pts-btn rw" onclick="addMemory(document.getElementById('rob-memory-input').value);document.getElementById('rob-memory-input').value='';R(event,this)" style="flex-shrink:0;padding:10px 14px">Add</button>
+          </div>
+        </div>
+
+        <!-- Love Map — Robert's manager (shown when unlocked) -->
+        <div class="C" id="rob-love-map-card" style="display:none">
+          <div class="rob-section-lbl">📍 Love Map</div>
+          <div id="rob-love-map-list"></div>
+          <button class="dev-pts-btn rw" onclick="openLoveMapAdmin();R(event,this)" style="width:100%;margin-top:10px;padding:10px 14px">
+            + Add a place
+          </button>
+        </div>
+
+        <!-- Relationship Timeline — Robert's manager (always available, shown to Ana in Logs) -->
+        <div class="C">
+          <div class="rob-section-lbl">🗓️ Relationship Timeline</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Entries you add here show up on Ana's Logs page, in order.</div>
+          <div id="rob-timeline-list"></div>
+          <button class="dev-pts-btn rw" onclick="openTimelineAdmin();R(event,this)" style="width:100%;margin-top:10px;padding:10px 14px">
+            + Add a timeline entry
+          </button>
+        </div>
+
+        <!-- Surprises Pricing — edit price of each of the 15 interactive surprises -->
+        <div class="C">
+          <div class="rob-section-lbl">🎁 Surprises Pricing</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Edit what each surprise costs Ana to unlock in Explore.</div>
+          <div id="rob-surprises-pricing-list"></div>
+          <button class="dev-pts-btn rw" onclick="saveState();T('💾 Surprise prices saved');showSuccess('💾','Saved!','rgba(224,85,120,.2)');R(event,this)" style="width:100%;margin-top:10px;padding:10px 14px">
+            💾 Save Prices
+          </button>
+        </div>
+
+        <!-- Achievement Rewards — edit the point reward for each achievement -->
+        <div class="C">
+          <div class="rob-section-lbl">🏆 Achievement Rewards</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Edit how many points Ana earns for each achievement.</div>
+          <div id="rob-ach-rewards-list"></div>
+          <button class="dev-pts-btn rw" onclick="saveState();T('💾 Achievement rewards saved');showSuccess('💾','Saved!','rgba(224,85,120,.2)');R(event,this)" style="width:100%;margin-top:10px;padding:10px 14px">
+            💾 Save Rewards
+          </button>
+        </div>
+
+        <!-- Updates & What's New — Robert's manager (always available, shown to Ana in Logs) -->
+        <div class="C">
+          <div class="rob-section-lbl">📋 Updates &amp; What's New</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Post a real update — shows on Ana's Logs page, newest first.</div>
+          <div id="rob-updates-list"></div>
+          <button class="dev-pts-btn rw" onclick="openUpdatesAdmin();R(event,this)" style="width:100%;margin-top:10px;padding:10px 14px">
+            + Post an update
+          </button>
+        </div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--tx3);text-transform:uppercase;margin:14px 2px 2px">App Settings</div>
 
         <div class="C">
           <div class="rob-section-lbl">🎨 Theme</div>
@@ -1613,7 +1604,7 @@
 
     <!-- ════ COLOR BY NUMBER OVERLAY ════ -->
   <div id="cbn-overlay">
-    <iframe id="cbn-frame" src="about:blank" scrolling="no" allow="autoplay" style="flex:1;border:none;width:100%;height:100%"></iframe>
+    <iframe id="cbn-frame" title="Heartly Pixel Art coloring game" src="about:blank" scrolling="no" allow="autoplay" style="flex:1;border:none;width:100%;height:100%"></iframe>
   </div>
 
   <!-- ════ HOW TO PLAY MODAL ════ -->
@@ -1685,7 +1676,7 @@
     <div id="DEV-PW-BOX">
       <div class="pw-ico">🔐</div>
       <div class="pw-title">Developer Access</div>
-      <div class="pw-sub">Enter your password to continue</div>
+      <div class="pw-sub">Password login is temporarily disabled</div>
       <div class="pw-input-wrap">
         <input type="password" id="dev-pw-input" placeholder="Password"
                onkeydown="if(event.key==='Enter') submitDevPassword()"
@@ -1693,7 +1684,7 @@
         <button class="pw-toggle" id="pw-eye" onclick="togglePwVisibility()">👁</button>
       </div>
       <div class="pw-error" id="pw-error"></div>
-      <button class="pw-btn rw" onclick="submitDevPassword();R(event,this)">Unlock Dev Mode</button>
+      <button class="pw-btn rw" disabled aria-disabled="true">Password Login Disabled</button>
       <button class="pw-btn rw" id="dev-pw-faceid-btn" onclick="loginWithDevFaceId();R(event,this)" style="display:none;background:rgba(0,255,180,.12);border:1px solid rgba(0,255,180,.3);color:#00ffb4;margin-top:8px;align-items:center;justify-content:center;gap:8px">
         <span>🆔</span> Use Face ID
       </button>
@@ -2154,7 +2145,11 @@
   </div>
 
 <!-- JS — order matters: state first, canvas second, then everything else -->
+<script src="pixelart/core.js"></script>
+<script src="pixelart/catalog.js"></script>
+<script src="pixelart/importer.js"></script>
 <script src="js/state.js"></script>
+<script src="js/pixelart-bridge.js"></script>
 <input type="file" id="backup-restore-input" accept="application/json" style="display:none" onchange="importBackup(this)">
 <script src="js/icons.js"></script>
 <script src="js/canvas.js"></script>

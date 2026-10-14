@@ -577,12 +577,6 @@ function saveToFavourites(){
   if(favBtn){ favBtn.innerHTML = '♥ Saved!'; favBtn.style.opacity = '.6'; }
   // Re-render profile favs if open
   renderProfileFavs();
-  // Add points
-  const old = ptsVal;
-  ptsVal += 35;
-  animatePts(old, ptsVal, 400);
-  logPtsChange(35);
-  addTxItem('♥', 'Letter saved to favourites', 'Just now', '+35', 'earn');
   saveState();
 }
 window.saveToFavourites = saveToFavourites;

@@ -24,6 +24,34 @@ function mkColor(hex){
   };
 }
 const COLORS = PIECE_COLORS.map(p=>mkColor(p.bg));
+
+// ── COSMETIC SKINS (Skins Shop — points-only purchases) ──
+const LB_COLOR_PACKS = {
+  classic: PIECE_COLORS,
+  lb_color_rosegold: [
+    {bg:'#c9862f',hi:'#e8b96a',sh:'#7a4f1a'}, {bg:'#e8a648',hi:'#ffd28a',sh:'#8f5f20'},
+    {bg:'#b8763a',hi:'#d9a06a',sh:'#6e451f'}, {bg:'#f0c880',hi:'#fff0c8',sh:'#a07830'},
+    {bg:'#d99050',hi:'#f0bc80',sh:'#805020'}, {bg:'#c8a060',hi:'#e8c890',sh:'#785a2e'},
+    {bg:'#e0b878',hi:'#ffe0b0',sh:'#906830'},
+  ],
+  lb_color_starry: [
+    {bg:'#1a1650',hi:'#4038a0',sh:'#0a0828'}, {bg:'#2a2078',hi:'#5850c0',sh:'#120e40'},
+    {bg:'#3830a0',hi:'#7068d8',sh:'#181460'}, {bg:'#181048',hi:'#3830a0',sh:'#0a0620'},
+    {bg:'#4840b8',hi:'#8880e8',sh:'#201850'}, {bg:'#221a68',hi:'#5048a8',sh:'#100c34'},
+    {bg:'#5850d0',hi:'#a0a0f8',sh:'#282070'},
+  ],
+  lb_color_candy: [
+    {bg:'#ffb0c8',hi:'#ffe0ea',sh:'#c06080'}, {bg:'#b0e0ff',hi:'#e0f4ff',sh:'#5090c0'},
+    {bg:'#c8ffb8',hi:'#ecffe0',sh:'#70b060'}, {bg:'#fff0a0',hi:'#fffbd8',sh:'#c0a840'},
+    {bg:'#e0b8ff',hi:'#f4e0ff',sh:'#9060c0'}, {bg:'#ffd0a0',hi:'#ffecd8',sh:'#c08850'},
+    {bg:'#b8f0e0',hi:'#e0fff8',sh:'#60b0a0'},
+  ],
+};
+function getColorPalette(){
+  const skin = (window.parent && window.parent.loveblastEquippedColor) || 'classic';
+  const pack = LB_COLOR_PACKS[skin] || LB_COLOR_PACKS.classic;
+  return pack.map(p=>mkColor(p.bg));
+}
 const EMPTY  = {bg:'#110e1c',top:'#1a1628',left:'#0e0c18',right:'#0b0910',bot:'#080710'};
 const HOVER_OK  = {bg:'rgba(224,85,120,.22)',top:'rgba(255,140,170,.4)',left:'rgba(200,70,100,.2)',right:'rgba(160,40,80,.15)',bot:'rgba(120,20,60,.1)'};
 const HOVER_BAD = {bg:'rgba(255,50,50,.15)',top:'rgba(255,90,90,.25)',left:'rgba(220,40,40,.13)',right:'rgba(180,30,30,.1)',bot:'rgba(140,20,20,.07)'};
@@ -112,6 +140,10 @@ function resize(){
 // ══════════════════════════════════════════
 // DRAWING
 // ══════════════════════════════════════════
+function getEquippedShape(){
+  return (window.parent && window.parent.loveblastEquippedShape) || 'classic';
+}
+
 function drawBlock(ctx,x,y,c,sz,radius){
   sz=sz||BS;radius=radius||Math.max(2,Math.floor(sz*.12));
   const bw=Math.max(2,Math.floor(sz*.13));
@@ -134,6 +166,25 @@ function drawBlock(ctx,x,y,c,sz,radius){
   ctx.fillStyle=shine;
   roundRect(ctx,x+bw,y+bw,sz-bw*2,sz*.35,Math.max(1,radius-2),true);
   ctx.fill();
+  // Shape skin — a small icon centered on the block, only for real
+  // (non-empty, non-hover-preview) blocks. c.bg being a hex color
+  // (starts with '#') distinguishes a real piece color from the
+  // rgba() hover/break placeholders, which shouldn't get an icon.
+  if(c.bg && c.bg[0]==='#'){
+    const shape = getEquippedShape();
+    if(shape==='lb_shape_hearts') drawCenterGlyph(ctx,x,y,sz,'❤');
+    else if(shape==='lb_shape_stars') drawCenterGlyph(ctx,x,y,sz,'★');
+  }
+}
+
+function drawCenterGlyph(ctx,x,y,sz,glyph){
+  ctx.save();
+  ctx.font = Math.floor(sz*.5)+'px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(255,255,255,.4)';
+  ctx.fillText(glyph, x+sz/2, y+sz/2+sz*.03);
+  ctx.restore();
 }
 
 function roundRect(ctx,x,y,w,h,r,noPath){
@@ -219,12 +270,13 @@ function renderHand(){
 // GAME LOGIC
 // ══════════════════════════════════════════
 function rndPiece(){
+  const palette = getColorPalette();
   let r=Math.random()*TOTAL_W;
   for(let i=0;i<PIECES.length;i++){
     r-=WEIGHTS[i];
-    if(r<0)return{matrix:PIECES[i],color:COLORS[Math.floor(Math.random()*COLORS.length)]};
+    if(r<0)return{matrix:PIECES[i],color:palette[Math.floor(Math.random()*palette.length)]};
   }
-  return{matrix:PIECES[0],color:COLORS[0]};
+  return{matrix:PIECES[0],color:palette[0]};
 }
 
 function fillHand(){
@@ -348,18 +400,33 @@ function spawnParticles(rows,cols){
   rows.forEach(r=>cols.forEach(c=>positions.add(r+'_'+c)));
   rows.forEach(r=>{for(let c=0;c<boardSize;c+=2)positions.add(r+'_'+c);});
   cols.forEach(c=>{for(let r=0;r<boardSize;r+=2)positions.add(r+'_'+c);});
+
+  const fx = (window.parent && window.parent.loveblastEquippedFx) || 'classic';
+  const hues = fx==='lb_fx_confetti'
+    ? ['#ff8fab','#e05578','#ffb0c8','#fff0a0']
+    : fx==='lb_fx_sparkle'
+      ? ['#ffe680','#fff8d0','#ffd24a','#fffbe8']
+      : ['#e05578','#f5c870','#6ee8b4','#c8a8f0'];
+  const glyph = fx==='lb_fx_confetti' ? '❤' : fx==='lb_fx_sparkle' ? '✦' : null;
+
   let count=0;
   positions.forEach(key=>{
     if(count>20)return;count++;
     const [r,c]=key.split('_').map(Number);
     const px=gr.left+c*BS+BS/2,py=gr.top+r*BS+BS/2;
-    const hues=['#e05578','#f5c870','#6ee8b4','#c8a8f0'];
     for(let i=0;i<3;i++){
       const el=document.createElement('div');
-      el.className='particle';
       const angle=Math.random()*Math.PI*2;
       const dist=30+Math.random()*50;
-      el.style.cssText=`left:${px}px;top:${py}px;background:${hues[Math.floor(Math.random()*hues.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist-40}px;--dur:${0.5+Math.random()*.4}s;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px`;
+      const dur=0.5+Math.random()*.4;
+      if(glyph){
+        el.className='particle particle-glyph';
+        el.textContent=glyph;
+        el.style.cssText=`left:${px}px;top:${py}px;color:${hues[Math.floor(Math.random()*hues.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist-40}px;--dur:${dur}s;font-size:${10+Math.random()*6}px`;
+      } else {
+        el.className='particle';
+        el.style.cssText=`left:${px}px;top:${py}px;background:${hues[Math.floor(Math.random()*hues.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist-40}px;--dur:${dur}s;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px`;
+      }
       document.body.appendChild(el);
       setTimeout(()=>el.remove(),(0.5+.4)*1000+100);
     }
@@ -544,6 +611,103 @@ function doGameOver(){
 
 window.addEventListener('resize',()=>{if(board)resize();});
 
+// ══════════════════════════════════════════
+// SKINS SHOP
+// Points-only purchases. Reads/writes window.parent directly since
+// this is a same-origin iframe (same pattern awardToHeartly already
+// uses for ptsVal/saveState).
+// ══════════════════════════════════════════
+const SKIN_CATALOG = {
+  color: [
+    {id:'classic', name:'Classic', cost:0, swatch:'#e05578'},
+    {id:'lb_color_rosegold', name:'Rose Gold', cost:350, swatch:'#e8a648'},
+    {id:'lb_color_starry', name:'Starry Night', cost:350, swatch:'#3830a0'},
+    {id:'lb_color_candy', name:'Candy Pastel', cost:350, swatch:'#ffb0c8'},
+  ],
+  shape: [
+    {id:'classic', name:'Classic (no icon)', cost:0, icon:'◻'},
+    {id:'lb_shape_hearts', name:'Hearts', cost:450, icon:'❤'},
+    {id:'lb_shape_stars', name:'Stars', cost:450, icon:'★'},
+  ],
+  fx: [
+    {id:'classic', name:'Classic Burst', cost:0, icon:'💥'},
+    {id:'lb_fx_sparkle', name:'Sparkle Burst', cost:300, icon:'✨'},
+    {id:'lb_fx_confetti', name:'Heart Confetti', cost:300, icon:'🎉'},
+  ],
+};
+const SKIN_EQUIP_KEY = { color:'loveblastEquippedColor', shape:'loveblastEquippedShape', fx:'loveblastEquippedFx' };
+let currentSkinsTab = 'color';
+
+function openSkinsShop(){
+  document.getElementById('ov-skins').classList.remove('hidden');
+  renderSkinsList();
+}
+function closeSkinsShop(){
+  document.getElementById('ov-skins').classList.add('hidden');
+}
+function skinsTab(cat){
+  currentSkinsTab = cat;
+  document.querySelectorAll('.skins-tab').forEach(t=>t.classList.toggle('on', t.dataset.sk===cat));
+  renderSkinsList();
+}
+
+function renderSkinsList(){
+  const p = window.parent;
+  const pts = (p && p.ptsVal) || 0;
+  const ptsRow = document.getElementById('skins-pts-row');
+  if(ptsRow) ptsRow.textContent = '🪙 ' + Math.floor(pts).toLocaleString() + ' pts';
+
+  const owned = (p && p.loveblastOwnedCosmetics) || [];
+  const equipKey = SKIN_EQUIP_KEY[currentSkinsTab];
+  const equipped = (p && p[equipKey]) || 'classic';
+  const list = document.getElementById('skins-list');
+  if(!list) return;
+
+  list.innerHTML = SKIN_CATALOG[currentSkinsTab].map(item=>{
+    const isOwned = item.id==='classic' || owned.includes(item.id);
+    const isEquipped = equipped===item.id;
+    const swatchStyle = item.swatch ? `background:${item.swatch}` : 'background:rgba(255,255,255,.08)';
+    let btn;
+    if(isEquipped) btn = `<button class="skin-btn equipped" disabled>✓ Equipped</button>`;
+    else if(isOwned) btn = `<button class="skin-btn equip" onclick="equipSkin('${currentSkinsTab}','${item.id}')">Equip</button>`;
+    else btn = `<button class="skin-btn buy" onclick="buySkin('${currentSkinsTab}','${item.id}',${item.cost})">Buy ${item.cost}</button>`;
+    return `<div class="skin-item${isEquipped?' equipped':''}">
+      <div class="skin-swatch" style="${swatchStyle}">${item.icon||''}</div>
+      <div class="skin-info">
+        <div class="skin-name">${item.name}</div>
+        <div class="skin-price">${item.cost===0?'Free':item.cost+' pts'}</div>
+      </div>
+      ${btn}
+    </div>`;
+  }).join('');
+}
+
+function buySkin(category, id, cost){
+  const p = window.parent;
+  if(!p || p===window) return;
+  const balance = p.ptsVal || 0;
+  if(balance < cost){
+    if(typeof p.T==='function') p.T('⚠️ Not enough points — need '+cost);
+    return;
+  }
+  const old = balance;
+  p.ptsVal = balance - cost;
+  if(typeof p.animatePts==='function') p.animatePts(old, p.ptsVal, 500);
+  if(!p.loveblastOwnedCosmetics) p.loveblastOwnedCosmetics = [];
+  p.loveblastOwnedCosmetics.push(id);
+  if(typeof p.addTxItem==='function') p.addTxItem('🎨','Love Blast skin: '+id,'Just now','-'+cost,'spend');
+  if(typeof p.T==='function') p.T('🎨 Skin unlocked!');
+  equipSkin(category, id); // auto-equip a fresh purchase
+}
+
+function equipSkin(category, id){
+  const p = window.parent;
+  if(!p || p===window) return;
+  p[SKIN_EQUIP_KEY[category]] = id;
+  if(typeof p.saveState==='function') p.saveState();
+  renderSkinsList();
+}
+
 // ── LOADING SCREEN ──
 (function(){
   const bar = document.getElementById('loading-bar');
@@ -576,10 +740,10 @@ window.addEventListener('resize',()=>{if(board)resize();});
 
   // Per-game payout: sqrt curve gives fast early points but flattens hard,
   // then a hard cap stops chaos-mode high scores from trivializing the shop.
-  const PER_GAME_CAP = 150;
+  const PER_GAME_CAP = 30000;
   function scoreToPoints(s){
     if(!s || s <= 0) return 0;
-    return Math.max(1, Math.min(PER_GAME_CAP, Math.floor(Math.sqrt(s) * 2.0)));
+    return Math.max(1, Math.min(PER_GAME_CAP, Math.floor(Math.sqrt(s) * 3.0)));
   }
 
   // One-time bonuses for cumulative lifetime score across all games —
@@ -634,6 +798,16 @@ window.addEventListener('resize',()=>{if(board)resize();});
       }
     });
     saveBridge();
+
+    // Report games-played/best-score/lifetime-score into the parent app —
+    // this is what makes Love Blast achievements possible, the same way
+    // clicker/clicker-script.js does via reportClickerSession().
+    try {
+      const p = window.parent;
+      if(p && p !== window && typeof p.reportBlastSession === 'function'){
+        p.reportBlastSession(finalScore, isNewBest);
+      }
+    } catch(e){}
   }
 
   window.awardLoveBlastPoints = awardLoveBlastPoints;

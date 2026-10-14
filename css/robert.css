@@ -88,19 +88,6 @@
   color:var(--tx3);text-transform:uppercase;margin-bottom:6px;
 }
 
-/* ── WRITE LETTER ── */
-.letter-type-row{display:flex;gap:8px;margin-bottom:4px}
-.letter-type-btn{
-  flex:1;padding:10px 6px;border-radius:var(--r2);
-  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
-  font-size:11px;font-weight:700;color:var(--tx2);text-align:center;
-  cursor:pointer;transition:all .22s;font-family:'Nunito',sans-serif;
-}
-.letter-type-btn.on{
-  background:rgba(110,232,180,.12);
-  border-color:rgba(110,232,180,.3);
-  color:var(--mint);
-}
 .rob-input{
   width:100%;background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.1);
@@ -119,28 +106,6 @@
   -webkit-text-fill-color:#fff !important;
   caret-color:#fff;
 }
-.rob-char-count{font-size:10px;color:var(--tx3);text-align:right;margin-top:4px}
-
-.rob-send-btn{
-  width:100%;padding:15px;border-radius:var(--rp);
-  background:linear-gradient(135deg,rgba(40,120,80,.7),rgba(110,232,180,.4));
-  border:1px solid rgba(110,232,180,.4);
-  color:#fff;font-size:14px;font-weight:900;
-  font-family:'Nunito',sans-serif;cursor:pointer;transition:all .15s;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.rob-send-btn:hover{transform:scale(1.02);box-shadow:0 6px 24px rgba(110,232,180,.2)}
-.rob-send-btn:active{transform:scale(.98)}
-
-.send-preview{
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
-  border-radius:var(--r3);padding:14px 16px;
-}
-.send-preview-label{font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-bottom:8px}
-.send-preview-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:5px}
-.send-preview-body{font-size:12px;color:var(--tx2);line-height:1.7;font-style:italic}
-.send-preview-sig{font-size:12px;font-weight:700;color:rgba(110,232,180,.8);margin-top:10px}
-
 /* ── ANA'S ACTIVITY ── */
 .ana-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .ana-stat{
@@ -295,33 +260,6 @@
   background:rgba(255,255,255,.08);border-radius:999px;
   padding:2px 9px;color:var(--tx2);
 }
-
-/* ── DRAFT BANNER ── */
-.draft-banner {
-  display:flex;align-items:center;gap:10px;
-  background:rgba(245,200,112,.08);
-  border:1px solid rgba(245,200,112,.22);
-  border-radius:var(--r2);padding:11px 14px;
-  animation:fadeUp .3s ease both;
-}
-.draft-banner-ico { font-size:18px;flex-shrink:0 }
-.draft-banner-txt { flex:1;font-size:12px;font-weight:700;color:rgba(245,200,112,.9) }
-.draft-banner-sub { font-size:10px;color:var(--tx3);font-weight:600;margin-top:1px }
-.draft-banner-btns { display:flex;gap:6px;flex-shrink:0 }
-.draft-yes-btn {
-  padding:6px 12px;border-radius:var(--rp);
-  background:rgba(245,200,112,.15);border:1px solid rgba(245,200,112,.3);
-  color:var(--gold);font-size:11px;font-weight:800;
-  font-family:'Nunito',sans-serif;cursor:pointer;transition:all .2s;
-}
-.draft-yes-btn:active { background:rgba(245,200,112,.28) }
-.draft-discard-btn {
-  padding:6px 12px;border-radius:var(--rp);
-  background:transparent;border:1px solid rgba(255,255,255,.08);
-  color:var(--tx3);font-size:11px;font-weight:800;
-  font-family:'Nunito',sans-serif;cursor:pointer;transition:all .2s;
-}
-.draft-discard-btn:active { background:rgba(255,255,255,.06) }
 
 /* ── SCHEDULING CALENDAR ── */
 .rob-cal {
@@ -588,6 +526,10 @@
 .dv-stat-val { font-size: 16px; font-weight: 900; color: var(--dev-accent); }
 .dv-stat-lbl { font-size: 8px; color: var(--dev-tx2); text-transform: uppercase; letter-spacing: .5px; margin-top: 1px; }
 
+/* Read-only stat bar — e.g. Love Languages */
+.dv-bar-track { background: rgba(255,255,255,.06); border-radius: 999px; height: 7px; overflow: hidden; }
+.dv-bar-fill  { height: 100%; border-radius: 999px; transition: width .3s ease; }
+
 /* Tab nav inside dev */
 .dv-tabs {
   display: flex; gap: 0;
@@ -624,3 +566,140 @@
 
 /* Topbar dev override */
 #ROBERT .rob-section-lbl { color: var(--dev-accent2); }
+
+/* ═══════════════════════════════════════════════════════════════
+   DEV CONSOLE — VISUAL REFRESH
+   Purely visual — no markup/ID/onclick changes, so nothing that
+   already works can break. Scoped under #rob-dev throughout, and
+   given real specificity (#rob-dev .classname) wherever it targets
+   classes defined in modals.css/overlays.css, which load AFTER this
+   file — without that, this section would silently lose the
+   cascade and do nothing.
+═══════════════════════════════════════════════════════════════ */
+
+/* Give every section card real depth instead of a flat fill — this
+   is the single biggest thing that made the console read as "plain
+   list app" rather than a control panel. */
+#rob-dev .dv-card {
+  background: linear-gradient(165deg, #141414 0%, var(--dev-bg2) 55%, #0d0d0d 100%);
+  box-shadow: 0 10px 28px -14px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.03);
+  border-radius: 16px;
+}
+#rob-dev .dv-card + .dv-card { margin-top: 14px; }
+
+/* Section header — bigger presence, subtle glow behind the dot */
+#rob-dev .dv-head { margin-bottom: 14px; }
+#rob-dev .dv-head-dot { box-shadow: 0 0 0 4px rgba(0,255,180,.08), 0 0 8px var(--dev-accent); }
+#rob-dev .dv-head-lbl { font-size: 10.5px; }
+
+/* Console header hero — the "DEV CONSOLE / Heartly Control" card */
+#rob-dev .dv-card.dv-hero {
+  background: radial-gradient(120% 160% at 0% 0%, rgba(0,255,180,.09), transparent 55%),
+              linear-gradient(165deg, #141414 0%, var(--dev-bg2) 60%, #0d0d0d 100%);
+}
+
+/* Sub-tab pills — icon-forward, glow on the active tab instead of a
+   flat fill so it reads as "selected", not just "slightly lighter" */
+#rob-dev .dv-tabs {
+  background: var(--dev-bg);
+  border: 1px solid var(--dev-border2);
+  padding: 4px;
+  gap: 2px;
+}
+#rob-dev .dv-tab-btn {
+  padding: 9px 8px;
+  border-radius: 9px;
+}
+#rob-dev .dv-tab-btn.on {
+  background: linear-gradient(165deg, rgba(0,255,180,.18), rgba(0,255,180,.07));
+  box-shadow: 0 0 0 1px var(--dev-accent) inset, 0 4px 14px -6px rgba(0,255,180,.4);
+}
+
+/* Buttons — a touch more lift, clearer pressed state */
+#rob-dev .dv-btn { box-shadow: 0 2px 10px -4px rgba(0,255,180,.15); }
+#rob-dev .dv-btn.danger { box-shadow: 0 2px 10px -4px rgba(255,79,79,.15); }
+#rob-dev .dv-btn.warn   { box-shadow: 0 2px 10px -4px rgba(245,200,112,.15); }
+#rob-dev .dv-btn.purple { box-shadow: 0 2px 10px -4px rgba(176,128,240,.15); }
+
+/* Toggle rows (Shop Items, Achievements) — give each row its own
+   card-like presence with an icon badge instead of a flat divided
+   list, and a real chip for ACTIVE/EARNED status */
+#rob-dev .dv-toggle-row {
+  border-bottom: none;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  transition: background .18s, border-color .18s;
+}
+#rob-dev .dv-toggle-row:last-child { margin-bottom: 0; }
+#rob-dev .dv-toggle-row:hover { background: rgba(255,255,255,.035); }
+#rob-dev .dv-toggle-ico {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: rgba(255,255,255,.05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+/* Points hero number — the number IS the feature, make it feel like one */
+#rob-dev #dv-pts-big {
+  font-size: 44px !important;
+  text-shadow: 0 0 24px rgba(245,200,112,.35);
+  letter-spacing: -.5px;
+}
+#rob-dev .dv-pts-chip {
+  border-radius: 12px;
+  box-shadow: 0 2px 10px -4px rgba(245,200,112,.18);
+}
+
+/* Danger Zone — make it read as a real hazard area, not just red text */
+#rob-dev .dv-card:has(.dv-btn.danger + .dv-btn.danger) {
+  border-color: rgba(255,79,79,.22);
+  background: linear-gradient(165deg, rgba(255,79,79,.05), var(--dev-bg2) 55%, #0d0d0d 100%);
+}
+#rob-dev .dv-btn.danger { margin-bottom: 8px; }
+#rob-dev .dv-btn.danger:last-child { margin-bottom: 0; }
+
+/* ── Letter Library items ──
+   These reuse .dev-item/.dev-btn.edit/.dev-price-* from modals.css
+   and overlays.css, styled for the app's main rose/gold palette —
+   which is exactly why they visually clashed with the teal console
+   around them. Re-skin them to match the console instead of looking
+   like a different app grafted in. #rob-dev + class beats the plain
+   class selectors in those files regardless of load order. */
+#rob-dev .dev-item {
+  background: rgba(255,255,255,.025);
+  border: 1px solid var(--dev-border2);
+  border-radius: 12px;
+  padding: 12px 13px;
+  margin-bottom: 9px;
+}
+#rob-dev .dev-item:last-child { margin-bottom: 0; }
+#rob-dev .dev-item.locked-item { border-style: dashed; opacity: .55; }
+#rob-dev .dev-item-title { color: var(--dev-tx); font-size: 13px; }
+#rob-dev .dev-item-sub   { color: var(--dev-tx2); }
+#rob-dev .dev-item-price { border-top: 1px solid var(--dev-border2); margin-top: 8px; padding-top: 8px; }
+#rob-dev .dev-price-label { color: var(--dev-tx3); }
+#rob-dev .dev-price-input {
+  background: var(--dev-bg3); border: 1px solid var(--dev-border2); color: var(--dev-tx);
+}
+#rob-dev .dev-price-input:focus { border-color: var(--dev-accent); }
+#rob-dev .dev-price-save {
+  background: rgba(0,255,180,.1); border: 1px solid var(--dev-border); color: var(--dev-accent);
+}
+#rob-dev .dev-price-free { color: var(--dev-accent2); }
+#rob-dev .dev-item-actions { flex-wrap: wrap; }
+#rob-dev .dev-btn.edit   { background: rgba(245,200,112,.08); border-color: rgba(245,200,112,.22); color: var(--dev-yellow); }
+#rob-dev .dev-btn.unlock { background: rgba(0,255,180,.08);   border-color: var(--dev-border);      color: var(--dev-accent); }
+#rob-dev .dev-btn.del    { background: rgba(255,79,79,.08);   border-color: rgba(255,79,79,.22);    color: var(--dev-red); }
+
+/* Calendar — clearer today/selected state, tidier dot legend */
+#rob-dev .rob-cal-day.today .rob-cal-dn {
+  box-shadow: 0 0 10px rgba(0,255,180,.3);
+  font-weight: 900;
+}
+
+/* Empty states inside the console (Sent-style "nothing yet" cards
+   reused here) — dial them into the teal palette too */
+#rob-dev .dv-card[style*="text-align:center"] { color: var(--dev-tx2); }

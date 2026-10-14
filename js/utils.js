@@ -1,29 +1,35 @@
-/* ═══ NEXT LETTER DATE ═══ */
+/* ═══ NEXT LETTER DATE ═══
+   Real, Dev-controlled — Robert sets goodnightLetterNextDate from the
+   Dev tab. Used to be pure fake logic (`dayOfYear % 2 === 0`), which
+   claimed a letter was waiting every other calendar day regardless of
+   whether Robert had actually written or scheduled anything. */
 function updateGoodnight(){
-  const now = new Date();
   const el  = document.getElementById('cdown');
   const lbl = document.getElementById('cd-label');
   const sub = document.getElementById('cd-sub');
   if(!el) return;
 
-  // Letters every 2 days — find next letter date
-  const dayOfYear = Math.floor((now - new Date(now.getFullYear(),0,0)) / 86400000);
-  const isLetterDay = dayOfYear % 2 === 0;
+  const dateStr = (typeof goodnightLetterNextDate !== 'undefined') ? goodnightLetterNextDate : null;
 
-  // Check if a letter is available today (letter day and after midnight)
-  if(isLetterDay){
+  if(!dateStr){
+    if(lbl) lbl.textContent = 'No letter scheduled';
+    el.textContent = '—';
+    if(sub) sub.textContent = 'Robert hasn\'t scheduled one yet';
+    return;
+  }
+
+  const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD, local
+  if(dateStr <= todayStr){
     if(lbl) lbl.textContent = 'Letter available';
     el.textContent = 'Tonight 🌹';
     if(sub) sub.textContent = 'Robert left you a letter 💌';
   } else {
-    // Next letter is tomorrow
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1);
-    const dayName = tomorrow.toLocaleDateString('en-GB', { weekday:'long' });
-    const dateStr = tomorrow.toLocaleDateString('en-GB', { day:'numeric', month:'long' });
+    const target = new Date(dateStr + 'T00:00:00');
+    const dayName = target.toLocaleDateString('en-GB', { weekday:'long' });
+    const dateLbl = target.toLocaleDateString('en-GB', { day:'numeric', month:'long' });
     if(lbl) lbl.textContent = 'Next letter';
-    el.textContent = dayName + ', ' + dateStr;
-    if(sub) sub.textContent = 'Robert writes every 2 days 🌙';
+    el.textContent = dayName + ', ' + dateLbl;
+    if(sub) sub.textContent = 'Robert\'s got one coming 🌙';
   }
 }
 updateGoodnight();
@@ -89,7 +95,7 @@ function updateRobMoodCard(){
 
   if(ico)   ico.textContent   = anaMood.emoji;
   if(title) title.textContent = 'Ana is feeling ' + anaMood.label.toLowerCase();
-  if(sub)   sub.textContent   = 'She picked "' + anaMood.label + ' ' + anaMood.emoji + '" — ' + anaMood.time;
+  if(sub)   sub.textContent   = 'She picked "' + anaMood.label + '" — ' + anaMood.time;
 
   if(hist){
     hist.innerHTML = anaMood.history.slice(0,4).map(m=>`
@@ -245,6 +251,10 @@ function openGridLetter(i){
 window.openGridLetter = openGridLetter;
 
 renderGrid('notes');
+// Populate Ana's "Robert's mood" home card on first paint — previously it
+// only rendered after Robert actively picked a mood in the same session,
+// so a fresh load showed stale/empty state even if a mood was already saved.
+if(typeof updateRobMoodHomeCard === 'function') updateRobMoodHomeCard();
 document.getElementById('stabs').addEventListener('click',e=>{
   const b=e.target.closest('.stab');if(!b)return;
   document.querySelectorAll('.stab').forEach(s=>s.classList.remove('on'));

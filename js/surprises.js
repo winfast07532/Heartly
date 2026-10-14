@@ -52,11 +52,34 @@ window.SURPRISE_DEFS = SURPRISE_DEFS;
 function seedSurpriseCatalog(){
   if(typeof ED === 'undefined') return;
   if(!ED.surprises) ED.surprises = [];
-  if(ED.surprises.some(it => it.surpriseType)) return;
+
+  // BUG (fixed): this used to bail out completely once ANY surprise had
+  // already been seeded — meaning hand-edited labels/prices in
+  // SURPRISE_DEFS above were silently ignored forever after the very
+  // first app open, because the "real" data already living in
+  // ED.surprises (synced via Supabase) always won and this function
+  // never touched it again.
+  //
+  // New behavior: still add any brand-new SURPRISE_DEFS entries that
+  // don't exist yet, AND always resync the label text from
+  // SURPRISE_DEFS into existing entries (matched by surpriseType) since
+  // there's no in-app UI to rename a surprise — editing the code is the
+  // only way, so the code should always win for names.
+  // Price is intentionally left alone here — that one's meant to be
+  // edited live from Dev tab → Settings → Surprises Pricing, not from
+  // code, so a code edit to `price` only applies to a first-time seed.
+  let changed = false;
   SURPRISE_DEFS.forEach(def => {
-    ED.surprises.push({ l: def.label, i: 'gift', lk: true, price: def.price, surpriseType: def.id, read: false });
+    const existing = ED.surprises.find(it => it.surpriseType === def.id);
+    if(!existing){
+      ED.surprises.push({ l: def.label, i: 'gift', lk: true, price: def.price, surpriseType: def.id, read: false });
+      changed = true;
+    } else if(existing.l !== def.label){
+      existing.l = def.label;
+      changed = true;
+    }
   });
-  if(typeof saveState === 'function') saveState();
+  if(changed && typeof saveState === 'function') saveState();
 }
 window.seedSurpriseCatalog = seedSurpriseCatalog;
 
@@ -583,13 +606,43 @@ function renderRobSurprisesPricing(){
   const list = document.getElementById('rob-surprises-pricing-list');
   if(!list || typeof ED === 'undefined' || !ED.surprises) return;
   const rows = ED.surprises.map((it, idx) => ({ it, idx })).filter(x => x.it.surpriseType);
-  if(!rows.length){
+  // Items sitting on the surprises tab with NO surpriseType are either
+  // deliberately plain (added as a regular note, fine) or got corrupted
+  // by being saved through the generic letter editor, which used to
+  // silently strip surpriseType off (now fixed going forward — this
+  // section lets you repair any that already broke).
+  const orphans = ED.surprises.map((it, idx) => ({ it, idx })).filter(x => !x.it.surpriseType);
+
+  let orphanHtml = '';
+  if(orphans.length){
+    orphanHtml = `<div style="margin-bottom:14px;padding:10px;background:rgba(255,180,80,.08);border:1px solid rgba(255,180,80,.25);border-radius:10px">
+      <div style="font-size:11px;font-weight:800;color:#ffb450;margin-bottom:8px">⚠️ ${orphans.length} item${orphans.length!==1?'s':''} on this tab ${orphans.length!==1?'have':'has'} no animation attached — pick which one it should be:</div>
+      ${orphans.map(({it, idx}) => {
+        const guessIdx = SURPRISE_DEFS.findIndex((d,i2)=>!ED.surprises.some(x=>x.surpriseType===d.id));
+        return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0">
+          <span style="flex:1;font-size:12px;color:#fff;min-width:0">${(it.l||'').replace(/\n/g,' ')}</span>
+          <select id="orphan-fix-${idx}" style="padding:5px 6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#fff;font-size:11px">
+            ${SURPRISE_DEFS.map((d,i2)=>`<option value="${d.id}" ${i2===guessIdx?'selected':''}>${d.id}</option>`).join('')}
+          </select>
+          <button class="dev-btn rw" style="font-size:11px;padding:5px 10px" onclick="
+            ED.surprises[${idx}].surpriseType = document.getElementById('orphan-fix-${idx}').value;
+            ED.surprises[${idx}].i = ED.surprises[${idx}].i || 'gift';
+            saveState(); T('🩹 Animation restored'); renderRobSurprisesPricing();
+          ">🩹 Fix</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  if(!rows.length && !orphans.length){
     list.innerHTML = '<div style="font-size:12px;color:var(--tx3);text-align:center;padding:12px 0">Surprises haven\'t loaded yet — reopen the app once logged in</div>';
     return;
   }
-  list.innerHTML = rows.map(({it, idx}) => `
+  list.innerHTML = orphanHtml + rows.map(({it, idx}) => `
     <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-      <div style="flex:1;font-size:12.5px;font-weight:700;color:#fff">${it.l}</div>
+      <input type="text" value="${(it.l||'').replace(/"/g,'&quot;')}"
+        style="flex:1;min-width:0;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:12.5px;font-weight:700"
+        onchange="ED.surprises[${idx}].l = this.value.trim() || ED.surprises[${idx}].l; saveState(); T('✏️ Name updated'); if(document.getElementById('s-explore').classList.contains('on')) renderGrid('surprises');" />
       <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--mint);white-space:nowrap" title="Ana can play it once for free, then it locks back to full price">
         <input type="checkbox" ${it.previewOnce?'checked':''} style="width:14px;height:14px;accent-color:var(--mint)"
           onchange="ED.surprises[${idx}].previewOnce = this.checked; if(this.checked && !ED.surprises[${idx}].previewUsed) ED.surprises[${idx}].previewUsed = false; saveState(); T(this.checked?'👀 One-time preview enabled':'👀 One-time preview off'); renderRobSurprisesPricing();">

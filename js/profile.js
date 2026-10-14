@@ -355,25 +355,30 @@ const LOVE_LANGUAGES = [
 ];
 
 let loveLangsEditMode = false;
-let currentLoveLangs = [];
+// currentLoveLangs is declared in js/state.js — it's part of the real
+// synced state now (see saveState/applyState), not a local-only var.
 
 function loadLoveLanguages() {
-  try {
-    const saved = localStorage.getItem('heartly.loveLangs');
-    if (saved) {
-      currentLoveLangs = JSON.parse(saved);
-    } else {
-      currentLoveLangs = LOVE_LANGUAGES.map(l => ({...l, value: l.default}));
-      saveLoveLanguages();
-    }
-  } catch {
+  // applyState() (via loadState() at login, or an incoming Supabase
+  // sync) already populates currentLoveLangs before this ever runs.
+  // This just fills in sensible defaults the very first time a couple
+  // uses the app, when there's genuinely nothing to load yet.
+  if(!currentLoveLangs || !currentLoveLangs.length){
     currentLoveLangs = LOVE_LANGUAGES.map(l => ({...l, value: l.default}));
     saveLoveLanguages();
   }
 }
 
 function saveLoveLanguages() {
-  localStorage.setItem('heartly.loveLangs', JSON.stringify(currentLoveLangs));
+  // BUG (fixed): this used to write straight to a raw
+  // `heartly.loveLangs` localStorage key — completely outside the
+  // saveState()/Supabase sync pipeline. That meant Ana's love
+  // languages never left her device: not to Robert's device, and not
+  // to the Dev tab, no matter how the two devices were paired. Routing
+  // through the real saveState() is what makes this sync like every
+  // other piece of shared state in the app.
+  if(typeof saveState === 'function') saveState();
+  if(typeof dvRenderLoveLanguages === 'function') dvRenderLoveLanguages();
 }
 
 function updateLoveLangDisplay() {

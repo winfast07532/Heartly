@@ -1,0 +1,36 @@
+# Heartly Pixel Art
+
+Solo color-by-number, rebuilt to match the burgundy, rose, rounded controls and Nunito typography of Love Clicker and Love Blast. Plain HTML, CSS and JavaScript; no build step.
+
+Open Heartly → Play → Start Coloring for cloud progress and points. Opening `pixelart/index.html` directly provides a device-only game. The UI tells the player where their progress is saved.
+
+## Playing
+
+- Discover, In progress and Completed collections, category filters and a resume card.
+- Ten built-in pictures: seven compatible originals and three new Heartly designs.
+- Numbered color palette, correct-color-only painting, continuous drag strokes and automatic next color after a stroke.
+- Pinch/scroll zoom, two-finger pan, Move tool, fit and zoom buttons.
+- Connected-region fill and a hint that centers the next matching square. Tools do not cost points.
+- Completed picture view, PNG export (up to approximately 1024 px), and reward-free replay.
+- Keyboard: Tab to controls/canvas; arrow keys move around cells; Space/Enter paints; +/- zoom.
+- Reduced-motion support, safe-area spacing and phone landscape layout.
+
+## Saved data and database integration
+
+`core.js` validates and merges the version-3 save. `js/pixelart-bridge.js` connects the iframe to the parent app. `js/state.js` includes `pixelArtState` in the existing `couple_state.data` JSON column; `js/sync.js` carries it through the existing Supabase save, load and Realtime paths. No new table, credential or database migration is needed.
+
+Saved fields: colored cell indices, completion timestamps, reward receipts, last-opened artwork, imported picture definitions and deletion tombstones. Colored-cell sets merge rather than replace each other. Deleted custom pictures do not reappear from an older device.
+
+The original `pixelhue_v2` and `ph_custom_artworks` saves are imported without deleting them. Already-completed legacy pictures are treated as already rewarded. New local backup key: `heartly_pixel_v3`. A small `heartly_pixel_pending_rewards` journal recovers rewards after a failed write followed by a newer remote balance.
+
+Rewards are calculated by the parent from the picture's actual size (30–120 points), recorded once, and included in Heartly's balance, lifetime earnings, points history and transaction feed. The initial cloud pull must be confirmed before new rewards are applied. Offline saves are retried after reconnection. Replaying or reopening a completed picture does not grant a second reward.
+
+Robert's existing dashboard importer uses the same image converter whether the game iframe is open or closed. Imports use a center crop and a balanced color palette; accepted formats are PNG, JPEG, WebP, GIF and BMP, up to 12 MB. Dimensions are bounded to 8–96 per side and palette size to 2–32. The collection allows up to 60 custom pictures. Imported titles are inserted as text, not HTML.
+
+## Verification and scope
+
+The workspace's `verification/pixelart.test.cjs` exercises the real browser UI and the actual Heartly state/sync scripts against an intercepted, simulated Supabase transport. Tests cover painting, invalid-color rejection, pinch without accidental paint, fill, hints, reload/resume, migration, merge validation, completion, replay, export, imports, removal, iframe close/reopen, reward deduplication, offline recovery and a fresh browser context receiving cloud data. Viewport screenshots cover 320, 390, 430, 844 and 1280 px widths.
+
+Tests do not contact production Supabase, send pushes or modify real relationship data. Real iPhone Safari hardware has not been tested. Opening the new build through Heartly will use the already-configured Supabase project.
+
+The existing shared anonymous-access database policy is unchanged. This update does not secure the entire application. Painted cells merge safely, but Heartly still synchronizes its overall balance and unrelated app fields as one shared JSON document; this is not a server-authoritative transactional rewards service. The access-control and whole-app concurrency findings in `HEARTLY-INSPECTION.md` remain follow-up work.

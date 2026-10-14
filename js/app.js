@@ -38,7 +38,7 @@ window.saveLetterPrice = saveLetterPrice;
 /* ═══════════════════════════
    DEV PASSWORD
 ═══════════════════════════ */
-const DEV_PASSWORD = 'heartly.dev';
+// Password-based developer login is disabled until server-side authentication is configured.
 
 function openDevPassword(){
   const modal = document.getElementById('DEV-PW');
@@ -47,7 +47,8 @@ function openDevPassword(){
   input.value = '';
   input.type  = 'password';
   document.getElementById('pw-eye').textContent = '👁';
-  err.textContent = '';
+  err.textContent = 'Password login is disabled until secure authentication is configured.';
+  input.disabled = true;
   input.classList.remove('error');
   modal.classList.add('show');
   setTimeout(()=>input.focus(), 200);
@@ -60,17 +61,8 @@ function closeDevPassword(){
 window.closeDevPassword = closeDevPassword;
 
 function submitDevPassword(){
-  const input = document.getElementById('dev-pw-input');
-  const err   = document.getElementById('pw-error');
-  if(input.value === DEV_PASSWORD){
-    closeDevPassword();
-    doLogin('developer.login');
-  } else {
-    input.classList.add('error');
-    err.textContent = '❌ Incorrect password';
-    input.value = '';
-    setTimeout(()=>input.classList.remove('error'), 400);
-  }
+  document.getElementById('dev-pw-input').value = '';
+  document.getElementById('pw-error').textContent = 'Password login is disabled until secure authentication is configured.';
 }
 window.submitDevPassword = submitDevPassword;
 
@@ -301,7 +293,7 @@ window.closeLoveBlast = closeLoveBlast;
 // Load the iframe src once on first open; subsequent opens just show the overlay
 // (keeps level progress state alive — same pattern as blockblast)
 let _pixelArtLoaded = false;
-const PIXEL_ART_MAINTENANCE = true; // flip to false to bring the game back online
+const PIXEL_ART_MAINTENANCE = false;
 function openPixelArt() {
   if (PIXEL_ART_MAINTENANCE) {
     if (typeof T === 'function') T('🛠️ Color by Number is under maintenance — check back soon!');
@@ -318,8 +310,9 @@ window.openPixelArt = openPixelArt;
 window.openCBN = openPixelArt; // alias
 
 function closePixelArt() {
+  const game = document.getElementById('cbn-frame').contentWindow;
+  if(game && typeof game.flushPixelArt === 'function') game.flushPixelArt();
   document.getElementById('cbn-overlay').classList.remove('show');
-  document.getElementById('cbn-frame').src = 'about:blank';
 }
 window.closePixelArt = closePixelArt;
 window.closeCBN = closePixelArt; // alias
@@ -454,11 +447,11 @@ const HTP_DATA = {
   pixelart: {
     ico: '🎨', title: 'Pixel Art', sub: 'Color by number game',
     steps: [
-      { ico: '🖼️', title: 'Pick a puzzle', body: 'Browse the gallery and tap any artwork to start. Daily puzzles refresh every day.' },
+      { ico: '🖼️', title: 'Pick a picture', body: 'Choose a picture in Discover, or continue one from In progress. Finished pictures live in Completed.' },
       { ico: '🎨', title: 'Select a color', body: 'Tap a color in the palette at the bottom. The number on each cell tells you which color goes there.' },
       { ico: '🖌️', title: 'Paint the cells', body: 'Tap cells on the grid to fill them. Only correct colors are accepted — wrong taps are ignored.' },
-      { ico: '🪄', title: 'Use tools', body: 'Magic Wand fills a connected region at once. Magnifier zooms in for detail. Use them wisely — they cost stars.' },
-      { ico: '🏆', title: 'Earn XP & pts', body: 'Completing artwork earns XP (levelling up your artist rank) and Heartly points automatically.' },
+      { ico: '🪄', title: 'Find your flow', body: 'Pinch to zoom, use two fingers to move, or choose Move. Fill colors a connected group; Find a cell helps with the last squares. Tools are free.' },
+      { ico: '🏆', title: 'Save & collect', body: 'Progress saves automatically through Heartly. Each picture earns points once; you can replay finished pictures for fun and save them as images.' },
     ]
   },
   clicker: {
@@ -571,6 +564,30 @@ function triggerAllUIRenders(){
   }
   if(typeof renderUpdatesLog === 'function') {
     try { renderUpdatesLog(); } catch(e) { console.warn('renderUpdatesLog failed:', e); }
+  }
+  if(typeof renderUniversalMilestone === 'function') {
+    try { renderUniversalMilestone(); } catch(e) { console.warn('renderUniversalMilestone failed:', e); }
+  }
+  if(typeof renderTxHistory === 'function') {
+    try { renderTxHistory(); } catch(e) { console.warn('renderTxHistory failed:', e); }
+  }
+  if(typeof updateGoodnight === 'function') {
+    try { updateGoodnight(); } catch(e) { console.warn('updateGoodnight failed:', e); }
+  }
+  if(typeof renderRobGoodnight === 'function') {
+    try { renderRobGoodnight(); } catch(e) { console.warn('renderRobGoodnight failed:', e); }
+  }
+
+  // Mood cards were previously never refreshed on an incoming remote sync —
+  // only when the local device itself picked a mood. That meant Robert's
+  // dashboard could sit on a stale "Ana mood" card indefinitely until he
+  // happened to open the Activity tab (which separately calls this),
+  // and vice versa for Ana's "Robert mood" home card.
+  if(typeof updateRobMoodCard === 'function') {
+    try { updateRobMoodCard(); } catch(e) { console.warn('updateRobMoodCard failed:', e); }
+  }
+  if(typeof updateRobMoodHomeCard === 'function') {
+    try { updateRobMoodHomeCard(); } catch(e) { console.warn('updateRobMoodHomeCard failed:', e); }
   }
 }
 window.triggerAllUIRenders = triggerAllUIRenders;

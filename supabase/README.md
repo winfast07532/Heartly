@@ -1,3 +1,5 @@
+> Keep the VAPID private key only in Supabase secrets. Replace `YOUR_VAPID_PRIVATE_KEY` with your own private key when configuring the backend; never commit it. If the previously embedded key is in use, rotate the VAPID key pair and re-register device push subscriptions.
+
 # Heartly — Real Push Notifications Setup
 
 This wires up actual cross-device push (works even when the phone's locked or
@@ -19,7 +21,7 @@ A VAPID keypair (needed for Web Push) — generate once, reuse forever:
 
 ```
 VAPID_PUBLIC_KEY=BOCB-Y0qVmC7xRN-1Wb8AcN5LoVddYyTNneTnKL-PXzyXk3w2k_uYkoG37xa7Oghv7ta99nUdt-lhbtfvHt06ug
-VAPID_PRIVATE_KEY=FmE1ouQ7yH3Xjl5DqSpVzzFcT7W7x_-w8a-9Yco9LkE
+VAPID_PRIVATE_KEY=YOUR_VAPID_PRIVATE_KEY
 ```
 
 The public key is already embedded in `js/push.js` — nothing to do there.
@@ -44,7 +46,7 @@ phone's browser — no computer, no terminal, no installs.
    tab → add these four, one at a time:
    ```
    VAPID_PUBLIC_KEY   = BOCB-Y0qVmC7xRN-1Wb8AcN5LoVddYyTNneTnKL-PXzyXk3w2k_uYkoG37xa7Oghv7ta99nUdt-lhbtfvHt06ug
-   VAPID_PRIVATE_KEY  = FmE1ouQ7yH3Xjl5DqSpVzzFcT7W7x_-w8a-9Yco9LkE
+   VAPID_PRIVATE_KEY  = YOUR_VAPID_PRIVATE_KEY
    VAPID_SUBJECT      = mailto:your-real-email@example.com
    APP_TIMEZONE       = Europe/Bucharest
    ```
@@ -71,7 +73,7 @@ bit more forgiving for iterating/debugging, but not required.
 cd heartly
 
 supabase secrets set VAPID_PUBLIC_KEY=BOCB-Y0qVmC7xRN-1Wb8AcN5LoVddYyTNneTnKL-PXzyXk3w2k_uYkoG37xa7Oghv7ta99nUdt-lhbtfvHt06ug
-supabase secrets set VAPID_PRIVATE_KEY=FmE1ouQ7yH3Xjl5DqSpVzzFcT7W7x_-w8a-9Yco9LkE
+supabase secrets set VAPID_PRIVATE_KEY=YOUR_VAPID_PRIVATE_KEY
 supabase secrets set VAPID_SUBJECT=mailto:your-real-email@example.com
 supabase secrets set APP_TIMEZONE=Europe/Bucharest
 

@@ -8,7 +8,11 @@
    raw tap speed.
 ═══════════════════════════════════════════════════ */
 
-const SESSION_LEN = 75; // seconds
+// Length of a session in seconds. Was a fixed 75s; now selectable from
+// the menu (Easy/Medium/Hard) before starting — see selectClickerMode().
+let SESSION_LEN = 90; // default = Medium
+let clickerMode = 'medium';
+const CLICKER_MODES = { easy: 45, medium: 90, hard: 135 };
 
 let sessionActive   = false;
 let sessionStart    = 0;
@@ -32,6 +36,10 @@ function nextIconId(prefix){ return prefix + (iconUidCounter++); }
 
 const HEART_PATH = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z';
 
+function getHeartSkin(){
+  return (window.parent && window.parent.clickerEquippedHeart) || 'classic';
+}
+
 function heartIconSVG(kind){
   const id = nextIconId('gh');
   if(kind === 'decoy'){
@@ -50,6 +58,28 @@ function heartIconSVG(kind){
       </linearGradient></defs>
       <path fill="url(#${id})" d="${HEART_PATH}"/>
       <path d="M17 4l.6 1.5L19 6l-1.4.5L17 8l-.6-1.5L15 6l1.4-.5z" fill="#fff8e0" opacity="0.9"/>
+    </svg>`;
+  }
+  // Normal (real, tappable) heart — this is the one heart-skin cosmetics affect.
+  // Decoy/golden keep their fixed gradients since those colors carry
+  // gameplay meaning (danger / bonus) and shouldn't be reskinned.
+  const skin = getHeartSkin();
+  if(skin === 'ck_heart_diamond'){
+    return `<svg viewBox="0 0 24 24">
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#eaf8ff"/><stop offset=".5" stop-color="#9fd8f0"/><stop offset="1" stop-color="#5aa8d0"/>
+      </linearGradient></defs>
+      <path fill="url(#${id})" d="${HEART_PATH}"/>
+      <path d="M7 8 L12 5 L17 8 L12 12 Z" fill="#fff" opacity="0.35"/>
+    </svg>`;
+  }
+  if(skin === 'ck_heart_rainbow'){
+    return `<svg viewBox="0 0 24 24">
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ff8fab"/><stop offset=".33" stop-color="#f5c870"/>
+        <stop offset=".66" stop-color="#6ee8b4"/><stop offset="1" stop-color="#a08cf0"/>
+      </linearGradient></defs>
+      <path fill="url(#${id})" d="${HEART_PATH}"/>
     </svg>`;
   }
   return `<svg viewBox="0 0 24 24">
@@ -125,6 +155,148 @@ function showMenu(){
 }
 window.showMenu = showMenu;
 
+function selectClickerMode(mode){
+  if(!CLICKER_MODES[mode]) return;
+  clickerMode = mode;
+  SESSION_LEN = CLICKER_MODES[mode];
+  document.querySelectorAll('.clicker-mode-btn').forEach(function(b){
+    b.classList.toggle('on', b.dataset.mode === mode);
+  });
+  timeBadgeEl.textContent = SESSION_LEN + 's';
+  updateHardModeAura();
+}
+window.selectClickerMode = selectClickerMode;
+
+// Hard Mode Aura — purchasable cosmetic. Purely visual (a border
+// glow on the game area) shown only while Hard mode is both selected
+// AND owned — ties a cosmetic reward to actually playing on the
+// hardest difficulty, per the "difficulty-tied reward" category.
+function updateHardModeAura(){
+  const p = window.parent;
+  const owned = !!(p && p.clickerOwnedCosmetics && p.clickerOwnedCosmetics.includes('ck_hard_aura'));
+  const gameWrap = document.getElementById('game-wrap');
+  if(gameWrap) gameWrap.classList.toggle('hard-aura', owned && clickerMode === 'hard');
+}
+
+// ══════════════════════════════════════════
+// SKINS SHOP
+// Points-only purchases, same window.parent read/write pattern as
+// awardLoveClickerPoints already uses.
+// ══════════════════════════════════════════
+const CK_SKIN_CATALOG = {
+  heart: [
+    {id:'classic', name:'Classic', cost:0, swatch:'#e05c7a'},
+    {id:'ck_heart_diamond', name:'Diamond Hearts', cost:350, swatch:'#9fd8f0'},
+    {id:'ck_heart_rainbow', name:'Rainbow Hearts', cost:350, swatch:'#ff8fab'},
+  ],
+  combo: [
+    {id:'classic', name:'Classic Burst', cost:0, icon:'💥'},
+    {id:'ck_combo_trail', name:'Combo Trail', cost:300, icon:'»'},
+    {id:'ck_combo_sparkle', name:'Combo Sparkle', cost:300, icon:'✦'},
+  ],
+  hard: [
+    {id:'ck_hard_aura', name:'Hard Mode Aura', cost:400, icon:'🔥', desc:'Glowing border, only shows while playing Hard'},
+  ],
+};
+const CK_EQUIP_KEY = { heart:'clickerEquippedHeart', combo:'clickerEquippedCombo' };
+let ckSkinsTab = 'heart';
+
+function openSkinsShop(){
+  document.getElementById('ov-skins').classList.remove('hidden');
+  renderSkinsList();
+}
+window.openSkinsShop = openSkinsShop;
+
+function closeSkinsShop(){
+  document.getElementById('ov-skins').classList.add('hidden');
+}
+window.closeSkinsShop = closeSkinsShop;
+
+function skinsTab(cat){
+  ckSkinsTab = cat;
+  document.querySelectorAll('.skins-tab').forEach(t=>t.classList.toggle('on', t.dataset.sk===cat));
+  renderSkinsList();
+}
+window.skinsTab = skinsTab;
+
+function renderSkinsList(){
+  const p = window.parent;
+  const pts = (p && p.ptsVal) || 0;
+  const ptsRow = document.getElementById('skins-pts-row');
+  if(ptsRow) ptsRow.textContent = '🪙 ' + Math.floor(pts).toLocaleString() + ' pts';
+
+  const owned = (p && p.clickerOwnedCosmetics) || [];
+  const list = document.getElementById('skins-list');
+  if(!list) return;
+
+  if(ckSkinsTab === 'hard'){
+    // Single one-time purchase, no separate "equip" step — it's
+    // simply active whenever Hard mode is being played.
+    const item = CK_SKIN_CATALOG.hard[0];
+    const isOwned = owned.includes(item.id);
+    list.innerHTML = `<div class="skin-item${isOwned?' equipped':''}">
+      <div class="skin-swatch">${item.icon}</div>
+      <div class="skin-info">
+        <div class="skin-name">${item.name}</div>
+        <div class="skin-price">${isOwned ? item.desc : item.cost+' pts'}</div>
+      </div>
+      ${isOwned ? '<button class="skin-btn equipped" disabled>✓ Owned</button>' : `<button class="skin-btn buy" onclick="buySkin('hard','${item.id}',${item.cost})">Buy ${item.cost}</button>`}
+    </div>`;
+    return;
+  }
+
+  const equipKey = CK_EQUIP_KEY[ckSkinsTab];
+  const equipped = (p && p[equipKey]) || 'classic';
+  list.innerHTML = CK_SKIN_CATALOG[ckSkinsTab].map(item=>{
+    const isOwned = item.id==='classic' || owned.includes(item.id);
+    const isEquipped = equipped===item.id;
+    const swatchStyle = item.swatch ? `background:${item.swatch}` : 'background:rgba(255,255,255,.08)';
+    let btn;
+    if(isEquipped) btn = `<button class="skin-btn equipped" disabled>✓ Equipped</button>`;
+    else if(isOwned) btn = `<button class="skin-btn equip" onclick="equipSkin('${ckSkinsTab}','${item.id}')">Equip</button>`;
+    else btn = `<button class="skin-btn buy" onclick="buySkin('${ckSkinsTab}','${item.id}',${item.cost})">Buy ${item.cost}</button>`;
+    return `<div class="skin-item${isEquipped?' equipped':''}">
+      <div class="skin-swatch" style="${swatchStyle}">${item.icon||''}</div>
+      <div class="skin-info">
+        <div class="skin-name">${item.name}</div>
+        <div class="skin-price">${item.cost===0?'Free':item.cost+' pts'}</div>
+      </div>
+      ${btn}
+    </div>`;
+  }).join('');
+}
+
+function buySkin(category, id, cost){
+  const p = window.parent;
+  if(!p || p===window) return;
+  const balance = p.ptsVal || 0;
+  if(balance < cost){
+    if(typeof p.T==='function') p.T('⚠️ Not enough points — need '+cost);
+    return;
+  }
+  const old = balance;
+  p.ptsVal = balance - cost;
+  if(typeof p.animatePts==='function') p.animatePts(old, p.ptsVal, 500);
+  if(!p.clickerOwnedCosmetics) p.clickerOwnedCosmetics = [];
+  p.clickerOwnedCosmetics.push(id);
+  if(typeof p.addTxItem==='function') p.addTxItem('🎨','Love Clicker skin: '+id,'Just now','-'+cost,'spend');
+  if(typeof p.T==='function') p.T('🎨 Skin unlocked!');
+  if(typeof p.saveState==='function') p.saveState();
+  if(category !== 'hard') equipSkin(category, id); // auto-equip a fresh purchase
+  else { updateHardModeAura(); renderSkinsList(); }
+}
+window.buySkin = buySkin;
+
+function equipSkin(category, id){
+  const p = window.parent;
+  if(!p || p===window) return;
+  p[CK_EQUIP_KEY[category]] = id;
+  if(typeof p.saveState==='function') p.saveState();
+  renderSkinsList();
+}
+window.equipSkin = equipSkin;
+
+
 function resetSessionState(){
   score = 0; combo = 0; bestComboThisRound = 0;
   tappedCount = 0; missedCount = 0; wrongCount = 0;
@@ -142,6 +314,7 @@ function startGame(){
   document.getElementById('ov-menu').classList.add('hidden');
   document.getElementById('ov-gameover').classList.add('hidden');
   resetSessionState();
+  updateHardModeAura();
   sessionActive = true;
   sessionStart = performance.now();
   requestAnimationFrame(timerLoop);
@@ -261,6 +434,35 @@ function hitTarget(el, type, x, y){
   updateScoreDisplay(false);
   spawnFloat(x, y, '+' + gained, type === 'golden' ? 'good' : '');
   updateComboUI();
+  if(combo >= 3) spawnComboEffect(x, y);
+}
+
+// Combo FX cosmetic — an extra flourish layered on top of the normal
+// tap burst once a real streak (combo >= 3) is going. Purely visual,
+// same window.parent read pattern as the heart/color skins.
+function spawnComboEffect(x, y){
+  const fx = (window.parent && window.parent.clickerEquippedCombo) || 'classic';
+  if(fx === 'classic') return;
+  const isTrail = fx === 'ck_combo_trail';
+  const glyph = isTrail ? '»' : '✦';
+  const hues = isTrail ? ['#ff8fab','#ffb0c8'] : ['#ffe680','#fff8d0'];
+  const count = 5;
+  for(let i = 0; i < count; i++){
+    const el = document.createElement('div');
+    el.className = 'particle particle-glyph';
+    el.textContent = glyph;
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 20 + Math.random() * 40;
+    el.style.setProperty('--tx', (Math.cos(angle) * dist) + 'px');
+    el.style.setProperty('--ty', (Math.sin(angle) * dist - 30) + 'px');
+    el.style.setProperty('--dur', (0.4 + Math.random() * 0.3) + 's');
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.color = hues[Math.floor(Math.random() * hues.length)];
+    el.style.fontSize = (10 + Math.random() * 6) + 'px';
+    boardEl.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+  }
 }
 
 function spawnRipple(x, y, type){
@@ -459,10 +661,10 @@ function spawnConfetti(){
 ══════════════════════════════════════════════════════ */
 (function heartlyBridge(){
 
-  const PER_SESSION_CAP = 150;
+  const PER_SESSION_CAP = 30000;
   function scoreToPoints(s){
     if(!s || s <= 0) return 0;
-    return Math.max(1, Math.min(PER_SESSION_CAP, Math.floor(Math.sqrt(s) * 2.0)));
+    return Math.max(1, Math.min(PER_SESSION_CAP, Math.floor(Math.sqrt(s) * 3.0)));
   }
 
   const LIFETIME_MILESTONES = [

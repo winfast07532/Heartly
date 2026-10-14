@@ -89,14 +89,22 @@ Deno.serve(async () => {
   const state = row?.data || {};
   const results: Record<string, string> = {};
 
-  // ── Goodnight Letter ──
+  // ── Good Night Mode (shop feature) ──
+  // This is the purchasable "Good Night Mode" item — a generic nightly
+  // card, unrelated to whether Robert has actually written/scheduled a
+  // real Goodnight Letter (that's goodnightLetterNextDate, handled
+  // client-side the moment it goes live — see js/robert.js). This push
+  // fires every night purely because shopGoodNight is owned, so its
+  // wording must never claim real letter content exists — it previously
+  // said "Robert left you a goodnight letter," which was true only by
+  // coincidence. Matches the client-side overlay's own actual wording.
   // Fires once, in the ~5-minute window right after the configured time.
   if (state.shopGoodNight && state.shopGoodNightTime) {
     const targetMin = hhmmToMinutes(state.shopGoodNightTime);
     const diff = minutesSinceMidnight - targetMin;
     const inWindow = diff >= 0 && diff < 10; // tolerant of the cron's 5-min cadence
     if (inWindow && !(await alreadySentToday(supabase, "goodnight", dateStr))) {
-      const ok = await sendTo(supabase, "ana", "Goodnight 🌙", "Robert left you a goodnight letter.", "heartly-goodnight");
+      const ok = await sendTo(supabase, "ana", "Goodnight 🌙", "Robert is thinking of you. Sleep well 💕", "heartly-goodnight");
       if (ok) await markSent(supabase, "goodnight", dateStr);
       results.goodnight = ok ? "sent" : "no subscription";
     }

@@ -36,7 +36,7 @@ Open it every day. Read what he wrote. Feel close. That's all this is — and it
 
 ### 🎮 Play
 - **Love Blast** (`loveblast/`) — A block-puzzle game (drag blocks onto a grid, clear rows & columns for combos).
-- **Color by Number** (`pixelart/`) — Pixel-art painting game with fill tool and point rewards. 🛠️ **Under maintenance** — disabled for the v1.0 launch; the card shows an "Under Maintenance" state and the game can't be opened. Re-enable by flipping `PIXEL_ART_MAINTENANCE` to `false` in `js/app.js`.
+- **Color by Number** (`pixelart/`) — Remade solo coloring game in Heartly’s rose arcade style. Includes pinch zoom, drag painting, connected fill, hints, a saved collection, custom picture imports, PNG export, and one-time Heartly rewards. Progress and custom pictures use the existing Supabase state sync. See `pixelart/README.md`.
 - **Love Clicker** (`clicker/`) — Tap-to-grow idle clicker with upgrades and surprises. Runs in a same-origin iframe with a real cross-frame bridge back into the main app (`window.parent.reportClickerSession(...)`) — session count, best score, and lifetime score are reported into the main app's real persisted state, which is what makes real Love Clicker achievements possible (see [Achievements](#-achievements) below).
 - All available games earn Universal Points.
 
@@ -216,7 +216,7 @@ heartly/
 │   ├── script.js
 │   └── style.css
 ├── pixelart/
-│   ├── index.html                    # Color by Number game (iframe) — currently under maintenance
+│   ├── index.html                    # Color by Number game (iframe) — solo coloring studio
 │   ├── script.js
 │   └── style.css
 ├── levels/
@@ -365,7 +365,7 @@ Themes are applied via CSS custom property overrides in `css/themes.css` and can
 | **Ana** | `nevasta.lui.robert` | Main user — reads letters, plays games, earns points, shops |
 | **Developer** | `developer.login` | Robert's view — writes letters, manages content, dev tools |
 
-Developer mode is password-protected. Default password: `heartly.dev`
+Developer mode is password-protected. Default password: `[removed developer password]`
 
 ---
 
@@ -373,7 +373,7 @@ Developer mode is password-protected. Default password: `heartly.dev`
 
 **Current: v1.0** (launching August 10, 2026)
 
-> 🛠️ **Known limitation:** Color by Number is under maintenance and will ship disabled in the v1.0 launch build. It'll return in a future update.
+> Color by Number has been rebuilt and re-enabled. See `pixelart/README.md` for save compatibility and verification details.
 
 ### Recent changes
 

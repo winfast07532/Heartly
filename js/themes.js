@@ -7,7 +7,7 @@ var THEMES = {
     cost: 0,
     unlocked: true,
     orbs: [[210,100,145],[175,55,105],[145,40,90],[80,15,55],[45,5,35],[30,2,22]],
-    bgStops: ['#1c0228','#120018','#07000e'],
+    bgStops: ['#280212','#180209','#0a0004'],
     accent: '#e05578',
     swatches: ['#a02050','#e05578','#f07090','#f5c870','#6ee8b4'],
     desc: 'The classic. Deep velvet dark with rose accents.',
@@ -44,7 +44,7 @@ var THEMES = {
   },
   starlight: {
     name: 'Starlight',
-    cost: 2800,
+    cost: 2500,
     unlocked: false,
     orbs: [[80,40,160],[100,50,180],[60,30,140],[35,15,100],[20,8,70],[12,4,50]],
     bgStops: ['#0c0420','#070214','#04010e'],
@@ -84,7 +84,7 @@ var THEMES = {
   },
   mono: {
     name: 'Noir & Ivory',
-    cost: 2600,
+    cost: 2300,
     unlocked: false,
     orbs: [[220,220,220],[188,188,188],[152,152,152],[104,104,104],[64,64,64],[32,32,32]],
     bgStops: ['#171717','#111111','#0c0c0c'],
@@ -94,7 +94,7 @@ var THEMES = {
   },
   crimson: {
     name: 'Crimson Ember',
-    cost: 3200,
+    cost: 2500,
     unlocked: false,
     orbs: [[220,40,55],[190,25,40],[160,15,30],[100,8,18],[60,4,10],[35,2,6]],
     bgStops: ['#200308','#150204','#0a0102'],
@@ -299,8 +299,8 @@ const SHOP_ITEMS = [
   { id:'couple_song',      cat:'relationship', ico:'🎵', name:'Couple Song',            desc:'Robert sets your song — title + artist shown on Ana\'s home with a note animation.',cost:1900, stateKey:'shopCoupleSong',     hasConfig:true },
   { id:'couple_goals',     cat:'relationship', ico:'💑', name:'Couple Goals',           desc:'Robert sets shared goals together. Ana marks progress as each one is reached.',     cost:2000, stateKey:'shopCoupleGoals',    hasConfig:true },
   { id:'photo_of_day',     cat:'relationship', ico:'📸', name:'Photo of the Day',       desc:'Robert drops a daily photo. Ana sees it blurred — tap to unlock and reveal.',      cost:2100, stateKey:'shopPhotoOfDay',     hasConfig:true },
-  { id:'anniversary_card', cat:'relationship', ico:'🎂', name:'Anniversary Card',       desc:'A special full-screen celebration card appears on the 10th of every month.',                   cost:2400, stateKey:'shopAnniversaryCard' },
-  { id:'love_map',         cat:'relationship', ico:'📍', name:'Love Map',               desc:'Robert pins special places on a map — first date, first trip, favourites.',         cost:3000, stateKey:'shopLoveMap',        hasConfig:true },
+  { id:'anniversary_card', cat:'relationship', ico:'🎂', name:'Anniversary Card',       desc:'A special full-screen celebration card appears on the 10th of every month.',                   cost:2200, stateKey:'shopAnniversaryCard' },
+  { id:'love_map',         cat:'relationship', ico:'📍', name:'Love Map',               desc:'Robert pins special places on a map — first date, first trip, favourites.',         cost:2300, stateKey:'shopLoveMap',        hasConfig:true },
   // ── GAMES & FUN ──
   { id:'puzzle_of_week',   cat:'games',        ico:'🧩', name:'Puzzle of the Week',     desc:'Robert hides a secret message in a weekly word puzzle. Ana must solve it to read.', cost:2000, stateKey:'shopPuzzleOfWeek',   hasConfig:true },
 ];
@@ -534,7 +534,7 @@ function renderCoupleSong(){
 }
 
 function renderDailyBonus(){
-  const today = new Date().toDateString();
+  const today = getTodayISO(); // Bucharest calendar day
   const claimed = shopDailyBonusLastClaimed === today;
   renderHubFeatureCard('daily-bonus-btn', {
     owned: shopDailyBonus,
@@ -547,7 +547,7 @@ function renderDailyBonus(){
 }
 
 function claimDailyBonus(){
-  const today = new Date().toDateString();
+  const today = getTodayISO(); // Bucharest calendar day
   if(shopDailyBonusLastClaimed === today){ T('✅ Already claimed today!'); return; }
   shopDailyBonusLastClaimed = today;
   totalBonusesClaimed++;
@@ -921,7 +921,7 @@ function _shopModal(id, title, bodyHTML, onClose){
 
 /* ─── DAILY GIFT BOX ─────────────────────── */
 function renderDailyGiftBox(){
-  const today = new Date().toDateString();
+  const today = getTodayISO(); // Bucharest calendar day
   const claimed = shopDailyGiftLastClaimed === today;
   renderHubFeatureCard('daily-gift-btn', {
     owned: shopDailyGiftBox,
@@ -933,7 +933,7 @@ function renderDailyGiftBox(){
   });
 }
 function claimDailyGift(){
-  const today = new Date().toDateString();
+  const today = getTodayISO(); // Bucharest calendar day
   if(shopDailyGiftLastClaimed===today){ T('✅ Already opened today!'); return; }
   shopDailyGiftLastClaimed = today;
   totalGiftBoxesOpened++;
@@ -951,15 +951,22 @@ function claimDailyGift(){
 window.claimDailyGift = claimDailyGift;
 window.renderDailyGiftBox = renderDailyGiftBox;
 
-/* ─── HOT STREAK BONUS ───────────────────── */
+/* ─── HOT STREAK BONUS ─────────────────────
+   BUG (fixed): this used to gate the reward with a same-day localStorage
+   key ('hotStreakLastBonus'). Once the streak reached 7 it stayed >= 7
+   every day after, and the localStorage key only ever blocked a SECOND
+   payout on the same calendar day — so it happily paid out +100 again
+   on day 8, day 9, day 10, forever, and paid out again on a fresh
+   device too since localStorage never synced. The reward is now gated
+   by hotStreakBonusAwarded, a real synced flag that's only cleared when
+   the streak actually breaks and restarts (see checkAndUpdateStreak),
+   so it pays out exactly once per completed 7-day run. ── */
 function checkHotStreak(){
   if(!shopHotStreak) return;
+  if(hotStreakBonusAwarded) return;
   const streak = window.currentStreak || 0;
   if(streak >= 7){
-    const today = new Date().toDateString();
-    const key = 'hotStreakLastBonus';
-    if(localStorage.getItem(key)===today) return;
-    localStorage.setItem(key, today);
+    hotStreakBonusAwarded = true;
     const old = ptsVal; ptsVal += 100;
     animatePts(old, ptsVal, 700);
     logPtsChange(100);
@@ -1050,9 +1057,12 @@ function renderGoodNightCard(){
   function check(){
     if(!shopGoodNight) return;
     const [h,m] = time.split(':').map(Number);
-    const now = new Date();
-    if(now.getHours()===h && now.getMinutes()===m){
-      const key='gnShown'+now.toDateString();
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Europe/Bucharest', hour:'2-digit', minute:'2-digit', hour12:false
+    }).formatToParts(new Date());
+    const get = t => parseInt(parts.find(p=>p.type===t).value, 10);
+    if(get('hour')===h && get('minute')===m){
+      const key='gnShown'+getTodayISO(); // Bucharest calendar day
       if(!sessionStorage.getItem(key)){
         sessionStorage.setItem(key,'1');
         showGoodNightOverlay();
@@ -1212,7 +1222,7 @@ function renderDailyQuestionCard(){
   const configured = !!dailyQuestionData;
   let bodyHTML = null;
   if(configured){
-    const today = new Date().toDateString();
+    const today = getTodayISO(); // Bucharest calendar day
     const answered = dailyQuestionData.date === today && dailyQuestionData.answer;
     bodyHTML = `
       <div style="display:flex;flex-direction:column;gap:10px;width:100%">
@@ -1242,7 +1252,7 @@ function submitDailyAnswer(){
   const ans = document.getElementById('dq-answer').value.trim();
   if(!ans){ T('⚠️ Write an answer first'); return; }
   dailyQuestionData.answer = ans;
-  dailyQuestionData.date = new Date().toDateString();
+  dailyQuestionData.date = getTodayISO(); // Bucharest calendar day
   T('💬 Answer saved!');
   showSuccess('💬','Answer sent!','rgba(100,220,255,.2)');
   renderDailyQuestionCard();
@@ -1339,7 +1349,7 @@ window.renderPhotoOfDayCard = renderPhotoOfDayCard;
 
 /* ─── LUCKY SPIN ─────────────────────────── */
 function renderLuckySpinCard(){
-  const today = new Date().toDateString();
+  const today = getTodayISO(); // Bucharest calendar day
   const used  = shopLuckySpinLastUsed === today;
   renderHubFeatureCard('lucky-spin-btn', {
     owned: shopLuckySpin,
@@ -1351,7 +1361,7 @@ function renderLuckySpinCard(){
   });
 }
 function doLuckySpin(){
-  const today = new Date().toDateString();
+  const today = getTodayISO(); // Bucharest calendar day
   if(shopLuckySpinLastUsed===today){ T('✅ Already spun today!'); return; }
   // Slot animation overlay
   const prizes = [50,50,50,100,100,200,200,500];
@@ -1486,4 +1496,18 @@ function reportClickerSession(finalScore, isNewBest){
   if(typeof checkAchievements === 'function') checkAchievements();
 }
 window.reportClickerSession = reportClickerSession;
+
+/* Same idea for Love Blast (loveblast/script.js), which previously only
+   bridged points earned back to the app and had no games-played/best-
+   score/lifetime-score tracking at all — meaning it couldn't have any
+   achievements the way Love Clicker does. */
+function reportBlastSession(finalScore, isNewBest){
+  if(typeof finalScore !== 'number' || finalScore < 0) return;
+  blastGamesPlayed++;
+  blastLifetimeScore += finalScore;
+  if(finalScore > blastBestScore) blastBestScore = finalScore;
+  if(typeof saveState === 'function') saveState();
+  if(typeof checkAchievements === 'function') checkAchievements();
+}
+window.reportBlastSession = reportBlastSession;
 

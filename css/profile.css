@@ -102,6 +102,30 @@
 .ll-bar{height:8px;border-radius:var(--rp);overflow:hidden;background:rgba(255,255,255,.07);margin-top:7px}
 .ll-fill{height:100%;border-radius:var(--rp);width:0;animation:pIn 1s ease .4s forwards}
 
+/* love-lang-slider: -webkit-appearance:none strips the native thumb entirely.
+   Without explicit thumb rules some mobile browsers (notably iOS Safari)
+   render it with a zero-size / untappable thumb, so the slider looks and
+   behaves like it's broken even though the underlying input still works. */
+.love-lang-slider{-webkit-appearance:none;appearance:none;touch-action:pan-y;cursor:pointer}
+.love-lang-slider::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:transparent}
+.love-lang-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--rose,#ff5c8a);
+  border:3px solid #fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.4);
+  margin-top:-8px;
+  cursor:pointer;
+}
+.love-lang-slider::-moz-range-track{height:6px;border-radius:3px;background:transparent}
+.love-lang-slider::-moz-range-thumb{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--rose,#ff5c8a);
+  border:3px solid #fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.4);
+  cursor:pointer;
+}
+
 /* Favourite letters */
 .fav-row{
   display:flex;align-items:center;gap:12px;padding:12px 14px;

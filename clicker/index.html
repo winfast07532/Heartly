@@ -34,7 +34,7 @@
         </svg>
         Love Clicker
       </div>
-      <div id="time-badge">75s</div>
+      <div id="time-badge">90s</div>
     </div>
     <div id="score-area">
       <div id="score-val">0</div>
@@ -71,10 +71,33 @@
     <div class="ov-title">Love Clicker</div>
     <div class="ov-sub">Tap the hearts before they fade.<br>Dodge the broken ones — one wrong tap breaks your combo.</div>
     <div id="menu-best"></div>
+    <div id="clicker-mode-picker" style="display:flex;gap:8px;margin:6px 0 14px">
+      <button class="clicker-mode-btn" data-mode="easy"   onclick="selectClickerMode('easy')">Easy<br><span>45s</span></button>
+      <button class="clicker-mode-btn on" data-mode="medium" onclick="selectClickerMode('medium')">Medium<br><span>90s</span></button>
+      <button class="clicker-mode-btn" data-mode="hard"   onclick="selectClickerMode('hard')">Hard<br><span>135s</span></button>
+    </div>
     <button class="ov-btn primary" onclick="startGame()">
       <svg class="btn-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
       Play Now
     </button>
+    <button class="ov-btn ghost" onclick="openSkinsShop()">🎨 Skins</button>
+  </div>
+</div>
+
+<!-- SKINS SHOP -->
+<div class="overlay hidden" id="ov-skins">
+  <div class="ov-bg" onclick="closeSkinsShop()"></div>
+  <div class="ov-content" style="max-width:340px">
+    <div class="ov-ico">🎨</div>
+    <div class="ov-title" style="font-size:22px">Skins Shop</div>
+    <div id="skins-pts-row" class="ov-sub" style="margin-bottom:14px">🪙 0 pts</div>
+    <div class="skins-tabs">
+      <button class="skins-tab on" data-sk="heart" onclick="skinsTab('heart')">Hearts</button>
+      <button class="skins-tab" data-sk="combo" onclick="skinsTab('combo')">Combo FX</button>
+      <button class="skins-tab" data-sk="hard" onclick="skinsTab('hard')">Hard Mode</button>
+    </div>
+    <div id="skins-list"></div>
+    <button class="ov-btn ghost" style="margin-top:14px" onclick="closeSkinsShop()">Close</button>
   </div>
 </div>
 

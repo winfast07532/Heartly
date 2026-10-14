@@ -19,7 +19,7 @@ const PUSH_SUPABASE_KEY = 'sb_publishable_uQzy4bdgclCGitmi0lEiyw_zralr47Z';
 // every subscription was created under the wrong keypair and every real
 // send would be silently rejected by the push service even after a
 // device successfully subscribed.
-const VAPID_PUBLIC_KEY = 'BOCB-Y0qVmC7xRN-1Wb8AcN5LoVddYyTNneTnKL-PXzyXk3w2k_uYkoG37xa7Oghv7ta99nUdt-lhbtfvHt06ug';
+const VAPID_PUBLIC_KEY = 'BBpm9Y02u81fi0e2ocewdUF2TEy0cjbYMGwrYyIoNadScXirc8rjJtcOZ8rABp7H77De0Bxb4w2BOcRRGPMTBw0';
 
 function _urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -42,16 +42,42 @@ async function subscribeToPush() {
   try {
     const reg = await navigator.serviceWorker.ready;
     let sub = await reg.pushManager.getSubscription();
-    // Always start clean: a cached subscription may be bound to a previous
-    // VAPID key pair. Re-subscribing under a stale key is exactly what
-    // causes silent push failures (403 BadJwtToken) later on.
+    const targetKey = _urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+
     if (sub) {
-      try { await sub.unsubscribe(); } catch (_) {}
+      // Only tear down and recreate the subscription if it's bound to a
+      // DIFFERENT VAPID key than the one currently in use. This used to
+      // unconditionally unsubscribe + resubscribe on every single call —
+      // including every time someone tapped "Enable" on a device that was
+      // already registered, since that button is deliberately never
+      // disabled. Each teardown/recreate cycle mints a brand-new push
+      // endpoint on iOS rather than reusing the old one, so repeated taps
+      // just orphaned the previous registration instead of replacing it —
+      // that's why push_subscriptions kept accumulating multiple stale
+      // rows per person. Rapidly tearing down and recreating the OS-level
+      // push registration is also a known cause of pushes silently failing
+      // to deliver on iOS Safari, even though the JS call itself succeeds.
+      const existingKey = sub.options && sub.options.applicationServerKey
+        ? new Uint8Array(sub.options.applicationServerKey)
+        : null;
+      const keyMatches = existingKey && existingKey.length === targetKey.length &&
+        existingKey.every((b, i) => b === targetKey[i]);
+
+      if (!keyMatches) {
+        try { await sub.unsubscribe(); } catch (_) {}
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: targetKey,
+        });
+      }
+      // else: same key already active — reuse it as-is, just re-sync
+      // below in case the Supabase row is missing or out of date.
+    } else {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: targetKey,
+      });
     }
-    sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: _urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-    });
 
     const json = sub.toJSON();
     const role = _pushRole();

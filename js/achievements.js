@@ -17,6 +17,7 @@
    clashed against the app's pink icon boxes, so achievement icons are
    rendered through this map instead of the raw emoji character. */
 const ACH_ICON_PATHS = {
+  '🧱': '<rect x="3" y="4" width="8" height="6" rx="1"/><rect x="13" y="4" width="8" height="6" rx="1"/><rect x="3" y="14" width="8" height="6" rx="1"/><rect x="13" y="14" width="8" height="6" rx="1"/>',
   '💌': '<path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M3 6l9 7 9-7"/>',
   '✉️': '<path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M3 6l9 7 9-7"/>',
   '📬': '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>',
@@ -67,6 +68,17 @@ window.achIco = achIco;
 var earnedAchievements = {};
 window.earnedAchievements = earnedAchievements;
 
+/* Real, persisted, Robert-editable point reward per achievement.
+   Falls back to each achievement's default `pts` value in ACH_DATA
+   until Robert overrides it from Dev tab → Settings → 🏆 Achievement Rewards. */
+var achievementRewards = {};
+window.achievementRewards = achievementRewards;
+function _achRewardFor(id){
+  if(achievementRewards[id] !== undefined) return achievementRewards[id];
+  const a = ACH_DATA.find(x => x.id === id);
+  return a ? (a.pts || 0) : 0;
+}
+
 /* Counts how many real shop items are currently owned, generically —
    reads SHOP_ITEMS + window[stateKey] rather than naming items here,
    so this stays correct if the catalog changes. */
@@ -80,22 +92,22 @@ const ACH_DATA = [
      incremented once, for real, every time Robert actually sends a
      new unlocked letter/note/surprise from the Dev tab. ── */
   { id:'first-letter', cat:'letters', ico:'💌', name:'First Letter',
-    desc:'Receive your first letter from Robert',
+    pts:50, desc:'Receive your first letter from Robert',
     check: function(){ return totalLettersSent >= 1; } },
   { id:'letters-10', cat:'letters', ico:'✉️', name:'10 Letters',
-    desc:'Receive 10 letters from Robert',
+    pts:100, desc:'Receive 10 letters from Robert',
     check: function(){ return totalLettersSent >= 10; } },
   { id:'letters-25', cat:'letters', ico:'📬', name:'25 Letters',
-    desc:'Receive 25 letters — a real habit forming',
+    pts:150, desc:'Receive 25 letters — a real habit forming',
     check: function(){ return totalLettersSent >= 25; } },
   { id:'letters-50', cat:'letters', ico:'⭐', name:'50 Letters',
-    desc:'Receive 50 letters from Robert',
+    pts:250, desc:'Receive 50 letters from Robert',
     check: function(){ return totalLettersSent >= 50; } },
   { id:'letters-100', cat:'letters', ico:'💎', name:'100 Letters',
-    desc:'Receive 100 letters — a true love story',
+    pts:400, desc:'Receive 100 letters — a true love story',
     check: function(){ return totalLettersSent >= 100; } },
   { id:'night-owl', cat:'letters', ico:'🌙', name:'Night Owl',
-    desc:'Receive a letter sent between midnight and 4am',
+    pts:75, desc:'Receive a letter sent between midnight and 4am',
     check: function(){
       return notifLog.some(function(n){
         if(n.type !== 'letter') return false;
@@ -104,143 +116,161 @@ const ACH_DATA = [
       });
     } },
   { id:'reply-sent', cat:'letters', ico:'💬', name:'Wrote Back',
-    desc:'Send your first message to Robert',
+    pts:50, desc:'Send your first message to Robert',
     check: function(){ return anaMessages.length >= 1; } },
 
   /* ── Streaks (6) — driven by bestStreak, so it stays earned even
      if the current streak later resets. ── */
   { id:'streak-3',   cat:'streaks', ico:'⚡', name:'3-Day Streak',
-    desc:'Open Heartly 3 days in a row',
+    pts:50, desc:'Open Heartly 3 days in a row',
     check: function(){ return bestStreak >= 3; } },
   { id:'streak-7',   cat:'streaks', ico:'🔥', name:'7-Day Streak',
-    desc:'One full week without missing a day',
+    pts:100, desc:'One full week without missing a day',
     check: function(){ return bestStreak >= 7; } },
   { id:'streak-14',  cat:'streaks', ico:'🔥', name:'14-Day Streak',
-    desc:'Two solid weeks of dedication',
+    pts:150, desc:'Two solid weeks of dedication',
     check: function(){ return bestStreak >= 14; } },
   { id:'streak-30',  cat:'streaks', ico:'🔥', name:'30-Day Streak',
-    desc:'A whole month of love and consistency',
+    pts:250, desc:'A whole month of love and consistency',
     check: function(){ return bestStreak >= 30; } },
   { id:'streak-60',  cat:'streaks', ico:'🔥', name:'60-Day Streak',
-    desc:'Two months — unwavering',
+    pts:350, desc:'Two months — unwavering',
     check: function(){ return bestStreak >= 60; } },
   { id:'streak-100', cat:'streaks', ico:'🏆', name:'100-Day Legend',
-    desc:'100 consecutive days — legendary dedication',
+    pts:500, desc:'100 consecutive days — legendary dedication',
     check: function(){ return bestStreak >= 100; } },
 
   /* ── Games (5) — real Love Clicker stats, reported live through the
      game's cross-frame bridge (clicker/clicker-script.js) into this
      app's own persisted state, not the game's separate localStorage. ── */
   { id:'game-first',   cat:'games', ico:'🧩', name:'First Play',
-    desc:'Play a full round of Love Clicker',
+    pts:50, desc:'Play a full round of Love Clicker',
     check: function(){ return clickerGamesPlayed >= 1; } },
   { id:'game-score-1k', cat:'games', ico:'📈', name:'Getting Good',
-    desc:'Score 1,000+ in a single Love Clicker round',
+    pts:100, desc:'Score 1,000+ in a single Love Clicker round',
     check: function(){ return clickerBestScore >= 1000; } },
   { id:'game-score-5k', cat:'games', ico:'📈', name:'High Scorer',
-    desc:'Score 5,000+ in a single Love Clicker round',
-    check: function(){ return clickerBestScore >= 5000; } },
+    pts:200, desc:'Score 4,000+ in a single Love Clicker round',
+    check: function(){ return clickerBestScore >= 4000; } },
   { id:'game-lifetime-25k', cat:'games', ico:'🎮', name:'Regular Player',
-    desc:'Reach 25,000 lifetime Love Clicker score',
+    pts:250, desc:'Reach 25,000 lifetime Love Clicker score',
     check: function(){ return clickerLifetimeScore >= 25000; } },
   { id:'game-played-10', cat:'games', ico:'🕹️', name:'Gamer',
-    desc:'Complete 10 rounds of Love Clicker',
+    pts:150, desc:'Complete 10 rounds of Love Clicker',
     check: function(){ return clickerGamesPlayed >= 10; } },
+
+  /* ── Love Blast (5) — mirrors the Love Clicker set above, using the
+     same reportBlastSession() bridge from loveblast/script.js. ── */
+  { id:'blast-first',   cat:'games', ico:'🧱', name:'First Blast',
+    pts:50, desc:'Play a full round of Love Blast',
+    check: function(){ return blastGamesPlayed >= 1; } },
+  { id:'blast-score-1k', cat:'games', ico:'📈', name:'Block Buster',
+    pts:100, desc:'Score 1,000+ in a single Love Blast round',
+    check: function(){ return blastBestScore >= 1000; } },
+  { id:'blast-score-5k', cat:'games', ico:'📈', name:'Blast Master',
+    pts:200, desc:'Score 5,000+ in a single Love Blast round',
+    check: function(){ return blastBestScore >= 5000; } },
+  { id:'blast-lifetime-25k', cat:'games', ico:'🎮', name:'Blast Regular',
+    pts:250, desc:'Reach 25,000 lifetime Love Blast score',
+    check: function(){ return blastLifetimeScore >= 25000; } },
+  { id:'blast-played-10', cat:'games', ico:'🕹️', name:'Blast Gamer',
+    pts:150, desc:'Complete 10 rounds of Love Blast',
+    check: function(){ return blastGamesPlayed >= 10; } },
 
   /* ── Points (5) — lifetime earned, never decreases when spent. ── */
   { id:'pts-500',   cat:'points', ico:'🪙', name:'500 Points Earned',
-    desc:'Earn 500 points total',
+    pts:50, desc:'Earn 500 points total',
     check: function(){ return totalPtsEarned >= 500; } },
   { id:'pts-1000',  cat:'points', ico:'🪙', name:'1,000 Points Earned',
-    desc:'Earn 1,000 points total',
+    pts:75, desc:'Earn 1,000 points total',
     check: function(){ return totalPtsEarned >= 1000; } },
   { id:'pts-2500',  cat:'points', ico:'💰', name:'2,500 Points Earned',
-    desc:'Earn 2,500 points total',
+    pts:100, desc:'Earn 2,500 points total',
     check: function(){ return totalPtsEarned >= 2500; } },
   { id:'pts-5000',  cat:'points', ico:'💰', name:'5,000 Points Earned',
-    desc:'A dedicated collector of love points',
+    pts:150, desc:'A dedicated collector of love points',
     check: function(){ return totalPtsEarned >= 5000; } },
   { id:'pts-10000', cat:'points', ico:'💎', name:'10,000 Points Earned',
-    desc:'10,000 lifetime points — serious dedication',
+    pts:250, desc:'10,000 lifetime points — serious dedication',
     check: function(){ return totalPtsEarned >= 10000; } },
 
   /* ── Shop Collection (5) — generic count of owned SHOP_ITEMS. ── */
   { id:'shop-first',  cat:'shop', ico:'🛍️', name:'First Unlock',
-    desc:'Unlock your first item from the shop',
+    pts:50, desc:'Unlock your first item from the shop',
     check: function(){ return _ownedShopItemCount() >= 1; } },
   { id:'shop-5',      cat:'shop', ico:'🛍️', name:'Collector',
-    desc:'Own 5 shop items',
+    pts:100, desc:'Own 5 shop items',
     check: function(){ return _ownedShopItemCount() >= 5; } },
   { id:'shop-10',     cat:'shop', ico:'🎨', name:'Curator',
-    desc:'Own 10 shop items',
+    pts:150, desc:'Own 10 shop items',
     check: function(){ return _ownedShopItemCount() >= 10; } },
   { id:'shop-15',     cat:'shop', ico:'📈', name:'Completionist',
-    desc:'Own 15 shop items',
+    pts:200, desc:'Own 15 shop items',
     check: function(){ return _ownedShopItemCount() >= 15; } },
   { id:'shop-all',    cat:'shop', ico:'👑', name:'Everything, Always',
-    desc:'Own every item in the shop',
+    pts:300, desc:'Own every item in the shop',
     check: function(){ return typeof SHOP_ITEMS!=='undefined' && SHOP_ITEMS.length>0 && _ownedShopItemCount() >= SHOP_ITEMS.length; } },
 
   /* ── Relationship features (10) — real usage of features Robert
      configured, not just owning them. ── */
   { id:'jar-first',   cat:'relationship', ico:'🫙', name:'Memory Keeper',
-    desc:'Have a first memory in the jar',
+    pts:50, desc:'Have a first memory in the jar',
     check: function(){ return memoryJarItems.length >= 1; } },
   { id:'jar-10',      cat:'relationship', ico:'🫙', name:'Jar Full of Love',
-    desc:'Fill the memory jar with 10 memories',
+    pts:150, desc:'Fill the memory jar with 10 memories',
     check: function(){ return memoryJarItems.length >= 10; } },
   { id:'map-first',   cat:'relationship', ico:'📍', name:'First Pin',
-    desc:'Have a first place pinned on the Love Map',
+    pts:50, desc:'Have a first place pinned on the Love Map',
     check: function(){ return loveMapPins.length >= 1; } },
   { id:'map-5',       cat:'relationship', ico:'📍', name:'Cartographer of Love',
-    desc:'Pin 5 places on the Love Map',
+    pts:150, desc:'Pin 5 places on the Love Map',
     check: function(){ return loveMapPins.length >= 5; } },
   { id:'wish-first',  cat:'relationship', ico:'✨', name:'First Wish',
-    desc:'Add a wish to your Wish List',
+    pts:50, desc:'Add a wish to your Wish List',
     check: function(){ return anaWishList.length >= 1; } },
   { id:'wish-5',      cat:'relationship', ico:'✨', name:'Dream Big',
-    desc:'Add 5 wishes to your Wish List',
+    pts:100, desc:'Add 5 wishes to your Wish List',
     check: function(){ return anaWishList.length >= 5; } },
   { id:'goal-first',  cat:'relationship', ico:'💑', name:'Goal Setter',
-    desc:'Have a first Couple Goal set',
+    pts:50, desc:'Have a first Couple Goal set',
     check: function(){ return coupleGoalsList.length >= 1; } },
   { id:'goal-3done',  cat:'relationship', ico:'💑', name:'Goal Crusher',
-    desc:'Complete 3 Couple Goals together',
+    pts:150, desc:'Complete 3 Couple Goals together',
     check: function(){ return coupleGoalsList.filter(function(g){return g.done;}).length >= 3; } },
   { id:'puzzle-solved', cat:'relationship', ico:'🧩', name:'Puzzle Solver',
-    desc:'Solve the Puzzle of the Week',
+    pts:100, desc:'Solve the Puzzle of the Week',
     check: function(){ return !!(puzzleOfWeekData && puzzleOfWeekData.solved); } },
   { id:'question-answered', cat:'relationship', ico:'💬', name:'Open Book',
-    desc:"Answer Robert's Daily Question",
+    pts:75, desc:"Answer Robert's Daily Question",
     check: function(){ return !!(dailyQuestionData && dailyQuestionData.answer); } },
 
   /* ── Engagement (6) — real lifetime counts of using the daily
      boosts, not just owning them once. ── */
   { id:'bonus-15',     cat:'engagement', ico:'⚡', name:'Bonus Hunter',
-    desc:'Claim the Daily Bonus 15 times',
+    pts:100, desc:'Claim the Daily Bonus 15 times',
     check: function(){ return totalBonusesClaimed >= 15; } },
   { id:'gift-15',      cat:'engagement', ico:'🎁', name:'Gift Grabber',
-    desc:'Open the Daily Gift Box 15 times',
+    pts:100, desc:'Open the Daily Gift Box 15 times',
     check: function(){ return totalGiftBoxesOpened >= 15; } },
   { id:'spin-15',      cat:'engagement', ico:'🎰', name:'Feeling Lucky',
-    desc:'Use Lucky Spin 15 times',
+    pts:100, desc:'Use Lucky Spin 15 times',
     check: function(){ return totalLuckySpins >= 15; } },
   { id:'spin-30',      cat:'engagement', ico:'🎰', name:'Jackpot Chaser',
-    desc:'Use Lucky Spin 30 times',
+    pts:200, desc:'Use Lucky Spin 30 times',
     check: function(){ return totalLuckySpins >= 30; } },
 
   /* ── Misc (5) — other genuine one-off real actions. ── */
   { id:'mood-set',     cat:'misc', ico:'🎭', name:'Mood Ring',
-    desc:"Share how you're feeling for the first time",
+    pts:50, desc:"Share how you're feeling for the first time",
     check: function(){ return totalMoodsSet >= 1; } },
   { id:'rob-mood-set', cat:'misc', ico:'💬', name:'In Sync',
-    desc:"See Robert share his mood for the first time",
+    pts:50, desc:"See Robert share his mood for the first time",
     check: function(){ return !!(robertMood && robertMood.emoji); } },
   { id:'theme-changed', cat:'misc', ico:'🎨', name:'New Look',
-    desc:'Switch to a different theme',
+    pts:50, desc:'Switch to a different theme',
     check: function(){ return everChangedTheme === true; } },
   { id:'shield-used',   cat:'misc', ico:'🔒', name:'Shielded',
-    desc:'Have the Streak Shield protect a missed day',
+    pts:75, desc:'Have the Streak Shield protect a missed day',
     check: function(){ return !!streakShieldUsedDate; } },
 ];
 
@@ -263,22 +293,37 @@ ACH_CATS.forEach(function(c){ _achCollapsed[c.id] = true; });
    Anything newly true gets recorded (permanently) in earnedAchievements
    with the real moment it happened, celebrated once, then persisted.
    Safe to call often — already-earned achievements are never re-evaluated. */
+var _checkingAchievements = false;
 function checkAchievements(){
+  if(_checkingAchievements) return []; // guard against re-entrant calls (logPtsChange below also calls checkAchievements)
+  _checkingAchievements = true;
   var newlyEarned = [];
-  ACH_DATA.forEach(function(a){
-    if(earnedAchievements[a.id]) return; // already earned — permanent, don't re-check
-    try {
-      if(a.check()){
-        earnedAchievements[a.id] = Date.now();
-        newlyEarned.push(a);
-      }
-    } catch(e){ /* state not ready yet — skip silently, will catch next call */ }
-  });
+  try {
+    ACH_DATA.forEach(function(a){
+      if(earnedAchievements[a.id]) return; // already earned — permanent, don't re-check
+      try {
+        if(a.check()){
+          earnedAchievements[a.id] = Date.now();
+          newlyEarned.push(a);
+        }
+      } catch(e){ /* state not ready yet — skip silently, will catch next call */ }
+    });
+  } finally {
+    _checkingAchievements = false;
+  }
 
   if(newlyEarned.length){
     if(typeof saveState === 'function') saveState();
     newlyEarned.forEach(function(a){
-      if(typeof T === 'function') T('🏆 Achievement unlocked: ' + a.name);
+      var reward = _achRewardFor(a.id);
+      if(reward > 0 && typeof ptsVal !== 'undefined'){
+        var old = ptsVal;
+        ptsVal += reward;
+        if(typeof animatePts === 'function') animatePts(old, ptsVal, 600);
+        if(typeof logPtsChange === 'function') logPtsChange(reward);
+        if(typeof addTxItem === 'function') addTxItem(a.ico, a.name + ' unlocked', 'Just now', '+'+reward, 'earn');
+      }
+      if(typeof T === 'function') T('🏆 Achievement unlocked: ' + a.name + (reward>0 ? ' (+'+reward+' pts)' : ''));
       if(typeof showSuccess === 'function') showSuccess(a.ico, a.name, 'rgba(224,85,120,.2)');
     });
     renderAchievements();
@@ -288,6 +333,31 @@ function checkAchievements(){
 window.checkAchievements = checkAchievements;
 // Alias kept for the existing call sites in state.js (streak update path)
 window.checkStreakAchievements = checkAchievements;
+
+function renderRobAchievementRewards(){
+  const list = document.getElementById('rob-ach-rewards-list');
+  if(!list || typeof ACH_DATA === 'undefined') return;
+
+  list.innerHTML = ACH_CATS.map(cat => {
+    const items = ACH_DATA.filter(a => a.cat === cat.id);
+    if(!items.length) return '';
+    const rows = items.map(a => `
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;color:#fff">${a.name}</div>
+          <div style="font-size:10px;color:var(--tx3)">${a.desc}</div>
+        </div>
+        <input type="number" value="${_achRewardFor(a.id)}" min="0" step="10"
+          style="width:70px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:12px;text-align:right;flex-shrink:0"
+          onchange="achievementRewards['${a.id}'] = Math.max(0, parseInt(this.value)||0); saveState(); T('💰 Reward updated');" />
+      </div>`).join('');
+    return `<div style="margin-bottom:6px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--tx3);text-transform:uppercase;margin:10px 0 2px">${cat.label}</div>
+      ${rows}
+    </div>`;
+  }).join('');
+}
+window.renderRobAchievementRewards = renderRobAchievementRewards;
 
 function renderAchievements(){
   var container = document.getElementById('ach-categories');
@@ -299,6 +369,10 @@ function renderAchievements(){
   // Update totals
   var badge = document.getElementById('ach-total-badge');
   if(badge) badge.textContent = totalEarned + ' / ' + total;
+  // Same total also shown in a second spot (Ana's Profile page) — used
+  // to be a permanently-stuck hardcoded "12 / 30" that never updated
+  var badgeProf = document.getElementById('ach-total-badge-prof');
+  if(badgeProf) badgeProf.textContent = totalEarned + ' / ' + total;
   var fill = document.getElementById('ach-progress-fill');
   if(fill) fill.style.width = Math.round(totalEarned/total*100) + '%';
 
@@ -425,6 +499,7 @@ function dvSimulateAchievementStats(){
     totalMoodsSet: totalMoodsSet, everChangedTheme: everChangedTheme,
     streakShieldUsedDate: streakShieldUsedDate,
     clickerGamesPlayed: clickerGamesPlayed, clickerBestScore: clickerBestScore, clickerLifetimeScore: clickerLifetimeScore,
+    blastGamesPlayed: blastGamesPlayed, blastBestScore: blastBestScore, blastLifetimeScore: blastLifetimeScore,
     robertMood: JSON.parse(JSON.stringify(robertMood)),
     memoryJarItems: memoryJarItems.slice(), loveMapPins: loveMapPins.slice(),
     anaWishList: anaWishList.slice(), coupleGoalsList: coupleGoalsList.slice(),
@@ -440,13 +515,14 @@ function dvSimulateAchievementStats(){
   totalMoodsSet = 5; everChangedTheme = true;
   streakShieldUsedDate = getTodayISO();
   clickerGamesPlayed = 12; clickerBestScore = 6000; clickerLifetimeScore = 30000;
+  blastGamesPlayed = 12; blastBestScore = 6000; blastLifetimeScore = 30000;
   robertMood = {emoji:'🥰', label:'Loved', time:'Just now'};
   memoryJarItems = new Array(10).fill(0).map(function(_,i){ return {text:'x', date:'x'}; });
   loveMapPins    = new Array(5).fill(0).map(function(_,i){ return {emoji:'📍', label:'x', desc:'', date:''}; });
   anaWishList    = new Array(5).fill(0).map(function(_,i){ return {text:'x', cat:'Other', ico:'✨', status:'pending', by:'ana'}; });
   coupleGoalsList = new Array(3).fill(0).map(function(_,i){ return {text:'x', done:true}; });
   puzzleOfWeekData = {message:'TEST', solved:true};
-  dailyQuestionData = {question:'x', answer:'x', date:new Date().toDateString()};
+  dailyQuestionData = {question:'x', answer:'x', date:getTodayISO()};
   anaMessages = [{text:'x', time:'Just now', read:true}];
   var nightOwlTs = new Date(); nightOwlTs.setHours(2,0,0,0);
   notifLog = [{id:'test-nightowl', type:'letter', ico:'💌', icoClass:'rose', title:'x', sub:'x', ts:nightOwlTs.getTime(), read:true, dismissed:false}];
@@ -462,6 +538,7 @@ function dvSimulateAchievementStats(){
   totalMoodsSet = snapshot.totalMoodsSet; everChangedTheme = snapshot.everChangedTheme;
   streakShieldUsedDate = snapshot.streakShieldUsedDate;
   clickerGamesPlayed = snapshot.clickerGamesPlayed; clickerBestScore = snapshot.clickerBestScore; clickerLifetimeScore = snapshot.clickerLifetimeScore;
+  blastGamesPlayed = snapshot.blastGamesPlayed; blastBestScore = snapshot.blastBestScore; blastLifetimeScore = snapshot.blastLifetimeScore;
   robertMood = snapshot.robertMood;
   memoryJarItems = snapshot.memoryJarItems; loveMapPins = snapshot.loveMapPins;
   anaWishList = snapshot.anaWishList; coupleGoalsList = snapshot.coupleGoalsList;

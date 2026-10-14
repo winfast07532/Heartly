@@ -65,6 +65,24 @@
     </div>
     <div id="menu-best"></div>
     <button class="ov-btn primary" onclick="startGame()">▶ Play Now</button>
+    <button class="ov-btn ghost" onclick="openSkinsShop()">🎨 Skins</button>
+  </div>
+</div>
+
+<!-- SKINS SHOP -->
+<div class="overlay hidden" id="ov-skins">
+  <div class="ov-bg" onclick="closeSkinsShop()"></div>
+  <div class="ov-content" style="max-width:340px">
+    <div class="ov-ico">🎨</div>
+    <div class="ov-title" style="font-size:22px">Skins Shop</div>
+    <div id="skins-pts-row" class="ov-sub" style="margin-bottom:14px">🪙 0 pts</div>
+    <div class="skins-tabs">
+      <button class="skins-tab on" data-sk="color" onclick="skinsTab('color')">Colors</button>
+      <button class="skins-tab" data-sk="shape" onclick="skinsTab('shape')">Shapes</button>
+      <button class="skins-tab" data-sk="fx" onclick="skinsTab('fx')">Effects</button>
+    </div>
+    <div id="skins-list"></div>
+    <button class="ov-btn ghost" style="margin-top:14px" onclick="closeSkinsShop()">Close</button>
   </div>
 </div>
 

@@ -6,8 +6,10 @@
 ═══════════════════════════════════ */
 // Points & exchange
 var ptsVal = 0;
+var pixelArtState = { version: 3, works: {}, custom: {}, deleted: {}, lastArtwork: null };
 var txHistoryOpen = false;
 var ptsLog = []; // [{ts, amt}] — real history for weekly change display
+var txLog = [];  // [{icon, title, amt, type, ts}] — real, persisted transaction feed (was pure ephemeral DOM state before, resetting to hardcoded demo entries on every reload)
 
 // Notification state
 var notifOpen = false;
@@ -84,6 +86,9 @@ var robertMood = {
 
 // Ana's messages to Robert
 var anaMessages = [];
+// Reusable text blocks Robert can save from the Letter Library editor and
+// drop back into any new note/surprise/letter. {id, name, icon, title, body, sig}
+var letterTemplates = [];
 
 
 // Ana's Wish List
@@ -100,8 +105,31 @@ var bestStreak    = 0;
 var lastOpenDate  = null; // ms timestamp (Date.now()) of last streak increment
 var streakShieldUsedDate = null; // ISO date string — shield used once per week
 
+// Love Languages — Ana sets these in her Settings; Robert reads them
+// (read-only) in the Dev tab. Was previously written straight to a raw
+// `heartly.loveLangs` localStorage key, completely outside saveState/
+// applyState — meaning it never synced to Supabase and Robert's Dev
+// tab had no way to see it at all, no matter which device either of
+// them was on. Now it's a normal piece of shared state like everything
+// else here. [] means "not set yet, defaults get filled in on first
+// display" (see loadLoveLanguages in js/profile.js).
+var currentLoveLangs = [];
+
 // Explore sort
 var exploreSort = 'default'; // 'default' | 'newest' | 'oldest' | 'points'
+
+/* ── GAME COSMETICS (LoveBlast + Love Clicker) ──
+   Points-shop purchases, real content Ana buys with her own points.
+   Both games read these directly off window.parent since they're
+   same-origin iframes (see loveblast/script.js, clicker/clicker-script.js). */
+var loveblastOwnedCosmetics = []; // ids like 'lb_color_rosegold'
+var loveblastEquippedColor  = 'classic';
+var loveblastEquippedShape  = 'classic';
+var loveblastEquippedFx     = 'classic';
+
+var clickerOwnedCosmetics = []; // ids like 'ck_heart_diamond'
+var clickerEquippedHeart = 'classic';
+var clickerEquippedCombo = 'classic';
 
 // Sent tab unread badge state
 var sentUnreadBadge = false;
@@ -134,6 +162,10 @@ var shopDailyBonusLastClaimed = null; // ISO date string
 var shopDailyGiftBox  = false; // mystery box every 24hrs
 var shopDailyGiftLastClaimed = null;  // date string
 var shopHotStreak     = false; // auto +100 at 7-day streak
+// Whether the Hot Streak Bonus has already been paid out for the CURRENT
+// streak run. Reset to false whenever the streak breaks and restarts, so
+// the bonus can be earned again the next time a run reaches 7 days.
+var hotStreakBonusAwarded = false;
 var shopVIPPass       = false; // all daily bonuses for a week
 var shopVIPPassExpiry = null;  // ISO date string
 
@@ -149,6 +181,12 @@ var shopCountdown     = false; // countdown timer to a date
 var shopCountdownData = null;  // {label, date}
 var shopGoodNight     = false; // goodnight mode
 var shopGoodNightTime = '22:00'; // HH:MM
+// Separate from Good Night Mode (mood card) above — this is Robert's
+// control over the actual "Goodnight Letter" home card (used to be
+// pure fake logic: `dayOfYear % 2 === 0`, claiming a letter was
+// waiting every other day regardless of whether one actually was).
+// null = nothing scheduled. 'YYYY-MM-DD' = the date a letter is ready.
+var goodnightLetterNextDate = null;
 var shopCoupleGoals   = false; // couple goals
 var coupleGoalsList   = [];    // [{text, done}]
 var shopDateNight     = false; // date night picker
@@ -184,6 +222,12 @@ var clickerGamesPlayed  = 0; // real completed sessions
 var clickerBestScore    = 0; // best single-session score, ever
 var clickerLifetimeScore= 0; // sum of every real session's score, ever
 
+// Same idea, for Love Blast — previously this game had no equivalent
+// bridge at all, so it had zero achievements while Love Clicker had 5.
+var blastGamesPlayed    = 0;
+var blastBestScore      = 0;
+var blastLifetimeScore  = 0;
+
 /* ═══════════════════════════════════════════
    LOCALSTORAGE PERSISTENCE
 ═══════════════════════════════════════════ */
@@ -191,9 +235,6 @@ const STORAGE_KEY = 'heartly_v1';
 let _saveTimer;
 
 function saveState(){
-  // Mark dirty IMMEDIATELY so sync knows not to overwrite
-  // in-memory state during the 300ms debounce window.
-  window._heartlyLocalDirty = Date.now();
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(function(){
     try {
@@ -203,6 +244,7 @@ function saveState(){
       }
       var s = {
         ptsVal: ptsVal,
+        pixelArtState: pixelArtState,
         activeTheme: activeTheme,
         themeUnlocks: themeUnlocks,
         hasSeenWelcome: hasSeenWelcome,
@@ -215,6 +257,7 @@ function saveState(){
         shopDailyGiftBox: shopDailyGiftBox,
         shopDailyGiftLastClaimed: shopDailyGiftLastClaimed,
         shopHotStreak: shopHotStreak,
+        hotStreakBonusAwarded: hotStreakBonusAwarded,
         shopVIPPass: shopVIPPass,
         shopVIPPassExpiry: shopVIPPassExpiry,
         shopCoupleSong: shopCoupleSong,
@@ -250,13 +293,24 @@ function saveState(){
         robertWishList: robertWishList,
         anaSuggestions: anaSuggestions,
         anaMessages: anaMessages,
+        letterTemplates: letterTemplates,
         anaMood: anaMood,
         robertMood: robertMood,
         favourites: favourites,
         ptsLog: ptsLog,
+        txLog: txLog,
         sentLetters: sentLetters,
+        currentLoveLangs: currentLoveLangs,
+        loveblastOwnedCosmetics: loveblastOwnedCosmetics,
+        loveblastEquippedColor: loveblastEquippedColor,
+        loveblastEquippedShape: loveblastEquippedShape,
+        loveblastEquippedFx: loveblastEquippedFx,
+        clickerOwnedCosmetics: clickerOwnedCosmetics,
+        clickerEquippedHeart: clickerEquippedHeart,
+        clickerEquippedCombo: clickerEquippedCombo,
         notifLog: notifLog,
         notifPrefs: (typeof notifPrefs !== 'undefined') ? notifPrefs : undefined,
+        goodnightLetterNextDate: (typeof goodnightLetterNextDate !== 'undefined') ? goodnightLetterNextDate : undefined,
         totalLettersSent: totalLettersSent,
         totalPtsEarned: totalPtsEarned,
         totalMoodsSet: totalMoodsSet,
@@ -267,10 +321,17 @@ function saveState(){
         clickerGamesPlayed: clickerGamesPlayed,
         clickerBestScore: clickerBestScore,
         clickerLifetimeScore: clickerLifetimeScore,
+        blastGamesPlayed: blastGamesPlayed,
+        blastBestScore: blastBestScore,
+        blastLifetimeScore: blastLifetimeScore,
         earnedAchievements: (typeof earnedAchievements !== 'undefined') ? earnedAchievements : undefined,
+        achievementRewards: (typeof achievementRewards !== 'undefined') ? achievementRewards : undefined,
         ED: (typeof ED !== 'undefined') ? ED : undefined
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+      // A full device cache must not prevent a valid cloud save (custom pixel
+      // pictures can be larger than ordinary letters and game counters).
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+      catch(storageError) { console.warn('Local state cache is unavailable:', storageError); }
       if(typeof window.pushRemoteState === 'function') window.pushRemoteState(s);
     } catch(e){ console.warn('saveState failed:', e); }
   }, 300);
@@ -290,12 +351,15 @@ function loadState(){
 function applyState(s){
   try {
     if(!s) return;
+    if(s.pixelArtState && window.PixelCore) pixelArtState = window.PixelCore.merge(pixelArtState, s.pixelArtState);
     if(s.ptsVal                    !== undefined) ptsVal                    = s.ptsVal;
     if(s.activeTheme               !== undefined) activeTheme               = s.activeTheme;
     if(s.hasSeenWelcome            !== undefined) hasSeenWelcome            = s.hasSeenWelcome;
     if(s.relationshipStartDate     !== undefined) relationshipStartDate     = s.relationshipStartDate;
     if(s.relationshipTimeline      !== undefined) relationshipTimeline      = s.relationshipTimeline;
     if(s.updatesLog                !== undefined) updatesLog                = s.updatesLog;
+    if(s.txLog                     !== undefined) txLog                     = s.txLog;
+    if(s.goodnightLetterNextDate   !== undefined) goodnightLetterNextDate   = s.goodnightLetterNextDate;
     if(s.themeUnlocks && typeof THEMES !== 'undefined'){
       Object.keys(s.themeUnlocks).forEach(function(k){
         if(THEMES[k]) THEMES[k].unlocked = s.themeUnlocks[k];
@@ -307,6 +371,7 @@ function applyState(s){
     if(s.shopDailyGiftBox         !== undefined) shopDailyGiftBox         = s.shopDailyGiftBox;
     if(s.shopDailyGiftLastClaimed !== undefined) shopDailyGiftLastClaimed = s.shopDailyGiftLastClaimed;
     if(s.shopHotStreak            !== undefined) shopHotStreak            = s.shopHotStreak;
+    if(s.hotStreakBonusAwarded    !== undefined) hotStreakBonusAwarded    = s.hotStreakBonusAwarded;
     if(s.shopVIPPass              !== undefined) shopVIPPass              = s.shopVIPPass;
     if(s.shopVIPPassExpiry        !== undefined) shopVIPPassExpiry        = s.shopVIPPassExpiry;
     if(s.shopCoupleSong           !== undefined) shopCoupleSong           = s.shopCoupleSong;
@@ -342,11 +407,20 @@ function applyState(s){
     if(s.robertWishList           !== undefined) robertWishList           = s.robertWishList;
     if(s.anaSuggestions           !== undefined) anaSuggestions           = s.anaSuggestions;
     if(s.anaMessages              !== undefined) anaMessages              = s.anaMessages;
+    if(s.letterTemplates          !== undefined) letterTemplates          = s.letterTemplates;
     if(s.anaMood                  !== undefined) anaMood                  = s.anaMood;
     if(s.robertMood               !== undefined) robertMood               = s.robertMood;
     if(s.favourites               !== undefined) favourites               = s.favourites;
     if(s.ptsLog                   !== undefined) ptsLog                   = s.ptsLog;
     if(s.sentLetters              !== undefined) sentLetters              = s.sentLetters;
+    if(s.currentLoveLangs         !== undefined) currentLoveLangs         = s.currentLoveLangs;
+    if(s.loveblastOwnedCosmetics  !== undefined) loveblastOwnedCosmetics  = s.loveblastOwnedCosmetics;
+    if(s.loveblastEquippedColor   !== undefined) loveblastEquippedColor   = s.loveblastEquippedColor;
+    if(s.loveblastEquippedShape   !== undefined) loveblastEquippedShape   = s.loveblastEquippedShape;
+    if(s.loveblastEquippedFx      !== undefined) loveblastEquippedFx      = s.loveblastEquippedFx;
+    if(s.clickerOwnedCosmetics    !== undefined) clickerOwnedCosmetics    = s.clickerOwnedCosmetics;
+    if(s.clickerEquippedHeart     !== undefined) clickerEquippedHeart     = s.clickerEquippedHeart;
+    if(s.clickerEquippedCombo     !== undefined) clickerEquippedCombo     = s.clickerEquippedCombo;
     if(s.notifLog                 !== undefined) notifLog                 = s.notifLog;
     if(s.notifPrefs && typeof notifPrefs !== 'undefined'){
       Object.keys(s.notifPrefs).forEach(function(k){ notifPrefs[k] = s.notifPrefs[k]; });
@@ -361,8 +435,21 @@ function applyState(s){
     if(s.clickerGamesPlayed        !== undefined) clickerGamesPlayed        = s.clickerGamesPlayed;
     if(s.clickerBestScore          !== undefined) clickerBestScore          = s.clickerBestScore;
     if(s.clickerLifetimeScore      !== undefined) clickerLifetimeScore      = s.clickerLifetimeScore;
-    if(s.earnedAchievements && typeof earnedAchievements !== 'undefined'){
-      Object.keys(s.earnedAchievements).forEach(function(k){ earnedAchievements[k] = s.earnedAchievements[k]; });
+    if(s.blastGamesPlayed          !== undefined) blastGamesPlayed          = s.blastGamesPlayed;
+    if(s.blastBestScore            !== undefined) blastBestScore            = s.blastBestScore;
+    if(s.blastLifetimeScore        !== undefined) blastLifetimeScore        = s.blastLifetimeScore;
+    // Full replace, not merge — unlike notifPrefs/ED below, this needs to
+    // support removal (e.g. the dev "Revoke" tool). A key-by-key merge can
+    // only ever add achievements, never take one away, so a revoked
+    // achievement would silently reappear on the other device the next
+    // time it re-adds its own already-earned keys back in.
+    if(s.earnedAchievements !== undefined && typeof earnedAchievements !== 'undefined'){
+      earnedAchievements = s.earnedAchievements;
+      window.earnedAchievements = earnedAchievements;
+    }
+    if(s.achievementRewards !== undefined && typeof achievementRewards !== 'undefined'){
+      achievementRewards = s.achievementRewards;
+      window.achievementRewards = achievementRewards;
     }
     if(s.ED && typeof ED !== 'undefined'){
       Object.keys(s.ED).forEach(function(k){ ED[k] = s.ED[k]; });
@@ -381,34 +468,42 @@ window.applyState = applyState;
    rolling 24h window since the last increment.
 ═══════════════════════════════════════════ */
 function getTodayISO(){
-  var d = new Date();
-  return d.getFullYear() + '-' +
-    String(d.getMonth()+1).padStart(2,'0') + '-' +
-    String(d.getDate()).padStart(2,'0');
+  // Real calendar-day boundary in Europe/Bucharest, regardless of the
+  // device's own timezone — the single source of truth for "today"
+  // used by the streak and every other daily-reset feature.
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Bucharest' }); // 'YYYY-MM-DD'
+}
+window.getTodayISO = getTodayISO;
+
+function _bucharestDateOf(msTimestamp){
+  return new Date(msTimestamp).toLocaleDateString('en-CA', { timeZone: 'Europe/Bucharest' });
 }
 
 function getYesterdayISO(){
-  var d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.getFullYear() + '-' +
-    String(d.getMonth()+1).padStart(2,'0') + '-' +
-    String(d.getDate()).padStart(2,'0');
+  return _bucharestDateOf(Date.now() - 86400000);
 }
 
 function getDayBeforeYesterdayISO(){
-  var d = new Date();
-  d.setDate(d.getDate() - 2);
-  return d.getFullYear() + '-' +
-    String(d.getMonth()+1).padStart(2,'0') + '-' +
-    String(d.getDate()).padStart(2,'0');
+  return _bucharestDateOf(Date.now() - 2*86400000);
 }
 
-// Tap-to-check: how long until the streak ticks up by 1
+// Tap-to-check: how long until the streak ticks up by 1 (real time
+// remaining until the next Bucharest midnight, since that's the actual
+// day boundary the streak now uses).
 function getNextStreakCountdown(){
   if(!lastOpenDate) return 'Open today to start your streak!';
-  var msIn24h = 24 * 60 * 60 * 1000;
-  var remaining = msIn24h - (Date.now() - lastOpenDate);
-  if(remaining <= 0) return 'Come back now to lock in your +1!';
+  var todayBuch = getTodayISO();
+  var lastOpenDay = _bucharestDateOf(lastOpenDate);
+  if(lastOpenDay !== todayBuch) return 'Come back now to lock in your +1!';
+
+  // ms remaining until the next Bucharest midnight
+  var parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Bucharest', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+  }).formatToParts(new Date());
+  var get = t => parseInt(parts.find(p=>p.type===t).value, 10);
+  var secondsIntoDay = get('hour')*3600 + get('minute')*60 + get('second');
+  var remaining = (86400 - secondsIntoDay) * 1000;
+
   var h = Math.floor(remaining / (60 * 60 * 1000));
   var m = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
   if(h > 0) return 'Next +1 in ' + h + 'h ' + m + 'm';
@@ -424,25 +519,30 @@ function showStreakInfo(){
 window.showStreakInfo = showStreakInfo;
 
 function checkAndUpdateStreak(){
-  // Increments the streak by 1, but only once per rolling 24h window
-  // since her last login — logging in again sooner doesn't count twice.
+  // Increments the streak by 1 once per real Bucharest calendar day.
+  // "Today" always means the current date in Europe/Bucharest, no
+  // matter what timezone the device itself is set to.
   var now = Date.now();
-  var msIn24h = 24 * 60 * 60 * 1000;
-  var msIn48h = 48 * 60 * 60 * 1000;
+  var today = getTodayISO(); // Bucharest 'YYYY-MM-DD'
+  var lastOpenDay = lastOpenDate ? _bucharestDateOf(lastOpenDate) : null;
 
-  if(lastOpenDate && (now - lastOpenDate) < msIn24h){
-    // Logged in again within 24h — no change
+  if(lastOpenDay === today){
+    // Already opened today (Bucharest time) — no change
     refreshStreakUI();
     return;
   }
 
-  // A full day (or more) was skipped since the last open — streak is at risk.
-  if(lastOpenDate && (now - lastOpenDate) >= msIn48h){
+  var daysSince = lastOpenDay
+    ? Math.round((new Date(today+'T00:00:00Z') - new Date(lastOpenDay+'T00:00:00Z')) / 86400000)
+    : null;
+
+  // More than one Bucharest day was skipped since the last open — streak is at risk.
+  if(lastOpenDay && daysSince >= 2){
     var shieldAvailable = shopStreakShield &&
-      (!streakShieldUsedDate || (now - new Date(streakShieldUsedDate).getTime()) >= 7 * msIn24h);
+      (!streakShieldUsedDate || (now - new Date(streakShieldUsedDate+'T00:00:00Z').getTime()) >= 7 * 86400000);
 
     if(shieldAvailable){
-      // Shield absorbs the missed day — streak continues, shield goes on cooldown.
+      // Shield absorbs the missed day(s) — streak continues, shield goes on cooldown.
       streakShieldUsedDate = getTodayISO();
       currentStreak++;
       bestStreak = Math.max(bestStreak, currentStreak);
@@ -459,6 +559,7 @@ function checkAndUpdateStreak(){
     // No shield — streak breaks and restarts at 1.
     var lostStreak = currentStreak;
     currentStreak = 1;
+    hotStreakBonusAwarded = false; // new run — bonus can be earned again at day 7
     lastOpenDate = now;
     saveState();
     refreshStreakUI();
@@ -571,6 +672,7 @@ function logPtsChange(delta){
   ptsLog = ptsLog.filter(function(e){ return e.ts >= cutoff; });
   saveState();
   refreshPtsChg();
+  renderUniversalMilestone();
   if(typeof checkAchievements === 'function') checkAchievements();
 }
 window.logPtsChange = logPtsChange;
@@ -592,3 +694,48 @@ function refreshPtsChg(){
   else el.textContent = 'No change this week';
 }
 window.refreshPtsChg = refreshPtsChg;
+
+/* ═══════════════════════════════════════════
+   UNIVERSAL MILESTONES — real progress ladder
+   based on totalPtsEarned (lifetime points ever
+   earned — doesn't drop when you spend, unlike
+   ptsVal). Replaces what used to be a permanently
+   frozen "450 of 1000 / Next Milestone: Memory
+   Box" hardcoded in two places in index.html.
+═══════════════════════════════════════════ */
+var UNIVERSAL_MILESTONES = [
+  { at: 250,   label: 'First Spark 💫' },
+  { at: 500,   label: 'Warming Up 🔥' },
+  { at: 1000,  label: 'Memory Box ✨' },
+  { at: 2000,  label: 'Golden Hour 🌅' },
+  { at: 3500,  label: 'Written in the Stars 🌌' },
+  { at: 5000,  label: 'Forever Mode 💍' },
+];
+function renderUniversalMilestone(){
+  var earned = totalPtsEarned || 0;
+  var next = UNIVERSAL_MILESTONES.find(function(m){ return m.at > earned; });
+  var pctText, labelText, pct;
+  if(next){
+    var prevAt = 0;
+    for(var i=0;i<UNIVERSAL_MILESTONES.length;i++){
+      if(UNIVERSAL_MILESTONES[i] === next) break;
+      prevAt = UNIVERSAL_MILESTONES[i].at;
+    }
+    pct = Math.max(0, Math.min(100, Math.round((earned - prevAt) / (next.at - prevAt) * 100)));
+    pctText = earned.toLocaleString() + ' of ' + next.at.toLocaleString();
+    labelText = next.label;
+  } else {
+    pct = 100;
+    pctText = earned.toLocaleString() + ' — all milestones reached';
+    labelText = 'Everything unlocked 🏆';
+  }
+  ['prof','home'].forEach(function(scope){
+    var bar = document.getElementById('milestone-bar-'+scope);
+    var pts = document.getElementById('milestone-pts-'+scope);
+    var lbl = document.getElementById('milestone-label-'+scope);
+    if(bar) bar.style.setProperty('--w', pct+'%');
+    if(pts) pts.textContent = pctText;
+    if(lbl) lbl.textContent = labelText;
+  });
+}
+window.renderUniversalMilestone = renderUniversalMilestone;

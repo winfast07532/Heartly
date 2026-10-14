@@ -58,6 +58,8 @@ const ICON_SVG = {
   users:        '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 5a3.5 3.5 0 010 7M22 20c0-3-2-5.3-4.5-5.9"/>',
   gamepad:      '<rect x="2" y="8" width="20" height="10" rx="4"/><path d="M7 11v4M5 13h4M15.5 12h.01M18.5 14h.01"/>',
   bell:         '<path d="M18 8a6 6 0 00-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10 20a2 2 0 004 0"/>',
+  frown:        '<circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="9.5" r=".9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="9.5" r=".9" fill="currentColor" stroke="none"/><path d="M8.2 16c1-1.5 2.3-2.2 3.8-2.2s2.8.7 3.8 2.2"/>',
+  angry:        '<circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="11" r=".9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="11" r=".9" fill="currentColor" stroke="none"/><path d="M7 8.5l3 1.3M17 8.5l-3 1.3"/><path d="M8.2 16c1-1.3 2.3-1.9 3.8-1.9s2.8.6 3.8 1.9"/>',
   'bell-off':   '<path d="M8 8a6 6 0 016-2M18 8a6 6 0 011.5 6.5M20 20l-16-16"/><path d="M18 14s2 1 2 0H4s2-1 2-6c0-.4 0-.8.1-1.2M10 20a2 2 0 004 0"/>',
   gem:          '<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 6-3 12M15 3l-3 6 3 12"/>',
   star:         '<path d="M12 2l3.1 6.3 7 1-5 4.9 1.2 6.9-6.3-3.3-6.2 3.3 1.2-7-5-4.8 6.9-1z"/>',
@@ -101,6 +103,7 @@ const ICON_SVG = {
   'chevron-down':'<path d="M6 9l6 6 6-6"/>',
   'chevron-up': '<path d="M6 15l6-6 6 6"/>',
   dot:          '<circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/>',
+  file:         '<path d="M7 2.5h7l4 4v15H7z"/><path d="M14 2.5v4.5h4"/><path d="M9.5 13h5M9.5 16.5h5"/>',
 };
 
 // Emoji character -> icon name. Anything not in here falls back to 'spark'
@@ -111,6 +114,7 @@ const EMOJI_ICON_MAP = {
   '🔥':'flame','⚡':'zap','🏆':'trophy','🎁':'gift','🪙':'coin','💰':'coin','💎':'gem',
   '🔒':'lock','🔐':'lock','🔓':'unlock','📝':'edit','✍':'pencil','✏':'pencil','🗑':'trash',
   '⚙':'settings','🛠':'settings','💌':'mail-heart','✉':'mail','📬':'mail',
+  '📄':'file','🗎':'file','📃':'file','📜':'file',
   '🎵':'music','🎤':'music','📸':'camera','📷':'camera','🖼':'image','🎨':'palette','🖌':'brush',
   '🧩':'puzzle','🎪':'sparkles','✨':'sparkles','🎰':'dice','🎲':'dice','🛡':'shield',
   '🌹':'flower','🌸':'flower','💐':'flower','🌟':'star','⭐':'star',
@@ -123,6 +127,7 @@ const EMOJI_ICON_MAP = {
   '🌍':'globe','👑':'crown','📂':'folder','🪄':'wand','💥':'spark','🍽':'cutlery',
   '🏖':'waves','🌊':'waves','✈':'plane','💍':'ring','💡':'bulb','🛍':'gift','📋':'book',
   '😊':'heart','😄':'heart','😂':'heart','😭':'heart-broken','🐶':'heart','🍒':'cake','🍋':'cake','🍬':'cake',
+  '😢':'frown','😞':'frown','😔':'frown','😠':'angry','😡':'angry','🤬':'angry',
   '🪣':'jar','🎉':'sparkles',
   '🛒':'cart','🔧':'wrench','🔔':'bell','🔕':'bell-off','↻':'refresh','←':'arrow-left',
   '🆔':'id-badge','🆕':'new','⏳':'hourglass','⏱':'clock',

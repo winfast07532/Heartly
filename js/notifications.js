@@ -365,17 +365,36 @@ async function devResetLocalStorage(){
   const ok = await appModal({
     icon: '⚠️',
     title: 'Reset ALL progress?',
-    subtitle: 'Points, streak, shop unlocks, wishlist, moods, and letters read — for BOTH Ana and Robert. This clears the shared data too, not just this device. Cannot be undone.',
+    subtitle: 'Points, streak, shop unlocks, wishlist, moods, and letters read — for BOTH Ana and Robert. This clears the shared data too, not just this device. Your written letters/notes and love languages are kept. Cannot be undone.',
     confirmLabel: 'Reset everything',
     danger: true
   });
   if(!ok) return;
   try {
-    // Blank progress state — same shape saveState() writes, zeroed out.
-    // ED (the actual letter content Robert wrote) is intentionally left out:
-    // applyState() skips overwriting ED when it's absent, so authored
-    // letters/notes/surprises survive a reset — only progress resets.
+    // Extra safety net on top of the real fix below: snapshot the
+    // current live row to the backups table right before resetting,
+    // in case any field is ever missed from `blank` again in the
+    // future. Best-effort — never blocks the reset if it fails.
+    if(typeof triggerManualBackup === 'function'){
+      try { await triggerManualBackup('pre-reset'); } catch(e){ console.warn('pre-reset backup failed:', e); }
+    }
+    // BUG (fixed) — this is what wiped a real couple's actual written
+    // letters/notes on 2026-08-25. The old comment below was WRONG:
+    // leaving `ED` out of this object only protects it locally, because
+    // applyState() (the function that reads a state blob back INTO the
+    // app) skips fields that are absent. But this object doesn't go
+    // through applyState() — it goes straight to pushRemoteState(),
+    // which does a plain Supabase `.upsert({ data: stateObj })`: a full
+    // replacement of the entire remote row, no merging, no skipping.
+    // Omitting ED here doesn't "preserve" it remotely — it means the
+    // saved row ends up with NO ED field AT ALL, and every device that
+    // syncs after this pull down nothing. Same reasoning applies to
+    // currentLoveLangs — that's Ana's own real, self-reported content,
+    // not "progress," and belongs in the same protected category.
+    // Fix: read the REAL current values and include them explicitly.
     var blank = {
+      ED: (typeof ED !== 'undefined') ? ED : undefined,
+      currentLoveLangs: (typeof currentLoveLangs !== 'undefined') ? currentLoveLangs : undefined,
       ptsVal:0, activeTheme:'default', themeUnlocks:{}, hasSeenWelcome:false,
       shopStreakShield:false, shopDailyBonus:false, shopDailyBonusLastClaimed:null,
       shopDailyGiftBox:false, shopDailyGiftLastClaimed:null, shopHotStreak:false,
