@@ -4,3 +4,5 @@
 .management-mode .creator{max-width:100%;padding-top:18px}.management-mode .intro{padding:22px 0 18px}.management-mode .intro h1{font-size:34px}.creator #art-total{margin-top:0}.creator #art-search{min-width:0}.creator .create-actions{position:relative}.creator #art-editor>.create-actions{position:sticky;bottom:0;padding:12px 0 max(12px,env(safe-area-inset-bottom));background:#12040af5;z-index:2}.creator .art-actions .pill{min-height:44px}.management-mode .topbar:has(button[hidden]){justify-content:flex-start}
 
 .management-mode .topbar{display:none}.management-mode .intro{padding-top:8px}.management-mode .intro h1{font-size:28px}.management-mode .intro p{font-size:12px}
+
+.management-mode .topbar:has(#creator-back:not([hidden])){display:flex;margin-bottom:12px}

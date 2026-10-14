@@ -52,3 +52,9 @@ The Studio overview links to Letters & notes, Artwork, Features, Points and Main
 Both the player iframe and developer artwork iframe receive shared-state updates through the existing parent bridge. Published custom pictures are featured ahead of unstarted built-in designs, and Ana can search the coloring collection. Role-based management visibility uses the app’s existing currentUser convention; it does not introduce server-side authorization or repair the previously documented anonymous database policy.
 
 Verification includes simulated-cloud browser tests of the developer navigation, letter saving, artwork publishing, preview, search, filters, unpublish/republish, expansion, and Ana’s player-only view. Large-artwork import, compact saving, reload, 100-color palettes and million-cell progress remain covered.
+
+## Regression fixes (October 2026)
+
+Developer previews are now replay-only: they cannot change Ana’s painted cells, rewards or last-opened picture. The embedded editor retains a visible Back control. Upload setting changes disable saving/publishing until the preview is regenerated; superseded conversions cannot replace a newer edit or leave controls disabled. Saving a stale artwork revision is rejected with a reopen message, and the Back action offers to discard unsavable edits. Remote unpublishing/deletion closes an active player canvas, and remote renames update its heading. Reopening the developer workspace restores its manager view.
+
+Targeted browser regressions live in the local verification/audit-creator.test.cjs and verification/audit-studio.test.cjs harnesses, in addition to the existing gameplay and large-artwork suites. These use simulated cloud transport and do not modify production data.

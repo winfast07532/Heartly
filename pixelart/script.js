@@ -37,6 +37,12 @@
     state=C.merge(state,incoming);
     // Reward state comes from the parent, while painted cells merge locally.
     for(const [id,work] of Object.entries(incoming.works||{})) if(state.works[id]) state.works[id].rewarded=!!work.rewarded;
+    if(art?.id.startsWith('custom_') && (!state.custom[art.id]||state.custom[art.id].draft||state.deleted[art.id])){
+      // Do not flush the withdrawn picture back into the shared state.
+      $('complete-dialog').close();$('studio').hidden=true;$('library').hidden=false;document.body.style.overflow='';art=null;filled=new Set();notify('This picture is no longer published.');
+      if(new URLSearchParams(location.search).get('manage')==='1')window.openArtworkManager?.();
+    }
+    if(art?.id.startsWith('custom_')){art=state.custom[art.id];$('art-title').textContent=art.title;}
     if(art&&!replay){filled=C.cells(art,state.works[art.id]);renderPalette();updateProgress();requestDraw();}
     persistLocal();
     window.dispatchEvent(new Event('artwork-change'));
@@ -90,9 +96,10 @@
   }
   function openArt(id,again=false){
     if(art)flush();
+    if(new URLSearchParams(location.search).get('manage')==='1')again=true;
     const found=catalog().find(a=>a.id===id);if(!found)return;
     overviewKey='';libraryScroll=window.scrollY;art=found;replay=again;filled=again?new Set():C.cells(art,state.works[id]);
-    activeHint=-1;keyboardCell=-1;state.lastArtwork=id;tool='paint';
+    activeHint=-1;keyboardCell=-1;if(!again)state.lastArtwork=id;tool='paint';
     selected=art.grid.flat().find((n,i)=>!filled.has(i)) || art.grid[0][0];
     $('art-title').textContent=art.title;$('library').hidden=true;$('studio').hidden=false;document.body.style.overflow='hidden';
     document.querySelectorAll('[data-tool]').forEach(b=>{b.classList.toggle('active',b.dataset.tool===tool);b.setAttribute('aria-pressed',String(b.dataset.tool===tool));});
@@ -148,7 +155,7 @@
     $('palette').scrollLeft=scroll;
     if(focus)$('palette').querySelector('[data-color="'+focus+'"]')?.focus({preventScroll:true});
   }
-  function updateProgress(){if(!art)return;const pct=Math.round(filled.size/total(art)*100);$('percent').textContent=pct+'%';$('progress-fill').style.width=pct+'%';$('paint-label').textContent=replay?'COLORING AGAIN · JUST FOR YOU':filled.size===total(art)?'EVERY LITTLE SQUARE, YOURS':'MAKE A LITTLE PROGRESS';$('color-instruction').textContent='COLOR '+selected;$('remaining').textContent=remaining(selected).toLocaleString()+' squares left';}
+  function updateProgress(){if(!art)return;const pct=Math.round(filled.size/total(art)*100);$('percent').textContent=pct+'%';$('progress-fill').style.width=pct+'%';$('paint-label').textContent=replay?(new URLSearchParams(location.search).get('manage')==='1'?'PREVIEW · NO PROGRESS OR POINTS':'COLORING AGAIN · JUST FOR YOU'):filled.size===total(art)?'EVERY LITTLE SQUARE, YOURS':'MAKE A LITTLE PROGRESS';$('color-instruction').textContent='COLOR '+selected;$('remaining').textContent=remaining(selected).toLocaleString()+' squares left';}
   function position(e){const rect=canvas.getBoundingClientRect();return {x:e.clientX-rect.left,y:e.clientY-rect.top};}
   function at(p){const s=base*scale,c=Math.floor((p.x-ox)/s),r=Math.floor((p.y-oy)/s);return c>=0&&c<art.cols&&r>=0&&r<art.rows?r*art.cols+c:-1;}
   function paint(i,region=false,defer=false){
@@ -209,7 +216,7 @@
   $('download').onclick=()=>{const c=document.createElement('canvas');preview(c,art,null,Math.max(1,Math.floor(1024/Math.max(art.cols,art.rows))));c.toBlob(blob=>{if(!blob){notify('Picture could not be exported.');return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=art.title.replace(/[^a-z0-9-]/gi,'-')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);},'image/png');};
   window.PixelLibrary={
     list:()=>Object.values(C.normalize(state).custom),
-    save(a){const valid=C.artwork(a);if(!valid||!valid.id.startsWith('custom_'))throw Error('Invalid artwork.');if(state.deleted[valid.id])throw Error('This artwork was deleted on another device.');if(!state.custom[valid.id]&&Object.keys(state.custom).length>=60)throw Error('Your collection is full. Delete a picture before adding another.');valid.updatedAt=Math.max(Date.now(),(state.custom[valid.id]?.updatedAt||0)+1);state.custom[valid.id]=valid;save();renderLibrary();return C.artwork(valid);},
+    save(a){const valid=C.artwork(a);if(!valid||!valid.id.startsWith('custom_'))throw Error('Invalid artwork.');if(state.deleted[valid.id])throw Error('This artwork was deleted on another device.');if(state.custom[valid.id] && valid.updatedAt<state.custom[valid.id].updatedAt)throw Error('This picture changed on another device. Reopen it before saving to keep the latest version.');if(!state.custom[valid.id]&&Object.keys(state.custom).length>=60)throw Error('Your collection is full. Delete a picture before adding another.');valid.updatedAt=Math.max(Date.now(),(state.custom[valid.id]?.updatedAt||0)+1);state.custom[valid.id]=valid;save();renderLibrary();return C.artwork(valid);},
     remove(id){state.deleted[id]=Date.now();delete state.custom[id];flush();renderLibrary();},
     play:openArt,flush,preview,notify,status:syncLabel
   };
