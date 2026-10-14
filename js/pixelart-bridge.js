@@ -45,7 +45,7 @@
     let changed=false;
     for(const art of catalog){
       const work=pixelArtState.works[art.id];
-      if(!work || work.rewarded || C.cells(art,work).size!==art.cols*art.rows) continue;
+      if(art.draft || pixelArtState.deleted[art.id] || !work || work.rewarded || C.cells(art,work).size!==art.cols*art.rows) continue;
       work.rewarded=true;
       unconfirmedRewards.add(art.id);
       rememberPendingRewards();

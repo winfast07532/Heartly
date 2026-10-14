@@ -15,6 +15,14 @@ Open Heartly → Play → Start Coloring for cloud progress and points. Opening 
 - Keyboard: Tab to controls/canvas; arrow keys move around cells; Space/Enter paints; +/- zoom.
 - Reduced-motion support, safe-area spacing and phone landscape layout.
 
+## My Artwork
+
+Open My Artwork from the coloring collection. Upload PNG, JPEG, WebP, GIF or BMP (12 MB maximum), adjust the square crop, select 16–96 pixels and 4–32 colors, and update the preview. Sharp-edge sampling preserves pixel art; exact colors are kept when the sampled image fits the palette limit. Only the converted pixel design is saved; the original photo stays on the device.
+
+Draw your own starts a 16–64 pixel draft. Pencil, cream eraser, connected fill, color picker/swatches, Move, zoom, keyboard painting and 30-step undo/redo are available. Drawing and names autosave. Drafts are excluded from playable collections and rewards until published. Published designs can be renamed; duplicate them to change their pixels without disturbing existing coloring progress. My Artwork also provides PNG export at the original grid resolution and confirmed deletion.
+
+Draft and published artwork share the existing couple collection, not a private per-person account. Up to 60 custom pictures are supported. Artwork revisions use timestamps with deterministic tie-breaking to resist stale cloud snapshots; simultaneous edits of the same draft resolve as whole-design last-write-wins, not per-pixel collaborative editing. Deletion tombstones take precedence. Existing imported artwork remains published.
+
 ## Saved data and database integration
 
 `core.js` validates and merges the version-3 save. `js/pixelart-bridge.js` connects the iframe to the parent app. `js/state.js` includes `pixelArtState` in the existing `couple_state.data` JSON column; `js/sync.js` carries it through the existing Supabase save, load and Realtime paths. No new table, credential or database migration is needed.

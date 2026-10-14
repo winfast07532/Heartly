@@ -10,7 +10,7 @@
   let w=0,h=0,dpr=1,base=1,scale=1,ox=0,oy=0;
   const canvas=$('pixel-canvas'),ctx=canvas.getContext('2d'), pointers=new Map();
   let gesture=null, pinching=false;
-  const catalog=()=>[...window.HEARTLY_ARTWORKS,...Object.values(state.custom).filter(a=>!state.deleted[a.id])];
+  const catalog=()=>[...window.HEARTLY_ARTWORKS,...Object.values(state.custom).filter(a=>!state.deleted[a.id]&&!a.draft)];
   const total=a=>a.cols*a.rows;
   const progress=a=>C.cells(a,state.works[a.id]).size;
   function notify(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2400);}
@@ -39,6 +39,7 @@
     for(const [id,work] of Object.entries(incoming.works||{})) if(state.works[id]) state.works[id].rewarded=!!work.rewarded;
     if(art&&!replay){filled=C.cells(art,state.works[art.id]);renderPalette();updateProgress();requestDraw();}
     persistLocal();
+    window.dispatchEvent(new Event('artwork-change'));
     if(!$('library').hidden)renderLibrary();
     if($('complete-dialog').open)updateReward();
   };
@@ -64,7 +65,7 @@
     $('feature-play').onclick=()=>openArt(feature.id);
     $('feature-size').textContent=feature.cols+' × '+feature.rows+' · '+Object.keys(feature.colors).length+' COLORS';
     preview($('feature-preview'),feature);
-    const cats=[['all','All pictures'],['love','Little joys'],['nature','Nature'],['animals','Animals'],['objects','Objects'],['food','Food'],['fantasy','Daydreams'],['custom','From Robert']];
+    const cats=[['all','All pictures'],['love','Little joys'],['nature','Nature'],['animals','Animals'],['objects','Objects'],['food','Food'],['fantasy','Daydreams'],['custom','Your artwork']];
     $('categories').replaceChildren();
     cats.filter(([id])=>id==='all'||list.some(a=>a.category===id)).forEach(([id,label])=>{
       const b=document.createElement('button');b.textContent=label;b.className=category===id?'active':'';b.setAttribute('aria-pressed',String(category===id));b.onclick=()=>{category=id;renderLibrary();};$('categories').append(b);
@@ -193,6 +194,12 @@
   document.querySelectorAll('.dialog-close').forEach(b=>b.onclick=()=>$('help-dialog').close());
   $('replay').onclick=()=>{const id=art.id;$('complete-dialog').close();openArt(id,true);};
   $('download').onclick=()=>{const c=document.createElement('canvas');preview(c,art,null,Math.max(1,Math.floor(1024/Math.max(art.cols,art.rows))));c.toBlob(blob=>{if(!blob){notify('Picture could not be exported.');return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=art.title.replace(/[^a-z0-9-]/gi,'-')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);},'image/png');};
+  window.PixelLibrary={
+    list:()=>Object.values(C.normalize(state).custom),
+    save(a){const valid=C.artwork(a);if(!valid||!valid.id.startsWith('custom_'))throw Error('Invalid artwork.');if(state.deleted[valid.id])throw Error('This artwork was deleted on another device.');if(!state.custom[valid.id]&&Object.keys(state.custom).length>=60)throw Error('Your collection is full. Delete a picture before adding another.');valid.updatedAt=Math.max(Date.now(),(state.custom[valid.id]?.updatedAt||0)+1);state.custom[valid.id]=valid;save();renderLibrary();return C.artwork(valid);},
+    remove(id){state.deleted[id]=Date.now();delete state.custom[id];flush();renderLibrary();},
+    play:openArt,flush,preview,notify,status:syncLabel
+  };
   window.devImportArtwork=async(file,opts,callback)=>{try{const a=await window.PixelImport(file,opts);if(Object.keys(state.custom).length>=60)throw new Error('The collection has reached 60 custom pictures.');state.custom[a.id]=a;flush();renderLibrary();callback?.(true,a.title);}catch(e){callback?.(false,e.message);}};
   window.devListArtworks=()=>Object.values(state.custom).map(a=>({id:a.id,title:a.title,cols:a.cols,rows:a.rows,colors:Object.keys(a.colors).length}));
   window.devRemoveArtwork=id=>{state.deleted[id]=Date.now();delete state.custom[id];flush();renderLibrary();};

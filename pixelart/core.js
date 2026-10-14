@@ -13,7 +13,7 @@
       colors[key] = color;
     }
     if (a.grid.some(row => !Array.isArray(row) || row.length !== a.cols || row.some(n => !Number.isInteger(n) || !colors[n]))) return null;
-    return { id:a.id, title:String(a.title || 'Untitled picture').slice(0,80), category:String(a.category || 'custom').slice(0,30), cols:a.cols, rows:a.rows, colors, grid:a.grid.map(r=>r.slice()), isCustom:!!a.isCustom, desc:String(a.desc || '').slice(0,160) };
+    return { id:a.id, title:String(a.title || 'Untitled picture').slice(0,80), category:String(a.category || 'custom').slice(0,30), cols:a.cols, rows:a.rows, colors, grid:a.grid.map(r=>r.slice()), isCustom:!!a.isCustom, draft:a.draft===true, updatedAt:Number.isFinite(a.updatedAt)?a.updatedAt:0, desc:String(a.desc || '').slice(0,160) };
   }
   function normalize(input) {
     const out = empty();
@@ -32,7 +32,7 @@
   }
   function merge(left, right) {
     const a = normalize(left), b = normalize(right);
-    for (const [id, art] of Object.entries(b.custom)) a.custom[id] = art;
+    for (const [id, art] of Object.entries(b.custom)) { const old=a.custom[id]; if(!old || art.updatedAt>old.updatedAt || (art.updatedAt===old.updatedAt && JSON.stringify(art)>JSON.stringify(old))) a.custom[id]=art; }
     for (const [id, ts] of Object.entries(b.deleted)) a.deleted[id] = Math.max(a.deleted[id] || 0, ts);
     for (const id of Object.keys(a.deleted)) delete a.custom[id];
     for (const [id, p] of Object.entries(b.works)) {
