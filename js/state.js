@@ -244,7 +244,7 @@ function saveState(){
       }
       var s = {
         ptsVal: ptsVal,
-        pixelArtState: pixelArtState,
+        pixelArtState: window.PixelCore ? window.PixelCore.pack(pixelArtState) : pixelArtState,
         activeTheme: activeTheme,
         themeUnlocks: themeUnlocks,
         hasSeenWelcome: hasSeenWelcome,

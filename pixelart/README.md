@@ -17,9 +17,11 @@ Open Heartly → Play → Start Coloring for cloud progress and points. Opening 
 
 ## My Artwork
 
-Open My Artwork from the coloring collection. Upload PNG, JPEG, WebP, GIF or BMP (12 MB maximum), adjust the square crop, select 16–96 pixels and 4–32 colors, and update the preview. Sharp-edge sampling preserves pixel art; exact colors are kept when the sampled image fits the palette limit. Only the converted pixel design is saved; the original photo stays on the device.
+Open Pictures for Ana from the coloring collection. Upload PNG, JPEG, WebP, GIF or BMP (12 MB maximum), adjust the square crop, select 16–1000 pixels and 4–100 colors, and update the preview. Sharp-edge sampling preserves pixel art; exact colors are kept when the sampled image fits the palette limit. Only the converted pixel design is saved; the original photo stays on the device.
 
-Draw your own starts a 16–64 pixel draft. Pencil, cream eraser, connected fill, color picker/swatches, Move, zoom, keyboard painting and 30-step undo/redo are available. Drawing and names autosave. Drafts are excluded from playable collections and rewards until published. Published designs can be renamed; duplicate them to change their pixels without disturbing existing coloring progress. My Artwork also provides PNG export at the original grid resolution and confirmed deletion.
+Draw your own starts a 16–64 pixel draft. Pencil, cream eraser, connected fill, color picker/swatches, Move, zoom, keyboard painting and 30-step undo/redo (3 full snapshots for large imported designs) are available. Drawing and names autosave. Drafts are excluded from playable collections and rewards until published. Published designs can be renamed; duplicate them to change their pixels without disturbing existing coloring progress. My Artwork also provides PNG export at the original grid resolution and confirmed deletion.
+
+Publish for Ana adds the design to the shared playable collection. The game iframe allows native page scrolling; painting still captures canvas gestures. Large artwork grids use base64 byte arrays in device/cloud JSON, and large progress sets use bitmaps. Runtime validation restores the normal grid and cell arrays. Color sampling uses a bounded histogram; low-zoom coloring uses an overview canvas and high-zoom rendering only draws visible cells.
 
 Draft and published artwork share the existing couple collection, not a private per-person account. Up to 60 custom pictures are supported. Artwork revisions use timestamps with deterministic tie-breaking to resist stale cloud snapshots; simultaneous edits of the same draft resolve as whole-design last-write-wins, not per-pixel collaborative editing. Deletion tombstones take precedence. Existing imported artwork remains published.
 
@@ -33,7 +35,7 @@ The original `pixelhue_v2` and `ph_custom_artworks` saves are imported without d
 
 Rewards are calculated by the parent from the picture's actual size (30–120 points), recorded once, and included in Heartly's balance, lifetime earnings, points history and transaction feed. The initial cloud pull must be confirmed before new rewards are applied. Offline saves are retried after reconnection. Replaying or reopening a completed picture does not grant a second reward.
 
-Robert's existing dashboard importer uses the same image converter whether the game iframe is open or closed. Imports use a center crop and a balanced color palette; accepted formats are PNG, JPEG, WebP, GIF and BMP, up to 12 MB. Dimensions are bounded to 8–96 per side and palette size to 2–32. The collection allows up to 60 custom pictures. Imported titles are inserted as text, not HTML.
+Robert's existing dashboard importer uses the same image converter whether the game iframe is open or closed. Imports use a center crop and a balanced color palette; accepted formats are PNG, JPEG, WebP, GIF and BMP, up to 12 MB. Dimensions are bounded to 8–1000 per side and palette size to 2–100. The collection allows up to 60 custom pictures. Imported titles are inserted as text, not HTML.
 
 ## Verification and scope
 

@@ -9,7 +9,7 @@
   let saveTimer=0, toastTimer=0, renderFrame=0, activeHint=-1, keyboardCell=-1, libraryScroll=0;
   let w=0,h=0,dpr=1,base=1,scale=1,ox=0,oy=0;
   const canvas=$('pixel-canvas'),ctx=canvas.getContext('2d'), pointers=new Map();
-  let gesture=null, pinching=false;
+  let gesture=null, pinching=false, overview=null,overviewKey='';
   const catalog=()=>[...window.HEARTLY_ARTWORKS,...Object.values(state.custom).filter(a=>!state.deleted[a.id]&&!a.draft)];
   const total=a=>a.cols*a.rows;
   const progress=a=>C.cells(a,state.works[a.id]).size;
@@ -24,7 +24,7 @@
     return s==='synced' ? 'Saved to Heartly' : 'Saved here · cloud pending';
   }
   function showSave(){const label=syncLabel();$('save-status').textContent=label;$('library-save').textContent=label;}
-  function persistLocal(){try{localStorage.setItem(KEY,JSON.stringify(state));localOK=true;}catch(_){localOK=false;}showSave();}
+  function persistLocal(){try{localStorage.setItem(KEY,JSON.stringify(C.pack(state)));localOK=true;}catch(_){localOK=false;}showSave();}
   function flush(){
     clearTimeout(saveTimer);saveTimer=0;
     const p=parentBridge();
@@ -44,6 +44,7 @@
     if($('complete-dialog').open)updateReward();
   };
   function preview(canvas,a,partial,size=8){
+    size=Math.min(size,Math.max(1,Math.floor(512/Math.max(a.cols,a.rows))));
     const c=canvas.getContext('2d');canvas.width=a.cols*size;canvas.height=a.rows*size;
     for(let r=0;r<a.rows;r++)for(let col=0;col<a.cols;col++){
       c.fillStyle=partial && !partial.has(r*a.cols+col) ? '#ded4d0' : a.colors[a.grid[r][col]];
@@ -89,7 +90,7 @@
   function openArt(id,again=false){
     if(art)flush();
     const found=catalog().find(a=>a.id===id);if(!found)return;
-    libraryScroll=window.scrollY;art=found;replay=again;filled=again?new Set():C.cells(art,state.works[id]);
+    overviewKey='';libraryScroll=window.scrollY;art=found;replay=again;filled=again?new Set():C.cells(art,state.works[id]);
     activeHint=-1;keyboardCell=-1;state.lastArtwork=id;tool='paint';
     selected=art.grid.flat().find((n,i)=>!filled.has(i)) || art.grid[0][0];
     $('art-title').textContent=art.title;$('library').hidden=true;$('studio').hidden=false;document.body.style.overflow='hidden';
@@ -109,13 +110,21 @@
   }
   function fitCanvas(){scale=1;ox=(w-art.cols*base)/2;oy=(h-56-art.rows*base)/2;requestDraw();}
   function clampCamera(){const cw=art.cols*base*scale,ch=art.rows*base*scale,available=h-56;ox=cw<w?(w-cw)/2:Math.max(w-cw-30,Math.min(30,ox));oy=ch<available?(available-ch)/2:Math.max(available-ch-16,Math.min(16,oy));}
-  function zoom(factor,x=w/2,y=h/2){const next=Math.max(1,Math.min(12,scale*factor)),ratio=next/scale;ox=x-(x-ox)*ratio;oy=y-(y-oy)*ratio;scale=next;clampCamera();requestDraw();}
+  function zoom(factor,x=w/2,y=h/2){const next=Math.max(1,Math.min(Math.max(12,32/base),scale*factor)),ratio=next/scale;ox=x-(x-ox)*ratio;oy=y-(y-oy)*ratio;scale=next;clampCamera();requestDraw();}
   function requestDraw(){if(!renderFrame)renderFrame=requestAnimationFrame(()=>{renderFrame=0;draw();});}
   function draw(){
     if(!art)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
-    const s=base*scale,flat=art.grid.flat();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='700 '+Math.max(6,Math.min(19,s*.40))+'px -apple-system,system-ui,sans-serif';
+    const s=base*scale;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='700 '+Math.max(6,Math.min(19,s*.40))+'px -apple-system,system-ui,sans-serif';
+    if(s<4&&total(art)>10000){
+      const key=art.id+':'+filled.size+':'+selected;
+      if(key!==overviewKey){overview=document.createElement('canvas');overview.width=art.cols;overview.height=art.rows;const oc=overview.getContext('2d'),im=oc.createImageData(art.cols,art.rows),colors={};
+        for(const [n,hex] of Object.entries(art.colors))colors[n]=hex.match(/[a-f0-9]{2}/gi).map(v=>parseInt(v,16));
+        for(let i=0;i<total(art);i++){const n=art.grid[Math.floor(i/art.cols)][i%art.cols],rgb=filled.has(i)?colors[n]:n===selected?[239,208,217]:[252,248,244];im.data.set([...rgb,255],i*4);}oc.putImageData(im,0,0);overviewKey=key;
+      }
+      ctx.imageSmoothingEnabled=false;ctx.drawImage(overview,ox,oy,art.cols*s,art.rows*s);$('zoom-label').textContent=Math.round(scale*100)+'%';return;
+    }
     for(let r=Math.max(0,Math.floor(-oy/s));r<Math.min(art.rows,Math.ceil((h-oy)/s));r++)for(let c=Math.max(0,Math.floor(-ox/s));c<Math.min(art.cols,Math.ceil((w-ox)/s));c++){
-      const i=r*art.cols+c,n=flat[i],painted=filled.has(i),x=ox+c*s,y=oy+r*s;
+      const i=r*art.cols+c,n=art.grid[r][c],painted=filled.has(i),x=ox+c*s,y=oy+r*s;
       ctx.fillStyle=painted?art.colors[n]:n===selected?'#efd0d9':'#fcf8f4';ctx.fillRect(x,y,s+.3,s+.3);
       if(!painted){ctx.strokeStyle=n===selected?'#bd869933':'#b8a6a233';ctx.lineWidth=.6;ctx.strokeRect(x,y,s,s);if(s>=7){ctx.fillStyle=n===selected?'#794352':'#9d9291';ctx.fillText(n,x+s/2,y+s/2+.5);}}
       if(i===activeHint||i===keyboardCell){ctx.strokeStyle='#8e294c';ctx.lineWidth=2.5;ctx.strokeRect(x+2,y+2,s-4,s-4);}
@@ -126,10 +135,11 @@
   function remaining(n){return art.grid.flat().reduce((sum,v,i)=>sum+(v===n&&!filled.has(i)?1:0),0);}
   function renderPalette(){
     if(!art)return;
+    const counts={};for(let r=0;r<art.rows;r++)for(let c=0;c<art.cols;c++){const n=art.grid[r][c];if(!filled.has(r*art.cols+c))counts[n]=(counts[n]||0)+1;}
     const scroll=$('palette').scrollLeft,focus=document.activeElement?.dataset.color;
     $('palette').replaceChildren();
     [...new Set(art.grid.flat())].sort((a,b)=>a-b).forEach(n=>{
-      const left=remaining(n),b=document.createElement('button');b.className='swatch'+(n===selected?' selected':'')+(!left?' finished':'');b.dataset.color=n;b.style.background=art.colors[n];b.style.color=contrast(art.colors[n]);
+      const left=counts[n]||0,b=document.createElement('button');b.className='swatch'+(n===selected?' selected':'')+(!left?' finished':'');b.dataset.color=n;b.style.background=art.colors[n];b.style.color=contrast(art.colors[n]);
       b.textContent=left?n:'✓';b.setAttribute('aria-label','Color '+n+', '+left+' squares remaining');b.setAttribute('aria-pressed',String(n===selected));
       if(left){const count=document.createElement('small');count.textContent=left; b.append(count);}
       b.onclick=()=>{selected=n;activeHint=-1;renderPalette();updateProgress();requestDraw();};$('palette').append(b);
@@ -140,11 +150,11 @@
   function updateProgress(){if(!art)return;const pct=Math.round(filled.size/total(art)*100);$('percent').textContent=pct+'%';$('progress-fill').style.width=pct+'%';$('paint-label').textContent=replay?'COLORING AGAIN · JUST FOR YOU':filled.size===total(art)?'EVERY LITTLE SQUARE, YOURS':'MAKE A LITTLE PROGRESS';$('color-instruction').textContent='COLOR '+selected;$('remaining').textContent=remaining(selected)+' squares left';}
   function position(e){const rect=canvas.getBoundingClientRect();return {x:e.clientX-rect.left,y:e.clientY-rect.top};}
   function at(p){const s=base*scale,c=Math.floor((p.x-ox)/s),r=Math.floor((p.y-oy)/s);return c>=0&&c<art.cols&&r>=0&&r<art.rows?r*art.cols+c:-1;}
-  function paint(i,region=false){
+  function paint(i,region=false,defer=false){
     if(!art||i<0||filled.has(i)||art.grid[Math.floor(i/art.cols)][i%art.cols]!==selected)return false;
     const todo=[i];let changed=false;
     while(todo.length){const n=todo.pop();if(filled.has(n)||art.grid[Math.floor(n/art.cols)][n%art.cols]!==selected)continue;filled.add(n);changed=true;if(region){const r=Math.floor(n/art.cols),c=n%art.cols;if(c)todo.push(n-1);if(c<art.cols-1)todo.push(n+1);if(r)todo.push(n-art.cols);if(r<art.rows-1)todo.push(n+art.cols);}}
-    if(changed){activeHint=-1;record();renderPalette();updateProgress();requestDraw();}return changed;
+    if(changed&&!defer){activeHint=-1;record();renderPalette();updateProgress();requestDraw();}return changed;
   }
   function record(){
     if(!replay){const old=state.works[art.id];state.works[art.id]={filled:[...filled].sort((a,b)=>a-b),updatedAt:Date.now(),completedAt:filled.size===total(art)?old?.completedAt||Date.now():null,rewarded:!!old?.rewarded};save();}
@@ -154,7 +164,8 @@
     if(!art||remaining(selected)>0)return;
     const next=art.grid.flat().find((n,i)=>!filled.has(i));if(next){selected=next;renderPalette();updateProgress();$('palette').querySelector('[data-color="'+next+'"]')?.scrollIntoView({block:'nearest',inline:'center'});requestDraw();}
   }
-  function line(a,b){const distance=Math.hypot(b.x-a.x,b.y-a.y),steps=Math.ceil(distance/Math.max(1,base*scale/3));for(let i=0;i<=steps;i++){if($('complete-dialog').open)break;paint(at({x:a.x+(b.x-a.x)*i/Math.max(1,steps),y:a.y+(b.y-a.y)*i/Math.max(1,steps)}));}}
+  function line(a,b){const distance=Math.hypot(b.x-a.x,b.y-a.y),steps=Math.ceil(distance/Math.max(1,base*scale/3));let changed=false;for(let i=0;i<=steps;i++)changed=paint(at({x:a.x+(b.x-a.x)*i/Math.max(1,steps),y:a.y+(b.y-a.y)*i/Math.max(1,steps)}),false,true)||changed;if(changed){activeHint=-1;record();renderPalette();updateProgress();requestDraw();}}
+
   canvas.addEventListener('pointerdown',e=>{
     if(!art||e.button>0)return;e.preventDefault();canvas.setPointerCapture(e.pointerId);const p=position(e);pointers.set(e.pointerId,p);
     if(pointers.size===2){pinching=true;const [a,b]=[...pointers.values()];gesture={distance:Math.hypot(a.x-b.x,a.y-b.y),mid:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}};}
@@ -184,7 +195,7 @@
   function centerCell(i){const s=base*scale;ox=w/2-(i%art.cols+.5)*s;oy=(h-56)/2-(Math.floor(i/art.cols)+.5)*s;clampCamera();requestDraw();}
   function updateReward(){const work=state.works[art.id];$('reward-note').textContent=replay?'A little time, well spent.':work?.rewarded?'Completed · Heartly reward collected':parentBridge()?'+'+C.reward(art)+' points · waiting for cloud sync':'Open through Heartly to collect '+C.reward(art)+' points';}
   function showCompletion(){if(!art)return;preview($('completed-preview'),art);$('complete-title').textContent=art.title;updateReward();if(!$('complete-dialog').open)$('complete-dialog').showModal();}
-  $('hint').onclick=()=>{nextColor();const i=art.grid.flat().findIndex((n,i)=>n===selected&&!filled.has(i));if(i<0){notify('This color is finished.');return;}scale=Math.max(scale,Math.min(12,28/base));activeHint=i;centerCell(i);};
+  $('hint').onclick=()=>{nextColor();const i=art.grid.flat().findIndex((n,i)=>n===selected&&!filled.has(i));if(i<0){notify('This color is finished.');return;}scale=Math.max(scale,Math.max(12,28/base));activeHint=i;centerCell(i);};
   $('fit').onclick=fitCanvas;$('zoom-in').onclick=()=>zoom(1.5);$('zoom-out').onclick=()=>zoom(1/1.5);
   document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;document.querySelectorAll('[data-tool]').forEach(t=>{t.classList.toggle('active',t===b);t.setAttribute('aria-pressed',String(t===b));});});
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{view=b.dataset.view;document.querySelectorAll('[data-view]').forEach(t=>{t.classList.toggle('active',t===b);t.setAttribute('aria-pressed',String(t===b));});renderLibrary();});

@@ -5,11 +5,12 @@
   const safeId = id => typeof id === 'string' && /^[a-zA-Z0-9_-]{1,90}$/.test(id) && !['__proto__','constructor','prototype'].includes(id);
   const empty = () => ({ version: 3, works: {}, custom: {}, deleted: {}, lastArtwork: null });
   function artwork(a) {
-    if (!a || !safeId(a.id) || !Number.isInteger(a.cols) || !Number.isInteger(a.rows) || a.cols < 1 || a.rows < 1 || a.cols > 96 || a.rows > 96) return null;
-    if (!a.colors || Object.keys(a.colors).length > 32 || !Array.isArray(a.grid) || a.grid.length !== a.rows) return null;
+    if(a?.gridBytes && Number.isInteger(a.cols)&&Number.isInteger(a.rows)&&a.cols>0&&a.rows>0&&a.cols<=1000&&a.rows<=1000){try{const raw=atob(a.gridBytes);if(raw.length!==a.cols*a.rows)return null;a={...a,grid:Array.from({length:a.rows},(_,r)=>Array.from({length:a.cols},(_,c)=>raw.charCodeAt(r*a.cols+c)))};}catch(_){return null;}}
+    if (!a || !safeId(a.id) || !Number.isInteger(a.cols) || !Number.isInteger(a.rows) || a.cols < 1 || a.rows < 1 || a.cols > 1000 || a.rows > 1000) return null;
+    if (!a.colors || Object.keys(a.colors).length > 100 || !Array.isArray(a.grid) || a.grid.length !== a.rows) return null;
     const colors = {};
     for (const [key, color] of Object.entries(a.colors)) {
-      if (!/^[1-9][0-9]?$/.test(key) || !/^#[0-9a-f]{6}$/i.test(color)) return null;
+      if (!/^(?:[1-9][0-9]?|100)$/.test(key) || !/^#[0-9a-f]{6}$/i.test(color)) return null;
       colors[key] = color;
     }
     if (a.grid.some(row => !Array.isArray(row) || row.length !== a.cols || row.some(n => !Number.isInteger(n) || !colors[n]))) return null;
@@ -23,9 +24,10 @@
       if (valid && id === valid.id && id.startsWith('custom_')) out.custom[id] = valid;
     }
     for (const [id, stamp] of Object.entries(input.deleted || {}).slice(0,300)) if(safeId(id) && Number.isFinite(stamp)) out.deleted[id] = stamp;
-    for (const [id, p] of Object.entries(input.works || {}).slice(0,300)) {
+    for (const [id, original] of Object.entries(input.works || {}).slice(0,300)) {
+      let p=original;if(p?.filledBits){try{const raw=atob(p.filledBits);if(raw.length>125000)continue;const filled=[];for(let i=0;i<raw.length;i++){const byte=raw.charCodeAt(i);for(let bit=0;bit<8;bit++)if(byte&(1<<bit))filled.push(i*8+bit);}p={...p,filled};}catch(_){continue;}}
       if(!safeId(id) || !p || !Array.isArray(p.filled)) continue;
-      out.works[id] = { filled:[...new Set(p.filled.filter(n=>Number.isInteger(n)&&n>=0&&n<9216))].sort((a,b)=>a-b), completedAt:Number.isFinite(p.completedAt) ? p.completedAt : null, rewarded:p.rewarded===true, updatedAt:Number.isFinite(p.updatedAt) ? p.updatedAt : 0 };
+      out.works[id] = { filled:[...new Set(p.filled.filter(n=>Number.isInteger(n)&&n>=0&&n<1000000))].sort((a,b)=>a-b), completedAt:Number.isFinite(p.completedAt) ? p.completedAt : null, rewarded:p.rewarded===true, updatedAt:Number.isFinite(p.updatedAt) ? p.updatedAt : 0 };
     }
     out.lastArtwork = safeId(input.lastArtwork) ? input.lastArtwork : null;
     return out;
@@ -56,6 +58,14 @@
   }
   function cells(art, work) { return new Set((work?.filled || []).filter(i=>i < art.cols*art.rows)); }
   function reward(art) { return Math.min(120, Math.max(30, Math.round(art.cols*art.rows/4))); }
-  root.PixelCore = {empty,normalize,merge,migrate,artwork,cells,reward};
+
+  function bytes64(bytes){let text='';for(let i=0;i<bytes.length;i+=16384)text+=String.fromCharCode(...bytes.subarray(i,i+16384));return btoa(text);}
+  function pack(input){
+    const out=normalize(input);
+    for(const a of Object.values(out.custom))if(a.cols*a.rows>10000){a.gridBytes=bytes64(Uint8Array.from(a.grid.flat()));delete a.grid;}
+    for(const p of Object.values(out.works))if(p.filled.length>10000){const bytes=new Uint8Array(Math.ceil((p.filled[p.filled.length-1]+1)/8));for(const i of p.filled)bytes[i>>3]|=1<<(i&7);p.filledBits=bytes64(bytes);delete p.filled;}
+    return out;
+  }
+  root.PixelCore = {empty,normalize,merge,migrate,artwork,cells,reward,pack};
   if(typeof module !== 'undefined') module.exports=root.PixelCore;
 })(typeof window !== 'undefined' ? window : globalThis);
