@@ -17,9 +17,9 @@ Open Heartly → Play → Start Coloring for cloud progress and points. Opening 
 
 ## My Artwork
 
-Open Pictures for Ana from the coloring collection. Upload PNG, JPEG, WebP, GIF or BMP (12 MB maximum), adjust the square crop, select 16–1000 pixels and 4–100 colors, and update the preview. Sharp-edge sampling preserves pixel art; exact colors are kept when the sampled image fits the palette limit. Only the converted pixel design is saved; the original photo stays on the device.
+Open Robert’s Studio → Artwork. The dedicated developer iframe hosts the upload/editor workspace; Ana’s embedded game does not display management controls. On phones the workspace opens expanded so its dialogs stay reachable; Close expanded view returns to the dashboard. Standalone local previews retain management controls. Upload PNG, JPEG, WebP, GIF or BMP (12 MB maximum), adjust the square crop, select 16–1000 pixels and 4–100 colors, and update the preview. Sharp-edge sampling preserves pixel art; exact colors are kept when the sampled image fits the palette limit. Only the converted pixel design is saved; the original photo stays on the device.
 
-Draw your own starts a 16–64 pixel draft. Pencil, cream eraser, connected fill, color picker/swatches, Move, zoom, keyboard painting and 30-step undo/redo (3 full snapshots for large imported designs) are available. Drawing and names autosave. Drafts are excluded from playable collections and rewards until published. Published designs can be renamed; duplicate them to change their pixels without disturbing existing coloring progress. My Artwork also provides PNG export at the original grid resolution and confirmed deletion.
+Draw your own starts a 16–64 pixel draft. Pencil, cream eraser, connected fill, color picker/swatches, Move, zoom, keyboard painting and 30-step undo/redo (3 full snapshots for large imported designs) are available. Drawing and names autosave. Drafts are excluded from playable collections and rewards until published. Published designs can be renamed; duplicate them to change their pixels without disturbing existing coloring progress. The artwork workspace includes name search, draft/published filters, an unpublish action that preserves coloring progress, and PNG export at the original grid resolution and confirmed deletion.
 
 Publish for Ana adds the design to the shared playable collection. The game iframe allows native page scrolling; painting still captures canvas gestures. Large artwork grids use base64 byte arrays in device/cloud JSON, and large progress sets use bitmaps. Runtime validation restores the normal grid and cell arrays. Color sampling uses a bounded histogram; low-zoom coloring uses an overview canvas and high-zoom rendering only draws visible cells.
 
@@ -44,3 +44,11 @@ The workspace's `verification/pixelart.test.cjs` exercises the real browser UI a
 Tests do not contact production Supabase, send pushes or modify real relationship data. Real iPhone Safari hardware has not been tested. Opening the new build through Heartly will use the already-configured Supabase project.
 
 The existing shared anonymous-access database policy is unchanged. This update does not secure the entire application. Painted cells merge safely, but Heartly still synchronizes its overall balance and unrelated app fields as one shared JSON document; this is not a server-authoritative transactional rewards service. The access-control and whole-app concurrency findings in `HEARTLY-INSPECTION.md` remain follow-up work.
+
+## Developer dashboard
+
+The Studio overview links to Letters & notes, Artwork, Features, Points and Maintenance. Existing editor and configuration handlers are retained. Letter editing is placed first, tab groups wrap on narrow screens, and section navigation stays visible while scrolling. Maintenance resets and bulk changes live in a collapsed Advanced controls section. The dashboard and editor use larger text, stronger contrast and touch-sized controls.
+
+Both the player iframe and developer artwork iframe receive shared-state updates through the existing parent bridge. Published custom pictures are featured ahead of unstarted built-in designs, and Ana can search the coloring collection. Role-based management visibility uses the app’s existing currentUser convention; it does not introduce server-side authorization or repair the previously documented anonymous database policy.
+
+Verification includes simulated-cloud browser tests of the developer navigation, letter saving, artwork publishing, preview, search, filters, unpublish/republish, expansion, and Ana’s player-only view. Large-artwork import, compact saving, reload, 100-color palettes and million-cell progress remain covered.

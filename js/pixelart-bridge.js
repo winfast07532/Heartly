@@ -21,8 +21,8 @@
   }
   function notify() {
     window.dispatchEvent(new Event('pixelart-state'));
-    const game=document.getElementById('cbn-frame')?.contentWindow;
-    try { if(game && typeof game.receiveHeartlyPixelState==='function') game.receiveHeartlyPixelState(pixelArtState); } catch(_) {}
+    for(const frameId of ['cbn-frame','developer-artwork-frame']){const game=document.getElementById(frameId)?.contentWindow;
+    try { if(game && typeof game.receiveHeartlyPixelState==='function') game.receiveHeartlyPixelState(pixelArtState); } catch(_) {}}
   }
   window.getPixelArtState=function(){ importLocal(); return C.normalize(pixelArtState); };
   window.commitPixelArtState=function(incoming){

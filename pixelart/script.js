@@ -57,7 +57,7 @@
     const completed=list.filter(a=>progress(a)===total(a));
     $('progress-count').textContent=unfinished.length;$('done-count').textContent=completed.length;
     $('collection-count').textContent=list.length+' pictures';
-    const feature=unfinished.find(a=>a.id===state.lastArtwork)||unfinished[0]||list.find(a=>progress(a)===0)||list[0];
+    const feature=unfinished.find(a=>a.id===state.lastArtwork)||unfinished[0]||list.filter(a=>a.isCustom&&progress(a)===0).sort((a,b)=>b.updatedAt-a.updatedAt)[0]||list.find(a=>progress(a)===0)||list[0];
     $('feature-tag').textContent=unfinished.includes(feature)?'A LITTLE MOMENT, UNFINISHED':'YOUR NEXT LITTLE ESCAPE';
     $('feature-title').textContent=feature.title;
     $('feature-description').textContent=unfinished.includes(feature)?Math.round(progress(feature)/total(feature)*100)+'% colored. Pick up right where you left off.':feature.desc||'Make a little room for something lovely.';
@@ -66,12 +66,13 @@
     $('feature-play').onclick=()=>openArt(feature.id);
     $('feature-size').textContent=feature.cols+' × '+feature.rows+' · '+Object.keys(feature.colors).length+' COLORS';
     preview($('feature-preview'),feature);
-    const cats=[['all','All pictures'],['love','Little joys'],['nature','Nature'],['animals','Animals'],['objects','Objects'],['food','Food'],['fantasy','Daydreams'],['custom','Your artwork']];
+    const cats=[['all','All pictures'],['custom','From Robert'],['love','Little joys'],['nature','Nature'],['animals','Animals'],['objects','Objects'],['food','Food'],['fantasy','Daydreams']];
     $('categories').replaceChildren();
     cats.filter(([id])=>id==='all'||list.some(a=>a.category===id)).forEach(([id,label])=>{
       const b=document.createElement('button');b.textContent=label;b.className=category===id?'active':'';b.setAttribute('aria-pressed',String(category===id));b.onclick=()=>{category=id;renderLibrary();};$('categories').append(b);
     });
-    const visible=list.filter(a=>(category==='all'||a.category===category)&&(view==='all'||(view==='progress'?progress(a)>0&&progress(a)<total(a):progress(a)===total(a))));
+    const query=$('picture-search').value.trim().toLowerCase();
+    const visible=list.filter(a=>a.title.toLowerCase().includes(query)&&(category==='all'||a.category===category)&&(view==='all'||(view==='progress'?progress(a)>0&&progress(a)<total(a):progress(a)===total(a))));
     $('gallery').replaceChildren();
     visible.forEach(a=>{
       const n=progress(a),done=n===total(a),card=document.createElement('button');card.className='art-card';
@@ -84,7 +85,7 @@
       const bar=document.createElement('div');bar.className='card-progress';const fill=document.createElement('i');fill.style.width=(n/total(a)*100)+'%';bar.append(fill);info.append(bar);card.append(picture,info);card.onclick=()=>openArt(a.id);$('gallery').append(card);
     });
     $('empty').hidden=visible.length>0;
-    $('empty').textContent=view==='done'?'Your finished pictures will live here. Pick a picture and make it yours.':view==='progress'?'A fresh canvas is waiting. Start a picture in Discover.':'No pictures in this category yet.';
+    $('empty').textContent=query?'No pictures match your search. Try another name.':view==='done'?'Your finished pictures will live here. Pick a picture and make it yours.':view==='progress'?'A fresh canvas is waiting. Start a picture in Discover.':'No pictures in this category yet.';
     showSave();
   }
   function openArt(id,again=false){
@@ -99,7 +100,7 @@
     if(base<12 && filled.size<total(art))notify('Pinch or tap + to see the numbers up close.');
     if(filled.size===total(art))showCompletion();
   }
-  function back(){flush();$('complete-dialog').close();$('studio').hidden=true;$('library').hidden=false;document.body.style.overflow='';art=null;renderLibrary();window.scrollTo(0,libraryScroll);}
+  function back(){flush();$('complete-dialog').close();$('studio').hidden=true;$('library').hidden=false;document.body.style.overflow='';art=null;renderLibrary();window.scrollTo(0,libraryScroll);if(new URLSearchParams(location.search).get('manage')==='1')window.openArtworkManager?.();}
   function resize(fit=false){
     if(!art||$('studio').hidden)return;
     const rect=$('canvas-wrap').getBoundingClientRect();if(!rect.width||!rect.height)return;
@@ -141,13 +142,13 @@
     [...new Set(art.grid.flat())].sort((a,b)=>a-b).forEach(n=>{
       const left=counts[n]||0,b=document.createElement('button');b.className='swatch'+(n===selected?' selected':'')+(!left?' finished':'');b.dataset.color=n;b.style.background=art.colors[n];b.style.color=contrast(art.colors[n]);
       b.textContent=left?n:'✓';b.setAttribute('aria-label','Color '+n+', '+left+' squares remaining');b.setAttribute('aria-pressed',String(n===selected));
-      if(left){const count=document.createElement('small');count.textContent=left; b.append(count);}
+      if(left){const count=document.createElement('small');count.textContent=left>=1000?(left/1000).toFixed(left>=10000?0:1)+'k':left; b.append(count);}
       b.onclick=()=>{selected=n;activeHint=-1;renderPalette();updateProgress();requestDraw();};$('palette').append(b);
     });
     $('palette').scrollLeft=scroll;
     if(focus)$('palette').querySelector('[data-color="'+focus+'"]')?.focus({preventScroll:true});
   }
-  function updateProgress(){if(!art)return;const pct=Math.round(filled.size/total(art)*100);$('percent').textContent=pct+'%';$('progress-fill').style.width=pct+'%';$('paint-label').textContent=replay?'COLORING AGAIN · JUST FOR YOU':filled.size===total(art)?'EVERY LITTLE SQUARE, YOURS':'MAKE A LITTLE PROGRESS';$('color-instruction').textContent='COLOR '+selected;$('remaining').textContent=remaining(selected)+' squares left';}
+  function updateProgress(){if(!art)return;const pct=Math.round(filled.size/total(art)*100);$('percent').textContent=pct+'%';$('progress-fill').style.width=pct+'%';$('paint-label').textContent=replay?'COLORING AGAIN · JUST FOR YOU':filled.size===total(art)?'EVERY LITTLE SQUARE, YOURS':'MAKE A LITTLE PROGRESS';$('color-instruction').textContent='COLOR '+selected;$('remaining').textContent=remaining(selected).toLocaleString()+' squares left';}
   function position(e){const rect=canvas.getBoundingClientRect();return {x:e.clientX-rect.left,y:e.clientY-rect.top};}
   function at(p){const s=base*scale,c=Math.floor((p.x-ox)/s),r=Math.floor((p.y-oy)/s);return c>=0&&c<art.cols&&r>=0&&r<art.rows?r*art.cols+c:-1;}
   function paint(i,region=false,defer=false){
@@ -199,6 +200,7 @@
   $('fit').onclick=fitCanvas;$('zoom-in').onclick=()=>zoom(1.5);$('zoom-out').onclick=()=>zoom(1/1.5);
   document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;document.querySelectorAll('[data-tool]').forEach(t=>{t.classList.toggle('active',t===b);t.setAttribute('aria-pressed',String(t===b));});});
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{view=b.dataset.view;document.querySelectorAll('[data-view]').forEach(t=>{t.classList.toggle('active',t===b);t.setAttribute('aria-pressed',String(t===b));});renderLibrary();});
+  $('picture-search').oninput=renderLibrary;
   $('back').onclick=back;$('complete-library').onclick=back;
   $('exit').onclick=()=>{flush();const p=parentBridge();if(p&&typeof p.closePixelArt==='function')p.closePixelArt();else window.location.href='../index.html';};
   $('help').onclick=$('studio-help').onclick=()=>$('help-dialog').showModal();

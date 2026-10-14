@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="css/modals.css">
 <link rel="stylesheet" href="css/themes.css">
 <link rel="stylesheet" href="css/robert.css">
+<link rel="stylesheet" href="css/developer-studio.css">
 <link rel="stylesheet" href="css/overlays.css">
 <link rel="stylesheet" href="css/surprises.css">
 </head>
@@ -941,7 +942,7 @@
       <div class="rob-topbar-avatar">R</div>
       <div class="rob-topbar-info">
         <div class="rob-topbar-name">Robert</div>
-        <div class="rob-topbar-handle">developer.login</div>
+        <div class="rob-topbar-handle">Your Heartly workspace</div>
         <div class="rob-topbar-stats">
           <div class="rob-topbar-stat">
             <div class="rob-topbar-stat-val" id="rob-prof-sent">0</div>
@@ -1108,31 +1109,28 @@
       <!-- ████ DEV TOOLS ████ -->
       <div class="rob-SC on" id="rob-dev">
 
-        <!-- ── HEADER STATUS ── -->
-        <div class="dv-card dv-hero">
-          <div style="display:flex;align-items:center;gap:16px">
-            <div style="display:flex;flex-direction:column;gap:2px">
-              <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(0,255,180,.6);text-transform:uppercase">DEV CONSOLE</div>
-              <div style="font-size:16px;font-weight:900;color:#fff">Heartly Control</div>
-            </div>
-            <div style="margin-left:auto;display:flex;gap:14px">
-              <div class="dv-stat"><div class="dv-stat-val" id="dv-pts-val">—</div><div class="dv-stat-lbl">Ana's pts</div></div>
-              <div style="width:1px;background:rgba(0,255,180,.12)"></div>
-              <div class="dv-stat"><div class="dv-stat-val" style="color:var(--gold)" id="dv-sent-val">—</div><div class="dv-stat-lbl">Sent</div></div>
-            </div>
+        <header class="dev-welcome"><div><span class="dev-eyebrow">HEARTLY STUDIO</span><h1>A little care, behind the scenes.</h1><p>Manage what Ana sees, plays and discovers.</p></div><div class="dev-health"><span id="studio-sync" role="status">Checking save status…</span><span>Ana’s points <b id="dv-pts-val">—</b> · Letters sent <b id="dv-sent-val">—</b></span></div></header>
+        <nav class="dv-tabs" id="dv-tabs" aria-label="Studio sections">
+          <button class="dv-tab-btn on" data-dv="overview" onclick="dvTab('overview')">Overview</button>
+          <button class="dv-tab-btn" data-dv="content" onclick="dvTab('content')">Letters &amp; notes</button>
+          <button class="dv-tab-btn" data-dv="artwork" onclick="dvTab('artwork')">Artwork</button>
+          <button class="dv-tab-btn" data-dv="features" onclick="dvTab('features')">Features</button>
+          <button class="dv-tab-btn" data-dv="pts" onclick="dvTab('pts')">Points</button>
+          <button class="dv-tab-btn" data-dv="tools" onclick="dvTab('tools')">Maintenance</button>
+        </nav>
+        <div id="studio-section-intro"><h2 id="studio-section-title">Your workspace</h2><p id="studio-section-description">Choose what you’d like to work on.</p></div>
+        <section id="dv-overview" class="dv-pane">
+          <div class="studio-launchers">
+            <button onclick="dvTab('artwork')"><span class="studio-launcher-icon">▦</span><strong>Pictures for Ana</strong><span>Upload, preview and publish pictures for her to color.</span><small id="studio-art-count">Open artwork workspace →</small></button>
+            <button onclick="dvTab('content')"><span class="studio-launcher-icon">✎</span><strong>Letters &amp; notes</strong><span>Edit your content library and plan the next letter.</span><small>Open content library →</small></button>
+            <button onclick="dvTab('features')"><span class="studio-launcher-icon">◇</span><strong>Shape her experience</strong><span>Manage shop features, memories and achievements.</span><small>Manage features →</small></button>
+            <button onclick="robNav('robsettings')"><span class="studio-launcher-icon">⚙</span><strong>App settings</strong><span>Change prices, rewards, timeline entries and app updates.</span><small>Open settings →</small></button>
           </div>
-        </div>
-
-        <!-- ── SUB-TABS ── -->
-        <div class="dv-tabs" id="dv-tabs">
-          <button class="dv-tab-btn on" data-dv="content"   onclick="dvTab('content')">📝 Content</button>
-          <button class="dv-tab-btn"    data-dv="features"  onclick="dvTab('features')">🛒 Features</button>
-          <button class="dv-tab-btn"    data-dv="pts"       onclick="dvTab('pts')">🪙 Points</button>
-          <button class="dv-tab-btn"    data-dv="tools"     onclick="dvTab('tools')">🔧 Tools</button>
-        </div>
-
+          <div class="studio-guide"><h3>Your publishing flow</h3><ol><li><b>Create</b><span>Add a picture or work on a draft.</span></li><li><b>Review</b><span>Check its crop, colors and detail.</span></li><li><b>Publish</b><span>Send the finished design to Ana’s collection.</span></li></ol><p>Use the save status above to check whether changes have reached Heartly.</p></div>
+        </section>
+        <section id="dv-artwork" class="dv-pane" style="display:none"><div class="studio-art-toolbar"><p>Up to 1000 × 1000 pixels · 100 colors · drafts saved automatically</p><button class="dv-btn small" onclick="studioFullscreenArtwork()">Expand workspace</button></div><iframe id="developer-artwork-frame" title="Artwork publishing workspace" src="about:blank" scrolling="auto"></iframe></section>
         <!-- ══ CONTENT TAB ══ -->
-        <div id="dv-content" class="dv-pane">
+        <div id="dv-content" class="dv-pane" style="display:none">
 
           <!-- Ana's Love Languages (read-only — she sets these herself in Settings) -->
           <div class="dv-card">
@@ -1363,51 +1361,6 @@
             <button class="dv-btn danger" onclick="dvResetAchievementStats();R(event,this)">↩️ Reset Achievement Stats</button>
           </div>
 
-          <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin:6px 2px -2px">🎨 Pixel Art</div>
-
-          <!-- Import new artwork -->
-          <div class="dv-card">
-            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Import Pixel Art</div></div>
-            <div style="font-size:11px;color:rgba(0,255,180,.5);margin-bottom:12px;line-height:1.6">
-              Upload any image — it gets converted to pixel art and added to Ana's game gallery automatically.
-            </div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              <input class="dv-input" id="dv-pa-title" placeholder="Artwork title…" maxlength="40">
-              <div style="display:flex;gap:8px">
-                <select class="dv-input dv-select" id="dv-pa-category" style="flex:1">
-                  <option value="custom">Custom</option>
-                  <option value="nature">Nature</option>
-                  <option value="love">Love</option>
-                  <option value="animals">Animals</option>
-                  <option value="food">Food</option>
-                  <option value="fantasy">Fantasy</option>
-                </select>
-                <input class="dv-input" id="dv-pa-cols" type="number" value="48" min="8" max="64" placeholder="Cols" style="width:64px;flex-shrink:0;text-align:center">
-                <input class="dv-input" id="dv-pa-rows" type="number" value="48" min="8" max="64" placeholder="Rows" style="width:64px;flex-shrink:0;text-align:center">
-              </div>
-              <div style="display:flex;gap:8px;align-items:center">
-                <div style="font-size:11px;color:rgba(0,255,180,.5);flex:1">Max colors:</div>
-                <input class="dv-input" id="dv-pa-colors" type="number" value="24" min="4" max="32" style="width:72px;text-align:center">
-              </div>
-              <label style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(0,255,180,.05);border:1.5px dashed rgba(0,255,180,.2);border-radius:10px;padding:14px;cursor:pointer;color:rgba(0,255,180,.7);font-size:12px;font-weight:800">
-                📂 Choose Image
-                <input type="file" id="dv-pa-file" accept="image/*" style="display:none" onchange="dvPaPreview(this)">
-              </label>
-              <canvas id="dv-pa-preview" style="display:none;width:100%;border-radius:8px;image-rendering:pixelated;background:rgba(255,255,255,.04);border:1px solid rgba(0,255,180,.1);max-height:140px;object-fit:contain"></canvas>
-              <div id="dv-pa-info" style="font-size:10px;color:rgba(0,255,180,.4);text-align:center;min-height:14px"></div>
-            </div>
-            <button class="dv-btn" style="margin-top:10px" id="dv-pa-import-btn" onclick="dvPaImport()">＋ Add to Ana's Game</button>
-          </div>
-
-          <!-- Existing custom artworks -->
-          <div class="dv-card">
-            <div class="dv-head"><div class="dv-head-dot"></div><div class="dv-head-lbl">Custom Artworks</div><div class="dv-head-badge" id="dv-pa-count">0</div></div>
-            <div id="dv-pa-list">
-              <div style="font-size:11px;color:rgba(0,255,180,.25);text-align:center;padding:14px 0">No custom artworks yet</div>
-            </div>
-            <button class="dv-btn" style="margin-top:10px" onclick="dvPaRefreshList()">↻ Refresh List</button>
-          </div>
-
         </div><!-- /tools -->
 
       </div><!-- /dev -->
@@ -1570,11 +1523,11 @@
     <div id="rob-tabs">
       <div class="rob-tab" data-rs="activity" onclick="robNav('activity');R(event,this)">
         <div class="rob-tab-ic">📊</div>
-        <div class="rob-tab-lb">Ana</div>
+        <div class="rob-tab-lb">Activity</div>
       </div>
       <div class="rob-tab on" data-rs="dev" onclick="robNav('dev');R(event,this)">
         <div class="rob-tab-ic">🛠️</div>
-        <div class="rob-tab-lb">Dev</div>
+        <div class="rob-tab-lb">Studio</div>
       </div>
       <div class="rob-tab" data-rs="sent" onclick="robNav('sent');R(event,this)">
         <div class="rob-tab-ic">💌</div>
@@ -2167,6 +2120,7 @@
 <script src="js/dev.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/robert.js"></script>
+<script src="js/developer-studio.js"></script>
 <script src="js/letters.js"></script>
 <script src="js/surprises.js"></script>
 <script src="js/app.js"></script>

@@ -41,7 +41,7 @@ function robNav(id){
   if(id==='dev'){
     if(_robDevListDirty) renderDevListRob();
     dvUpdateHeader();
-    dvTab('content');
+    dvTab('overview');
     if(!calMonth) initCal(); else renderCal();
   }
   if(id==='sent'){

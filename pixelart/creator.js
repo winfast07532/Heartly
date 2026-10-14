@@ -2,13 +2,16 @@
 (function(){
   'use strict';
   const L=window.PixelLibrary,C=window.PixelCore,$=id=>document.getElementById(id);
+  const management=new URLSearchParams(location.search).get('manage')==='1';
+  function allowed(){try{return window.parent===window||parent.currentUser==='developer.login';}catch(_){return false;}}
+  if(!allowed()){$('my-artwork').hidden=true;return;}
   const panel=document.createElement('section');panel.id='creator';panel.className='library creator';panel.hidden=true;
   panel.innerHTML=`
     <header class="topbar"><button id="creator-back" class="pill">← Collection</button><span class="eyebrow">YOUR LITTLE STUDIO</span></header>
     <div id="art-manager"><section class="intro"><h1>Made for <span>Ana.</span></h1><p>Upload a picture for Ana to color, or draw one for her.</p></section>
     <div class="create-actions"><button id="art-upload" class="primary">Upload image</button><button id="art-new" class="secondary">Draw your own</button></div>
     <p class="muted">Drafts stay here until you publish them for coloring. Published pictures appear in Ana’s coloring collection.</p>
-    <div id="owned-art" class="gallery"></div><p id="owned-empty" class="empty">Your first masterpiece starts here.</p></div>
+    <div class="creator-fields"><label class="creator-field">Find a picture<input id="art-search" type="search" placeholder="Search by name"></label><label class="creator-field">Show<select id="art-filter"><option value="all">All artwork</option><option value="draft">Drafts</option><option value="published">Published</option></select></label></div><p id="art-total" class="muted" role="status"></p><div id="owned-art" class="gallery"></div><p id="owned-empty" class="empty">Your first masterpiece starts here.</p></div>
     <div id="art-editor" hidden><div class="collection-heading"><h2 id="editor-heading">Make something yours.</h2><span id="draft-status" role="status"></span></div>
     <label class="creator-field">Picture name<input id="art-name" maxlength="80" placeholder="A little memory"></label>
     <div id="import-controls" hidden><div class="creator-fields"><label class="creator-field">Grid size<select id="import-size"><option>16</option><option selected>32</option><option>48</option><option>64</option><option>96</option><option>128</option><option>256</option><option>512</option><option>1000</option></select></label><label class="creator-field">Colors<select id="import-colors"><option>4</option><option>8</option><option selected>12</option><option>16</option><option>24</option><option>32</option><option>48</option><option>64</option><option>100</option></select></label></div>
@@ -28,17 +31,18 @@
   const error=e=>{$('art-error').textContent=e?.message||String(e);};
   function button(text,fn){const b=document.createElement('button');b.className='pill';b.textContent=text;b.onclick=fn;return b;}
   function render(){
-    const list=L.list().sort((a,b)=>b.updatedAt-a.updatedAt);$('owned-art').replaceChildren();$('owned-empty').hidden=!!list.length;
+    const all=L.list();const query=$('art-search').value.trim().toLowerCase(),filter=$('art-filter').value;const list=all.filter(a=>a.title.toLowerCase().includes(query)&&(filter==='all'||(filter==='draft'?a.draft:!a.draft))).sort((a,b)=>b.updatedAt-a.updatedAt);$('art-total').textContent=all.filter(a=>!a.draft).length+' published for Ana · '+all.filter(a=>a.draft).length+' drafts';$('owned-empty').textContent=all.length?'No pictures match this search.':'Your first masterpiece starts here.';$('owned-art').replaceChildren();$('owned-empty').hidden=!!list.length;
     for(const a of list){const card=document.createElement('article');card.className='art-card';const image=document.createElement('div');image.className='art-preview';const cv=document.createElement('canvas');L.preview(cv,a);image.append(cv);const copy=document.createElement('div');copy.className='art-copy';const title=document.createElement('h3');title.textContent=a.title;const meta=document.createElement('p');meta.className='muted';meta.textContent=(a.draft?'Draft':'Published')+' · '+a.cols+' × '+a.rows;const actions=document.createElement('div');actions.className='art-actions';
       actions.append(button(a.draft?'Edit':'Rename',()=>edit(a)),button('Duplicate',()=>{try{const copy=clone(a);copy.id=id();copy.title=(a.title+' copy').slice(0,80);copy.draft=true;L.save(copy);edit(copy);render();}catch(e){L.notify(e.message);}}),button('Export PNG',()=>exportArt(a)),button('Delete',()=>{deleteId=a.id;$('delete-art-dialog').showModal();}));
-      if(!a.draft)actions.prepend(button('Color',()=>{leave();L.play(a.id);}));copy.append(title,meta,actions);card.append(image,copy);$('owned-art').append(card);
+      if(!a.draft)actions.prepend(button('Preview game',()=>{if(leave())L.play(a.id);}),button('Unpublish',()=>{if(confirm('Remove this picture from Ana’s collection? Her progress will be kept.')){try{L.save({...a,draft:true});L.flush();render();}catch(e){L.notify(e.message);}}}));copy.append(title,meta,actions);card.append(image,copy);$('owned-art').append(card);
     }
   }
-  function saveDraft(){if(!draft||file)return false;try{draft.title=$('art-name').value.trim()||'Untitled picture';draft=L.save(draft);$('draft-status').textContent=L.status();$('art-error').textContent='';return true;}catch(e){error(e);return false;}}
-  function edit(a,importFile=null){draft=clone(a);file=importFile;undo=[];redo=[];focus=0;stroke=null;revision++;$('art-manager').hidden=true;$('art-editor').hidden=false;$('art-name').value=draft.title;$('art-error').textContent='';$('draft-status').textContent=file?'Preview · not saved':draft.draft?'Draft':'Published';$('editor-heading').textContent=draft.draft?'Make something yours.':'A little masterpiece.';$('import-controls').hidden=!file;$('draw-controls').hidden=!!file||!draft.draft;$('art-save').textContent=file?'Save draft':draft.draft?'Save draft':'Save name';$('art-publish').hidden=!draft.draft;$('draw-zoom').value='1';draw();window.scrollTo(0,0);}
-  function manager(){revision++;draft=null;file=null;$('art-editor').hidden=true;$('art-manager').hidden=false;render();}
+  function saveDraft(){if(!allowed()){error('Open artwork management from Robert’s developer side.');return false;}if(!draft||file)return false;try{draft.title=$('art-name').value.trim()||'Untitled picture';draft=L.save(draft);$('draft-status').textContent=L.status();$('art-error').textContent='';return true;}catch(e){error(e);return false;}}
+  function edit(a,importFile=null){$('creator-back').hidden=false;$('creator-back').textContent='← Artwork';draft=clone(a);file=importFile;undo=[];redo=[];focus=0;stroke=null;revision++;$('art-manager').hidden=true;$('art-editor').hidden=false;$('art-name').value=draft.title;$('art-error').textContent='';$('draft-status').textContent=file?'Preview · not saved':draft.draft?'Draft':'Published';$('editor-heading').textContent=draft.draft?'Make something yours.':'A little masterpiece.';$('import-controls').hidden=!file;$('draw-controls').hidden=!!file||!draft.draft;$('art-save').textContent=file?'Save draft':draft.draft?'Save draft':'Save name';$('art-publish').hidden=!draft.draft;$('draw-zoom').value='1';draw();window.scrollTo(0,0);}
+  function manager(){$('creator-back').hidden=management;revision++;draft=null;file=null;$('art-editor').hidden=true;$('art-manager').hidden=false;render();}
   function leave(){if(draft&&!file&&!saveDraft())return false;L.flush();panel.hidden=true;$('library').hidden=false;manager();return true;}
-  $('my-artwork').onclick=()=>{document.body.style.overflow='auto';$('library').hidden=true;panel.hidden=false;manager();window.scrollTo(0,0);};
+  window.openArtworkManager=$('my-artwork').onclick=()=>{if(!allowed())return;document.body.style.overflow='auto';$('studio').hidden=true;$('complete-dialog').close();$('library').hidden=true;panel.hidden=false;manager();window.scrollTo(0,0);};
+  $('art-search').oninput=$('art-filter').onchange=render;
   $('creator-back').onclick=()=>{if(!$('art-editor').hidden){if(file&&!confirm('Discard this unsaved image preview?'))return;if(!file&&!saveDraft())return;L.flush();manager();}else leave();};
   $('art-new').onclick=()=>$('new-art-dialog').showModal();$('new-art-cancel').onclick=()=>$('new-art-dialog').close();
   $('new-art-start').onclick=()=>{const n=Number($('new-art-size').value);const a={id:id(),title:'Untitled picture',cols:n,rows:n,colors:{1:'#f8eee7',2:'#e05c7a'},grid:Array.from({length:n},()=>Array(n).fill(1)),category:'custom',isCustom:true,draft:true};try{L.save(a);$('new-art-dialog').close();edit(a);}catch(e){L.notify(e.message);}};
@@ -65,5 +69,6 @@
   function history(from,to){if(!from.length)return;to.push(clone(draft));draft=from.pop();$('art-name').value=draft.title;saveDraft();draw();}
   $('art-undo').onclick=()=>history(undo,redo);$('art-redo').onclick=()=>history(redo,undo);
   function exportArt(a){const cv=document.createElement('canvas');L.preview(cv,a,null,1);cv.toBlob(blob=>{if(!blob){L.notify('Export failed.');return;}const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=a.title.replace(/[^a-z0-9_-]/gi,'-')+'.png';link.click();setTimeout(()=>URL.revokeObjectURL(url),30000);});}
-  window.addEventListener('artwork-change',()=>{if(draft&&!file)$('draft-status').textContent=L.status();if(!panel.hidden&&$('art-editor').hidden)render();});
+  if(management){document.body.classList.add('management-mode');window.openArtworkManager();}
+  window.addEventListener('artwork-change',()=>{if(!allowed()){$('my-artwork').hidden=true;if(!panel.hidden){panel.hidden=true;$('library').hidden=false;}return;}if(draft&&!file)$('draft-status').textContent=L.status();if(!panel.hidden&&$('art-editor').hidden)render();});
 })();
