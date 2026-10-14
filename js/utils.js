@@ -263,25 +263,24 @@ document.getElementById('stabs').addEventListener('click',e=>{
 
 /* ═══ ENHANCED BUTTON PRESS (global scale feedback) ═══ */
 (function(){
-  // Apply to all .rw elements — scale on press, spring back
-  document.addEventListener('touchstart', function(e){
-    const el = e.target.closest('.rw');
-    if(!el) return;
-    el.style.transition = 'transform .08s ease';
-    el.style.transform = 'scale(.96)';
-  }, {passive:true});
-  document.addEventListener('touchend', function(e){
-    const el = e.target.closest('.rw');
-    if(!el) return;
-    el.style.transition = 'transform .35s cubic-bezier(.36,.07,.19,.97)';
-    el.style.transform = 'scale(1)';
-  }, {passive:true});
-  document.addEventListener('touchcancel', function(e){
-    const el = e.target.closest('.rw');
-    if(!el) return;
-    el.style.transition = 'transform .2s ease';
-    el.style.transform = 'scale(1)';
-  }, {passive:true});
+  let pressed = null;
+  function release(){
+    if(!pressed)return;
+    const {el,transform,transition}=pressed;
+    el.style.transform=transform;
+    el.style.transition=transition;
+    pressed=null;
+  }
+  document.addEventListener('touchstart',e=>{
+    release();
+    const el=e.target.closest('.rw');
+    if(!el||e.touches.length!==1)return;
+    pressed={el,transform:el.style.transform,transition:el.style.transition};
+    el.style.transition='transform .08s ease';
+    el.style.transform=(getComputedStyle(el).transform==='none'?'':getComputedStyle(el).transform)+' scale(.96)';
+  },{passive:true});
+  for(const type of ['touchmove','touchend','touchcancel'])document.addEventListener(type,release,{passive:true});
+  window.addEventListener('blur',release);
 })();
 
 /* ═══ SUCCESS BURST ═══ */
@@ -319,6 +318,8 @@ function setupLongPress(el, callback, ms){
   let moved = false;
 
   function start(e){
+    cancel();
+    if(e.touches.length!==1)return;
     moved = false;
     timer = setTimeout(()=>{
       if(!moved){
@@ -332,12 +333,18 @@ function setupLongPress(el, callback, ms){
 
   el.addEventListener('touchstart', start, {passive:true});
   el.addEventListener('touchend', cancel, {passive:true});
+  el.addEventListener('touchcancel', cancel, {passive:true});
   el.addEventListener('touchmove', move, {passive:true});
   el.addEventListener('contextmenu', e=>{ e.preventDefault(); });
 }
 window.setupLongPress = setupLongPress;
 
 /* ═══ LONG-PRESS POPOVER ═══ */
+let lpDismissTimer=null;
+function dismissLpOutside(e){
+  const pop=document.getElementById('_lppop');
+  if(pop&&!pop.contains(e.target))closeLpPop();
+}
 function showLpPop(html, targetEl){
   closeLpPop();
   const pop = document.createElement('div');
@@ -347,19 +354,22 @@ function showLpPop(html, targetEl){
 
   // Position near element
   const r = targetEl ? targetEl.getBoundingClientRect() : {top:window.innerHeight/2, left:window.innerWidth/2, width:0};
-  pop.style.cssText = `top:${Math.min(r.top - 10, window.innerHeight - 220)}px;left:${Math.max(8, Math.min(r.left, window.innerWidth - 296))}px`;
+  pop.style.cssText = `top:${Math.max(8, Math.min(r.top - 10, window.innerHeight - 220))}px;left:${Math.max(8, Math.min(r.left, window.innerWidth - 296))}px`;
 
   document.body.appendChild(pop);
 
   // Dismiss on tap outside
-  setTimeout(()=>{
-    document.addEventListener('touchstart', closeLpPop, {once:true, passive:true});
-    document.addEventListener('click', closeLpPop, {once:true});
+  lpDismissTimer=setTimeout(()=>{
+    document.addEventListener('touchstart', dismissLpOutside, {passive:true});
+    document.addEventListener('click', dismissLpOutside);
   }, 100);
 }
 window.showLpPop = showLpPop;
 
 function closeLpPop(){
+  clearTimeout(lpDismissTimer);
+  document.removeEventListener('touchstart',dismissLpOutside);
+  document.removeEventListener('click',dismissLpOutside);
   const p = document.getElementById('_lppop');
   if(p) p.remove();
 }
@@ -367,41 +377,39 @@ window.closeLpPop = closeLpPop;
 
 /* ═══ SWIPE DOWN TO DISMISS SHEETS ═══ */
 function setupSwipeDismiss(sheetEl, dimEl, closeFunc){
-  let startY = 0;
-  let currentY = 0;
-  let dragging = false;
-  const inner = sheetEl.querySelector('[id$="-INNER"]') || sheetEl.firstElementChild;
-
-  sheetEl.addEventListener('touchstart', function(e){
-    // Only trigger when touching near the top drag area
-    startY = e.touches[0].clientY;
-    dragging = true;
-    if(inner) inner.style.transition = 'none';
-  }, {passive:true});
-
-  sheetEl.addEventListener('touchmove', function(e){
-    if(!dragging) return;
-    currentY = e.touches[0].clientY;
-    const dy = currentY - startY;
-    if(dy > 0 && inner){
-      inner.style.transform = `translateY(${dy}px)`;
-    }
-  }, {passive:true});
-
-  sheetEl.addEventListener('touchend', function(){
-    if(!dragging) return;
-    dragging = false;
-    const dy = currentY - startY;
-    if(inner) inner.style.transition = 'transform .3s cubic-bezier(.4,0,.2,1)';
-    if(dy > 80){
-      closeFunc();
-      setTimeout(()=>{
-        if(inner) inner.style.transform = '';
-      }, 320);
-    } else {
-      if(inner) inner.style.transform = '';
-    }
-  }, {passive:true});
+  let startY=0, currentY=0, dragging=false, originalTransform='';
+  const inner=sheetEl.querySelector('[id$="-INNER"]')||sheetEl.firstElementChild;
+  if(!inner)return;
+  const handle=inner.querySelector('.sheet-handle,.buy-handle');
+  if(handle){
+    handle.style.touchAction='none';
+    handle.style.boxSizing='content-box';
+    handle.style.padding='12px 14px';
+    handle.style.backgroundClip='content-box';
+  }
+  function reset(){
+    if(dragging)inner.style.transform=originalTransform;
+    dragging=false;
+  }
+  sheetEl.addEventListener('touchstart',e=>{
+    reset();
+    if(e.touches.length!==1||!e.target.closest('.sheet-handle,.buy-handle'))return;
+    startY=currentY=e.touches[0].clientY;
+    originalTransform=inner.style.transform;
+    dragging=true;
+  },{passive:true});
+  sheetEl.addEventListener('touchmove',e=>{
+    if(!dragging)return;
+    if(e.touches.length!==1){reset();return;}
+    currentY=e.touches[0].clientY;
+    inner.style.transform=`translateY(${Math.max(0,currentY-startY)}px)`;
+  },{passive:true});
+  sheetEl.addEventListener('touchend',()=>{
+    const dismiss=dragging&&currentY-startY>80;
+    reset();
+    if(dismiss)closeFunc();
+  },{passive:true});
+  sheetEl.addEventListener('touchcancel',reset,{passive:true});
 }
 window.setupSwipeDismiss = setupSwipeDismiss;
 
