@@ -82,6 +82,13 @@
   function history(from,to){if(!from.length)return;to.push(clone(draft));const previous=draft;draft=from.pop();draft.updatedAt=previous.updatedAt;$('art-name').value=draft.title;saveDraft();draw();}
   $('art-undo').onclick=()=>history(undo,redo);$('art-redo').onclick=()=>history(redo,undo);
   function exportArt(a){const cv=document.createElement('canvas');L.preview(cv,a,null,1);cv.toBlob(blob=>{if(!blob){L.notify('Export failed.');return;}const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=a.title.replace(/[^a-z0-9_-]/gi,'-')+'.png';link.click();setTimeout(()=>URL.revokeObjectURL(url),30000);});}
-  if(management){document.body.classList.add('management-mode');window.openArtworkManager();}
+  if(management){
+    document.body.classList.add('management-mode');window.openArtworkManager();
+    let resizePending=false;
+    const reportHeight=()=>{if(resizePending)return;resizePending=true;requestAnimationFrame(()=>{resizePending=false;try{const visible=panel.hidden?$('studio'):panel;parent.resizeArtworkWorkspace?.(panel.hidden?680:visible.getBoundingClientRect().height+32);}catch(_){}});};
+    new ResizeObserver(reportHeight).observe(panel);
+    new ResizeObserver(reportHeight).observe($('studio'));
+    window.addEventListener('resize',reportHeight);reportHeight();
+  }
   window.addEventListener('artwork-change',()=>{if(!allowed()){cancelConversion();$('my-artwork').hidden=true;document.querySelectorAll('#creator dialog[open]').forEach(d=>d.close());if(!panel.hidden){panel.hidden=true;$('library').hidden=false;}return;}if(draft&&!file)$('draft-status').textContent=L.status();if(!panel.hidden&&$('art-editor').hidden)render();});
 })();

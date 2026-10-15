@@ -4,11 +4,24 @@
   const $=id=>document.getElementById(id);
   const sections={overview:['Your workspace','A clear place for the things you make for Ana.'],content:['Letters & notes','Edit the content library and review your letter calendar.'],artwork:['Pictures for Ana','Upload a photo, adjust the pixel preview, then publish when it is ready.'],features:['Features & achievements','Configure unlocked experiences and manage what Ana can access.'],pts:['Points & rewards','Review Ana’s balance and adjust it when needed.'],tools:['Maintenance','Notifications, backups and advanced account controls.']};
   function health(){const status=window.pixelArtSyncStatus;const pending=window.pixelArtSavePending;$('studio-sync').textContent=status==='synced'&&!pending?'Saved to Heartly':status==='syncing'?'Saving to Heartly…':status==='offline'?'Offline · changes waiting to sync':'Saved here · cloud sync pending';const list=window.getPixelArtState?Object.values(getPixelArtState().custom):[];$('studio-art-count').textContent=list.filter(a=>!a.draft).length+' published · '+list.filter(a=>a.draft).length+' drafts';}
+  const artwork=$('dv-artwork');
+  let artworkHeight=680;
+  function expandArtwork(on){
+    artwork.classList.toggle('studio-expanded',on);
+    $('ROBERT').classList.toggle('artwork-expanded',on);
+    artwork.querySelector('button').textContent=on?'Back to Studio':'Expand workspace';
+    $('developer-artwork-frame').style.height=on?'':artworkHeight+'px';
+  }
+  window.resizeArtworkWorkspace=function(height){
+    if(!Number.isFinite(height))return;
+    artworkHeight=Math.max(480,Math.ceil(height));
+    if(!artwork.classList.contains('studio-expanded'))$('developer-artwork-frame').style.height=artworkHeight+'px';
+  };
   const originalTab=window.dvTab;
-  window.dvTab=function(id){if(!sections[id])return;originalTab(id);const [title,description]=sections[id];$('studio-section-title').textContent=title;$('studio-section-description').textContent=description;document.querySelectorAll('#dv-tabs [data-dv]').forEach(b=>b.setAttribute('aria-current',b.dataset.dv===id?'page':'false'));if(id==='artwork'){if($('developer-artwork-frame').getAttribute('src')==='about:blank')$('developer-artwork-frame').src='pixelart/index.html?manage=1';else $('developer-artwork-frame').contentWindow.openArtworkManager?.();if(matchMedia('(max-width:600px)').matches){$('dv-artwork').classList.add('studio-expanded');$('dv-artwork').querySelector('button').textContent='Close expanded view';}}health();requestAnimationFrame(()=>{const sc=$('rob-scroll');if(id==='overview')sc.scrollTop=0;else sc.scrollTop+=$('studio-section-intro').getBoundingClientRect().top-sc.getBoundingClientRect().top-$('dv-tabs').offsetHeight-16;});};
+  window.dvTab=function(id){if(!sections[id])return;if(id!=='artwork')expandArtwork(false);originalTab(id);const [title,description]=sections[id];$('studio-section-title').textContent=title;$('studio-section-description').textContent=description;document.querySelectorAll('#dv-tabs [data-dv]').forEach(b=>b.setAttribute('aria-current',b.dataset.dv===id?'page':'false'));if(id==='artwork'){if($('developer-artwork-frame').getAttribute('src')==='about:blank')$('developer-artwork-frame').src='pixelart/index.html?manage=1';else $('developer-artwork-frame').contentWindow.openArtworkManager?.();if(matchMedia('(max-width:600px)').matches){expandArtwork(true);}}health();requestAnimationFrame(()=>{const sc=$('rob-scroll');if(id==='overview')sc.scrollTop=0;else sc.scrollTop+=$('studio-section-intro').getBoundingClientRect().top-sc.getBoundingClientRect().top-$('dv-tabs').offsetHeight-16;});};
   const originalShow=window.showRobertView;
   window.showRobertView=function(){originalShow();dvUpdateHeader();dvTab('overview');};
-  window.studioFullscreenArtwork=function(){const el=$('dv-artwork');const on=el.classList.toggle('studio-expanded');el.querySelector('button').textContent=on?'Close expanded view':'Expand workspace';};
+  window.studioFullscreenArtwork=function(){expandArtwork(!artwork.classList.contains('studio-expanded'));};
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('dv-artwork').classList.contains('studio-expanded'))studioFullscreenArtwork();});
   const library=$('dev-list-rob').closest('.dv-card');library.classList.add('studio-letter-library');$('dv-content').prepend(library);
   // Existing bottom navigation uses divs; make it keyboard-operable too.

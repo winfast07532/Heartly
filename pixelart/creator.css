@@ -6,3 +6,22 @@
 .management-mode .topbar{display:none}.management-mode .intro{padding-top:8px}.management-mode .intro h1{font-size:28px}.management-mode .intro p{font-size:12px}
 
 .management-mode .topbar:has(#creator-back:not([hidden])){display:flex;margin-bottom:12px}
+
+/* Developer artwork has its own neutral palette and roomy management cards. */
+body.management-mode{color-scheme:dark;--bg:#101820;--surface:#192630;--rose:#83d8c6;--pink:#a9e7d9;--text:#edf4f7;--muted:#aebfca;--line:#38505e;background:var(--bg)}
+.management-mode .creator{padding:20px;max-width:1100px}
+.management-mode .primary{background:#83d8c6;color:#102e2a;box-shadow:none;border-radius:12px}
+.management-mode .secondary,.management-mode .pill{background:#20333e;color:#d7f4ed;border-color:#38505e;border-radius:10px}
+.management-mode .creator #art-editor>.create-actions{background:#101820}
+.management-mode #owned-art{grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+.management-mode #owned-art .art-card{background:#192630;border:1px solid #38505e;border-radius:14px;overflow:hidden}
+.management-mode #owned-art .art-preview{aspect-ratio:1.5;padding:18px;background:#e6ebea}
+.management-mode #owned-art .art-preview canvas{height:180px;width:auto;max-width:100%;object-fit:contain}
+.management-mode #owned-art .art-copy{padding:18px}
+.management-mode #owned-art .art-copy h3{font-size:17px;margin-bottom:8px}
+.management-mode .art-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
+.management-mode .art-actions .pill{font-size:12px;padding:10px 6px}
+.management-mode .creator .muted{font-size:13px!important}
+.management-mode .creator #draft-status{font-size:12px}
+.management-mode dialog{background:#192630;border-color:#38505e}
+@media(max-width:600px){.management-mode #owned-art{grid-template-columns:1fr}.management-mode .creator{padding:16px}.management-mode .create-actions{flex-wrap:wrap}.management-mode .create-actions>*{min-width:120px}}
