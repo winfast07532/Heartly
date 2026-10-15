@@ -9,6 +9,27 @@
   function rememberPendingRewards(){
     try {localStorage.setItem('heartly_pixel_pending_rewards',JSON.stringify([...unconfirmedRewards]));}catch(_){}
   }
+  let pendingAssists={};
+  try{pendingAssists=JSON.parse(localStorage.getItem('heartly_pixel_pending_assists')||'{}');}catch(_){}
+  function rememberAssists(){localStorage.setItem('heartly_pixel_pending_assists',JSON.stringify(pendingAssists));}
+  window.getPixelArtBalance=()=>ptsVal;
+  window.spendPixelArtAbility=function(kind,artId){
+    const cost={hint:50,fill:100}[kind];
+    const art=pixelArtState.custom[artId];
+    if(!cost||!art||art.draft||pixelArtState.deleted[artId])return {ok:false,message:'This picture is no longer available.'};
+    if(!_realDataConfirmed||!currentUser||!navigator.onLine||window.pixelArtSyncStatus==='offline')return {ok:false,message:'Reconnect to Heartly before using a paid tool.'};
+    if(ptsVal<cost)return {ok:false,message:'You need '+cost+' points for this tool.'};
+    const id=crypto.randomUUID(),entry={artId,kind,ts:Date.now()};
+    pendingAssists[id]=entry;
+    try{rememberAssists();}catch(_){delete pendingAssists[id];return {ok:false,message:'Device storage is full. Free some space before using a paid tool.'};}
+    pixelArtState.assists=pixelArtState.assists||{};pixelArtState.assists[id]=entry;
+    const old=ptsVal;ptsVal-=cost;
+    if(typeof logPtsChange==='function')logPtsChange(-cost);
+    if(typeof animatePts==='function')animatePts(old,ptsVal,600);
+    if(typeof addTxItem==='function')addTxItem('🎨','Pixel Art: '+(kind==='hint'?'Find a cell':'Fill')+' · '+art.title,'Just now','-'+cost,'spend');
+    window.pixelArtSavePending=true;saveState();
+    return {ok:true,balance:ptsVal};
+  };
   window.pixelArtSyncStatus = 'local';
   window.pixelArtSavePending = false;
   function importLocal() {
@@ -61,12 +82,26 @@
     if(changed){ window.pixelArtSavePending=true; saveState(); if(typeof checkAchievements==='function') checkAchievements(); }
   };
   window.pixelArtCloudAcknowledged=function(sent){
+    for(const id of Object.keys(pendingAssists))if(sent?.assists?.[id])delete pendingAssists[id];
+    try{rememberAssists();}catch(_){}
     for(const id of unconfirmedRewards) if(sent?.works?.[id]?.rewarded) unconfirmedRewards.delete(id);
     rememberPendingRewards();
     // Clear pending only for exactly the state this write/pull acknowledged.
     window.pixelArtSavePending=JSON.stringify(C.normalize(sent))!==JSON.stringify(C.normalize(pixelArtState));
   };
   window.pixelArtCloudReceived=function(remote){
+    for(const [id,entry] of Object.entries(pendingAssists)){
+      if(remote?.assists?.[id])delete pendingAssists[id];
+      else {
+        const cost={hint:50,fill:100}[entry.kind];
+        if(!cost)continue;
+        pixelArtState.assists=pixelArtState.assists||{};pixelArtState.assists[id]=entry;
+        ptsVal-=cost;
+        if(typeof logPtsChange==='function')logPtsChange(-cost);
+      }
+    }
+    try{rememberAssists();}catch(_){}
+
     // applyState has just replaced the balance with the cloud balance. If a
     // previous offline reward never reached it, reapply that reward once to
     // this confirmed balance instead of losing it or counting it twice.

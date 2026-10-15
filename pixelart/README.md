@@ -7,10 +7,10 @@ Open Heartly → Play → Start Coloring for cloud progress and points. Opening 
 ## Playing
 
 - Discover, In progress and Completed collections, category filters and a resume card.
-- Ten built-in pictures: seven compatible originals and three new Heartly designs.
+- The collection contains only pictures published from Developer Studio. The bundled drawings are removed; an empty collection remains usable.
 - Numbered color palette, correct-color-only painting, continuous drag strokes and automatic next color after a stroke.
-- Pinch/scroll zoom, two-finger pan, Move tool, fit and zoom buttons.
-- Connected-region fill and a hint that centers the next matching square. Tools do not cost points.
+- Pinch/scroll zoom, two-finger pan, automatic pan when dragging from a nonmatching/colored square or outside the picture, fit and zoom buttons.
+- Connected-region fill and a hint that centers the next matching square. Find costs 50 points per use; Fill costs 100 points per successful connected region. The balance and prices are visible. Invalid targets and insufficient funds do not charge. Developer previews are free; standalone pages require opening Heartly for paid tools.
 - Completed picture view, PNG export (up to approximately 1024 px), and reward-free replay.
 - Keyboard: Tab to controls/canvas; arrow keys move around cells; Space/Enter paints; +/- zoom.
 - Reduced-motion support, safe-area spacing and phone landscape layout.
@@ -19,7 +19,7 @@ Open Heartly → Play → Start Coloring for cloud progress and points. Opening 
 
 Open Robert’s Studio → Artwork. The dedicated developer iframe hosts the upload/editor workspace; Ana’s embedded game does not display management controls. On phones the workspace opens expanded so its dialogs stay reachable; Close expanded view returns to the dashboard. Standalone local previews retain management controls. Upload PNG, JPEG, WebP, GIF or BMP (12 MB maximum), adjust the square crop, select 16–1000 pixels and 4–100 colors, and update the preview. Sharp-edge sampling preserves pixel art; exact colors are kept when the sampled image fits the palette limit. Only the converted pixel design is saved; the original photo stays on the device.
 
-Draw your own starts a 16–64 pixel draft. Pencil, cream eraser, connected fill, color picker/swatches, Move, zoom, keyboard painting and 30-step undo/redo (3 full snapshots for large imported designs) are available. Drawing and names autosave. Drafts are excluded from playable collections and rewards until published. Published designs can be renamed; duplicate them to change their pixels without disturbing existing coloring progress. The artwork workspace includes name search, draft/published filters, an unpublish action that preserves coloring progress, and PNG export at the original grid resolution and confirmed deletion.
+Draw your own starts a 16–64 pixel draft. Pencil, cream eraser, connected fill, color picker/swatches, Move, zoom, keyboard painting and 30-step undo/redo (3 full snapshots for large imported designs) are available. Drawing and names autosave. Drafts are excluded from playable collections and rewards until published. Published designs have editable names and completion rewards (0–1,000,000 whole points); duplicate them to change their pixels without disturbing existing coloring progress. The artwork workspace includes name search, draft/published filters, an unpublish action that preserves coloring progress, and PNG export at the original grid resolution and confirmed deletion.
 
 Publish for Ana adds the design to the shared playable collection. The game iframe allows native page scrolling; painting still captures canvas gestures. Large artwork grids use base64 byte arrays in device/cloud JSON, and large progress sets use bitmaps. Runtime validation restores the normal grid and cell arrays. Color sampling uses a bounded histogram; low-zoom coloring uses an overview canvas and high-zoom rendering only draws visible cells.
 
@@ -31,9 +31,9 @@ Draft and published artwork share the existing couple collection, not a private 
 
 Saved fields: colored cell indices, completion timestamps, reward receipts, last-opened artwork, imported picture definitions and deletion tombstones. Colored-cell sets merge rather than replace each other. Deleted custom pictures do not reappear from an older device.
 
-The original `pixelhue_v2` and `ph_custom_artworks` saves are imported without deleting them. Already-completed legacy pictures are treated as already rewarded. New local backup key: `heartly_pixel_v3`. A small `heartly_pixel_pending_rewards` journal recovers rewards after a failed write followed by a newer remote balance.
+The original `pixelhue_v2` and `ph_custom_artworks` saves are imported without deleting them. Already-completed legacy pictures are treated as already rewarded. New local backup key: `heartly_pixel_v3`. A small `heartly_pixel_pending_rewards` journal recovers rewards after a failed write followed by a newer remote balance. Paid tools have unique receipts in `pixelArtState.assists` and a `heartly_pixel_pending_assists` journal to preserve deductions across failed writes and cloud pulls. New paid tool use is blocked while known offline.
 
-Rewards are calculated by the parent from the picture's actual size (30–120 points), recorded once, and included in Heartly's balance, lifetime earnings, points history and transaction feed. The initial cloud pull must be confirmed before new rewards are applied. Offline saves are retried after reconnection. Replaying or reopening a completed picture does not grant a second reward.
+Rewards use each picture's configured completion points, with a size-based 30–120 default for older artwork. They are recorded once, and included in Heartly's balance, lifetime earnings, points history and transaction feed. The initial cloud pull must be confirmed before new rewards are applied. Offline saves are retried after reconnection. Replaying or reopening a completed picture does not grant a second reward.
 
 Robert's existing dashboard importer uses the same image converter whether the game iframe is open or closed. Imports use a center crop and a balanced color palette; accepted formats are PNG, JPEG, WebP, GIF and BMP, up to 12 MB. Dimensions are bounded to 8–1000 per side and palette size to 2–100. The collection allows up to 60 custom pictures. Imported titles are inserted as text, not HTML.
 
@@ -58,3 +58,5 @@ Verification includes simulated-cloud browser tests of the developer navigation,
 Developer previews are now replay-only: they cannot change Ana’s painted cells, rewards or last-opened picture. The embedded editor retains a visible Back control. Upload setting changes disable saving/publishing until the preview is regenerated; superseded conversions cannot replace a newer edit or leave controls disabled. Saving a stale artwork revision is rejected with a reopen message, and the Back action offers to discard unsavable edits. Remote unpublishing/deletion closes an active player canvas, and remote renames update its heading. Reopening the developer workspace restores its manager view.
 
 Targeted browser regressions live in the local verification/audit-creator.test.cjs and verification/audit-studio.test.cjs harnesses, in addition to the existing gameplay and large-artwork suites. These use simulated cloud transport and do not modify production data.
+
+The October 15 interaction update fixes privacy blur caused by focus entering a game iframe. Exiting closes open game dialogs and always releases the overlay even if saving fails. `verification/economy.test.cjs` checks configured rewards, exact tool charges, insufficient funds, retry recovery, free developer previews, empty collections, automatic pan, pinch, responsive controls and exit cleanup using simulated cloud data.

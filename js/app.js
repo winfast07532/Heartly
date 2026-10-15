@@ -310,9 +310,17 @@ window.openPixelArt = openPixelArt;
 window.openCBN = openPixelArt; // alias
 
 function closePixelArt() {
-  const game = document.getElementById('cbn-frame').contentWindow;
-  if(game && typeof game.flushPixelArt === 'function') game.flushPixelArt();
-  document.getElementById('cbn-overlay').classList.remove('show');
+  const frame = document.getElementById('cbn-frame');
+  try {
+    const game=frame.contentWindow;
+    game?.document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());
+    if(typeof game?.flushPixelArt==='function')game.flushPixelArt();
+  } catch(error) { console.warn('Pixel Art exit save:',error); }
+  finally {
+    document.getElementById('cbn-overlay').classList.remove('show');
+    frame.blur();
+    if(typeof applyBackgroundBlur==='function')applyBackgroundBlur(document.hidden);
+  }
 }
 window.closePixelArt = closePixelArt;
 window.closeCBN = closePixelArt; // alias

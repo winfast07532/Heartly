@@ -3,7 +3,7 @@
 (function (root) {
   'use strict';
   const safeId = id => typeof id === 'string' && /^[a-zA-Z0-9_-]{1,90}$/.test(id) && !['__proto__','constructor','prototype'].includes(id);
-  const empty = () => ({ version: 3, works: {}, custom: {}, deleted: {}, lastArtwork: null });
+  const empty = () => ({ version: 3, works: {}, assists: {}, custom: {}, deleted: {}, lastArtwork: null });
   function artwork(a) {
     if(a?.gridBytes && Number.isInteger(a.cols)&&Number.isInteger(a.rows)&&a.cols>0&&a.rows>0&&a.cols<=1000&&a.rows<=1000){try{const raw=atob(a.gridBytes);if(raw.length!==a.cols*a.rows)return null;a={...a,grid:Array.from({length:a.rows},(_,r)=>Array.from({length:a.cols},(_,c)=>raw.charCodeAt(r*a.cols+c)))};}catch(_){return null;}}
     if (!a || !safeId(a.id) || !Number.isInteger(a.cols) || !Number.isInteger(a.rows) || a.cols < 1 || a.rows < 1 || a.cols > 1000 || a.rows > 1000) return null;
@@ -14,7 +14,7 @@
       colors[key] = color;
     }
     if (a.grid.some(row => !Array.isArray(row) || row.length !== a.cols || row.some(n => !Number.isInteger(n) || !colors[n]))) return null;
-    return { id:a.id, title:String(a.title || 'Untitled picture').slice(0,80), category:String(a.category || 'custom').slice(0,30), cols:a.cols, rows:a.rows, colors, grid:a.grid.map(r=>r.slice()), isCustom:!!a.isCustom, draft:a.draft===true, updatedAt:Number.isFinite(a.updatedAt)?a.updatedAt:0, desc:String(a.desc || '').slice(0,160) };
+    return { id:a.id, title:String(a.title || 'Untitled picture').slice(0,80), category:String(a.category || 'custom').slice(0,30), cols:a.cols, rows:a.rows, colors, grid:a.grid.map(r=>r.slice()), rewardPoints:Number.isInteger(a.rewardPoints)&&a.rewardPoints>=0&&a.rewardPoints<=1000000?a.rewardPoints:null, isCustom:!!a.isCustom, draft:a.draft===true, updatedAt:Number.isFinite(a.updatedAt)?a.updatedAt:0, desc:String(a.desc || '').slice(0,160) };
   }
   function normalize(input) {
     const out = empty();
@@ -29,6 +29,9 @@
       if(!safeId(id) || !p || !Array.isArray(p.filled)) continue;
       out.works[id] = { filled:[...new Set(p.filled.filter(n=>Number.isInteger(n)&&n>=0&&n<1000000))].sort((a,b)=>a-b), completedAt:Number.isFinite(p.completedAt) ? p.completedAt : null, rewarded:p.rewarded===true, updatedAt:Number.isFinite(p.updatedAt) ? p.updatedAt : 0 };
     }
+    for(const [id,entry] of Object.entries(input.assists||{})){
+      if(safeId(id)&&safeId(entry?.artId)&&['hint','fill'].includes(entry?.kind)&&Number.isFinite(entry?.ts))out.assists[id]={artId:entry.artId,kind:entry.kind,ts:entry.ts};
+    }
     out.lastArtwork = safeId(input.lastArtwork) ? input.lastArtwork : null;
     return out;
   }
@@ -42,6 +45,7 @@
       if (!old) a.works[id] = p;
       else a.works[id] = { filled:[...new Set([...old.filled,...p.filled])].sort((x,y)=>x-y), completedAt:old.completedAt && p.completedAt ? Math.min(old.completedAt,p.completedAt) : old.completedAt || p.completedAt, rewarded:old.rewarded || p.rewarded, updatedAt:Math.max(old.updatedAt,p.updatedAt) };
     }
+    Object.assign(a.assists,b.assists);
     a.lastArtwork = b.lastArtwork || a.lastArtwork;
     return a;
   }
@@ -57,7 +61,7 @@
     return normalize(out);
   }
   function cells(art, work) { return new Set((work?.filled || []).filter(i=>i < art.cols*art.rows)); }
-  function reward(art) { return Math.min(120, Math.max(30, Math.round(art.cols*art.rows/4))); }
+  function reward(art) { if(Number.isInteger(art.rewardPoints)&&art.rewardPoints>=0&&art.rewardPoints<=1000000)return art.rewardPoints; return Math.min(120, Math.max(30, Math.round(art.cols*art.rows/4))); }
 
   function bytes64(bytes){let text='';for(let i=0;i<bytes.length;i+=16384)text+=String.fromCharCode(...bytes.subarray(i,i+16384));return btoa(text);}
   function pack(input){

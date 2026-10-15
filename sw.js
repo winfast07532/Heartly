@@ -3,7 +3,7 @@
    Handles push notifications for iOS Safari PWA
 ═══════════════════════════════════════ */
 
-const CACHE_NAME = 'heartly-v4313';
+const CACHE_NAME = 'heartly-v4314';
 
 // Resolve asset paths relative to wherever this SW is actually scoped —
 // works whether the app lives at a domain root (Netlify, custom domain)

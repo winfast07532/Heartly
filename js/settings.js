@@ -96,7 +96,7 @@ window.toggleHidePreviews = toggleHidePreviews;
 /* ── Screenshot protection (blur app when backgrounded) ──
    True screenshot blocking isn't possible from a web app — this
    is the standard web approximation: blur sensitive content
-   whenever the app loses focus or is hidden. */
+   whenever the app is hidden. Iframe focus remains inside Heartly. */
 function screenshotProtectionEnabled(){
   return localStorage.getItem('heartly.screenshotProtection') !== '0'; // default on
 }
@@ -113,7 +113,8 @@ window.toggleScreenshotProtection = toggleScreenshotProtection;
 document.addEventListener('visibilitychange', () => {
   applyBackgroundBlur(document.hidden);
 });
-window.addEventListener('blur', () => applyBackgroundBlur(true));
+// Focusing a game iframe blurs its parent window, but does not background the app.
+window.addEventListener('pageshow', () => applyBackgroundBlur(document.hidden));
 window.addEventListener('focus', () => applyBackgroundBlur(false));
 
 /* ── Backup & Restore ── */
