@@ -168,6 +168,15 @@
     const p=parentBridge(),preview=new URLSearchParams(location.search).get('manage')==='1';
     $('ability-balance').textContent=preview?'Developer preview · tools are free':p?'Balance: '+Number(p.getPixelArtBalance?.()||0).toLocaleString()+' points':'Open in Heartly to use paid tools';
   }
+  function selectTool(next){
+    tool=next==='fill'?'fill':'paint';
+    // A tool change invalidates gestures captured under the previous tool.
+    pointers.clear();gesture=null;pinching=false;
+    document.querySelectorAll('[data-tool]').forEach(button=>{
+      const active=button.dataset.tool===tool;
+      button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
+    });
+  }
   function pay(kind){
     if(new URLSearchParams(location.search).get('manage')==='1')return true;
     const result=parentBridge()?.spendPixelArtAbility?.(kind,art.id);
@@ -179,7 +188,12 @@
   function at(p){const s=base*scale,c=Math.floor((p.x-ox)/s),r=Math.floor((p.y-oy)/s);return c>=0&&c<art.cols&&r>=0&&r<art.rows?r*art.cols+c:-1;}
   function paint(i,region=false,defer=false){
     if(!art||i<0||filled.has(i)||art.grid[Math.floor(i/art.cols)][i%art.cols]!==selected)return false;
-    if(region&&!pay('fill'))return false;
+    if(region){
+      if(tool!=='fill')return false;
+      // One deliberate activation buys one region, never a persistent paid brush.
+      selectTool('paint');
+      if(!pay('fill'))return false;
+    }
     const todo=[i];let changed=false;
     while(todo.length){const n=todo.pop();if(filled.has(n)||art.grid[Math.floor(n/art.cols)][n%art.cols]!==selected)continue;filled.add(n);colorCounts[selected]--;changed=true;if(region){const r=Math.floor(n/art.cols),c=n%art.cols;if(c)todo.push(n-1);if(c<art.cols-1)todo.push(n+1);if(r)todo.push(n-art.cols);if(r<art.rows-1)todo.push(n+art.cols);}}
     if(changed&&!defer){activeHint=-1;record();renderPalette();updateProgress();requestDraw();}return changed;
@@ -223,9 +237,9 @@
   function centerCell(i){const s=base*scale;ox=w/2-(i%art.cols+.5)*s;oy=(h-56)/2-(Math.floor(i/art.cols)+.5)*s;clampCamera();requestDraw();}
   function updateReward(){const work=state.works[art.id];$('reward-note').textContent=replay?'A little time, well spent.':work?.rewarded?'Completed · Heartly reward collected':parentBridge()?'+'+C.reward(art)+' points · waiting for cloud sync':'Open through Heartly to collect '+C.reward(art)+' points';}
   function showCompletion(){if(!art)return;preview($('completed-preview'),art);$('complete-title').textContent=art.title;updateReward();if(!$('complete-dialog').open)$('complete-dialog').showModal();}
-  $('hint').onclick=()=>{if(!art)return;nextColor();const i=art.grid.flat().findIndex((n,i)=>n===selected&&!filled.has(i));if(i<0){notify('This color is finished.');return;}if(!pay('hint'))return;scale=Math.max(scale,Math.max(12,28/base));activeHint=i;centerCell(i);};
+  $('hint').onclick=()=>{if(!art)return;selectTool('paint');nextColor();const i=art.grid.flat().findIndex((n,i)=>n===selected&&!filled.has(i));if(i<0){notify('This color is finished.');return;}if(!pay('hint'))return;scale=Math.max(scale,Math.max(12,28/base));activeHint=i;centerCell(i);};
   $('fit').onclick=fitCanvas;$('zoom-in').onclick=()=>zoom(1.5);$('zoom-out').onclick=()=>zoom(1/1.5);
-  document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;document.querySelectorAll('[data-tool]').forEach(t=>{t.classList.toggle('active',t===b);t.setAttribute('aria-pressed',String(t===b));});});
+  document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>selectTool(b.dataset.tool));
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{view=b.dataset.view;document.querySelectorAll('[data-view]').forEach(t=>{t.classList.toggle('active',t===b);t.setAttribute('aria-pressed',String(t===b));});renderLibrary();});
   $('picture-search').oninput=renderLibrary;
   $('back').onclick=back;$('complete-library').onclick=back;
