@@ -1,0 +1,138 @@
+{
+  "sourcePack": "Sprite Assets/PetMobileGameAsset",
+  "frameSize": {
+    "width": 32,
+    "height": 32
+  },
+  "frameDurationMs": 150,
+  "animations": {
+    "Idle": {
+      "file": "assets/cat/Idle.png",
+      "frames": 10,
+      "use": "Default idle",
+      "sourceRow": 0
+    },
+    "Idle2": {
+      "file": "assets/cat/Idle2.png",
+      "frames": 10,
+      "use": "Bond level 2 idle",
+      "sourceRow": 1
+    },
+    "Eating": {
+      "file": "assets/cat/Eating.png",
+      "frames": 15,
+      "use": "Feeding and treats",
+      "sourceRow": 13
+    },
+    "Excited": {
+      "file": "assets/cat/Excited.png",
+      "frames": 12,
+      "use": "Petting and affection",
+      "sourceRow": 5
+    },
+    "Dance": {
+      "file": "assets/cat/Dance.png",
+      "frames": 4,
+      "use": "Play",
+      "sourceRow": 3
+    },
+    "Sleep": {
+      "file": "assets/cat/Sleep.png",
+      "frames": 4,
+      "use": "Sleeping",
+      "sourceRow": 2
+    },
+    "Sleepy": {
+      "file": "assets/cat/Sleepy.png",
+      "frames": 8,
+      "use": "Low energy and waking",
+      "sourceRow": 4
+    },
+    "LayDown": {
+      "file": "assets/cat/LayDown.png",
+      "frames": 12,
+      "use": "Vacation",
+      "sourceRow": 6
+    },
+    "Waiting": {
+      "file": "assets/cat/Waiting.png",
+      "frames": 6,
+      "use": "Reserved supplied animation",
+      "sourceRow": 14
+    },
+    "Surprised": {
+      "file": "assets/cat/Surprised.png",
+      "frames": 12,
+      "use": "Freshly cleaned",
+      "sourceRow": 12
+    }
+  },
+  "atlases": {
+    "furniture": {
+      "file": "assets/furniture.png",
+      "width": 1024,
+      "height": 1184,
+      "crops": {
+        "bed": [
+          0,
+          544,
+          128,
+          96
+        ],
+        "yarn": [
+          576,
+          512,
+          32,
+          32
+        ],
+        "mouse": [
+          396,
+          624,
+          48,
+          32
+        ],
+        "plant": [
+          832,
+          320,
+          32,
+          64
+        ]
+      }
+    },
+    "bowls": {
+      "file": "assets/bowls.png",
+      "width": 256,
+      "height": 256,
+      "crops": {
+        "food": [
+          0,
+          0,
+          64,
+          64
+        ],
+        "treat": [
+          64,
+          0,
+          64,
+          64
+        ]
+      }
+    }
+  },
+  "rooms": {
+    "starter": "assets/rooms/1.png",
+    "rose": "assets/rooms/5.png",
+    "sand": "assets/rooms/13.png"
+  },
+  "defaultPet": "Cream cat with pink ribbon",
+  "petSource": "Cats/CatSprites/CatwithRibbon/CatPackRibbonPink.png",
+  "catalogFile": "content.js",
+  "sourceFiles": 407,
+  "packCatalogEntries": 635,
+  "heartlyThemes": 10,
+  "placementCanvas": {
+    "width": 640,
+    "height": 480,
+    "reservesFullAnimationFrame": true
+  }
+}

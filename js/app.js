@@ -38,20 +38,10 @@ window.saveLetterPrice = saveLetterPrice;
 /* ═══════════════════════════
    DEV PASSWORD
 ═══════════════════════════ */
-// Password-based developer login is disabled until server-side authentication is configured.
+// Developer access is verified by Supabase and the private account allowlist.
 
 function openDevPassword(){
-  const modal = document.getElementById('DEV-PW');
-  const input = document.getElementById('dev-pw-input');
-  const err   = document.getElementById('pw-error');
-  input.value = '';
-  input.type  = 'password';
-  document.getElementById('pw-eye').textContent = '👁';
-  err.textContent = 'Password login is disabled until secure authentication is configured.';
-  input.disabled = true;
-  input.classList.remove('error');
-  modal.classList.add('show');
-  setTimeout(()=>input.focus(), 200);
+  window.doLogin('developer.login');
 }
 window.openDevPassword = openDevPassword;
 

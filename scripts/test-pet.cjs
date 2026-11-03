@@ -1,0 +1,25 @@
+const assert=require('node:assert/strict');
+const Config=require('../pet/config.js'),C=require('../pet/core.js');
+let now=Date.UTC(2026,10,3,12),s=C.empty(now),n=0;
+const run=(kind,extra={})=>{const r=C.transact(s,{id:'test_'+(++n),kind,...extra},now);s=r.state;return r;};
+assert.equal(s.balance,0);assert.equal(C.CATALOG.length,643);
+assert.ok(C.CATALOG.every(i=>i.price===Config.items[i.id].price));
+run('adopt',{name:'Mochi'});s.balance=1000;
+const request={id:'one_purchase',kind:'purchase',itemId:'snack',price:25};
+s=C.transact(s,request,now).state;assert.equal(s.balance,975);
+assert.equal(C.transact(s,request,now).state.balance,975);
+assert.throws(()=>C.transact(s,{id:'bad_price',kind:'purchase',itemId:'snack',price:1},now),/price changed/);
+for(const kind of ['feed','play','clean'])run(kind);
+run('claim');assert.equal(s.balance,975+Config.dailyReward);assert.equal(s.ledger[0].amount,Config.dailyReward);
+assert.throws(()=>run('claim'),/already collected/);
+const snapshot=JSON.parse(JSON.stringify(s));run('purchase',{itemId:'treat',price:100});
+s=C.validate(snapshot);assert.equal(s.quantities.treat,0);assert.equal(s.balance,1025);
+run('vacation');now+=C.DAY;assert.equal(C.advance(s,now).pet.needs.hunger,s.pet.needs.hunger);
+assert.throws(()=>run('claim'),/paused/);
+// Editing the single configuration file changes authoritative rewards and catalog prices.
+Config.dailyReward=75;Config.items.snack.price=30;delete require.cache[require.resolve('../pet/core.js')];
+const changed=require('../pet/core.js');assert.equal(changed.RULES.claim,75);assert.equal(changed.CATALOG.find(i=>i.id==='snack').price,30);
+let other=changed.empty(now);other=changed.transact(other,{id:'adopt_other',kind:'adopt',name:'Mochi'},now).state;
+for(const kind of ['feed','play','clean'])other=changed.transact(other,{id:'other_'+kind,kind},now).state;
+other=changed.transact(other,{id:'other_claim',kind:'claim'},now).state;assert.equal(other.balance,75);assert.equal(other.ledger[0].amount,75);
+console.log('PASS: catalog/config parity, no sandbox grant, idempotent purchase, stale price rejection, daily reward, backup round-trip, vacation, configurable rewards and prices.');

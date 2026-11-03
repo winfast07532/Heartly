@@ -76,7 +76,7 @@ function initSync(){
     _initPromise = Promise.resolve();
     return _initPromise;
   }
-  _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  _sb = _sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   _syncReady = true;
   console.log('[Heartly sync] initializing…');
   updateSyncIndicator('syncing');
@@ -265,9 +265,14 @@ function _applyIncoming(dataBlob, updatedBy, updatedAt){
   // applied, full stop.
   _applyingRemote = true;
   try {
-    applyState(dataBlob);
-    if(typeof window.pixelArtCloudReceived === 'function') window.pixelArtCloudReceived(dataBlob.pixelArtState);
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(dataBlob));
+    const petOnly=updatedBy==='pet-game' && _realDataConfirmed && typeof window.petCloudAcknowledged==='function';
+    if(petOnly){
+      window.petCloudAcknowledged(dataBlob);
+    }else applyState(dataBlob);
+    window.dispatchEvent(new Event('heartly-pet-state'));
+    if(!petOnly && typeof window.pixelArtCloudReceived === 'function') window.pixelArtCloudReceived(dataBlob.pixelArtState);
+    const cached=petOnly?Object.assign(JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}'),{petState,petWalletTotal,petEarnedTotal,ptsVal,totalPtsEarned}):dataBlob;
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(cached));
     if(updatedAt) _lastAppliedUpdatedAt = updatedAt;
   } catch(e){
     console.warn('[Heartly sync] failed to apply incoming state —', e);
@@ -328,18 +333,21 @@ async function pushRemoteState(stateObj){
   const nowStr = new Date().toISOString();
   
   try {
-    const { error } = await _sb
+    const { data: savedRow, error } = await _sb
       .from(SYNC_TABLE)
       .upsert({
         id: SYNC_ROW_ID,
         data: stateObj,
         updated_by: (typeof currentUser !== 'undefined' ? currentUser : null),
         updated_at: nowStr,
-      });
+      }).select('data,updated_at').single();
     if(error){
       console.warn('[Heartly sync] push FAILED —', error.message, error);
       updateSyncIndicator('offline');
+      if(error.message?.includes('HEARTLY_REFRESH_REQUIRED') && typeof T==='function') T('Refresh Heartly to keep your pet and points in sync.');
+      return false;
     } else {
+      if(savedRow?.data && typeof window.petCloudAcknowledged==='function') window.petCloudAcknowledged(savedRow.data);
       console.log('[Heartly sync] pushed state to cloud ✓');
       _lastAppliedUpdatedAt = nowStr; // this IS the real echo guard: _pullRemoteState
       // compares an incoming updated_at against this value and skips
@@ -347,10 +355,12 @@ async function pushRemoteState(stateObj){
       // its own — no separate "dirty" window is needed on top of it.
       if(typeof window.pixelArtCloudAcknowledged === 'function') window.pixelArtCloudAcknowledged(stateObj.pixelArtState);
       updateSyncIndicator('synced');
+      return true;
     }
   } catch(e){
     console.warn('[Heartly sync] push error —', e);
     updateSyncIndicator('offline');
+    return false;
   } finally {
     _isPushing = false;
     // Same staleness fix as _flushPendingPushIfAny: re-run saveState()

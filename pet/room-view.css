@@ -1,0 +1,15 @@
+[hidden]{display:none!important}
+.room .pet-sprite{transition:left var(--walk-duration,1300ms) linear,transform 180ms ease}
+.room .pet-sprite[data-facing=left]{transform:translateX(-50%) scaleX(-1)}
+.room .pet-sprite.walking{filter:drop-shadow(0 3px 5px #31162c55);animation:cat-step .34s ease-in-out infinite alternate}
+@keyframes cat-step{to{translate:0 -3px}}
+.room .pet-speech{left:var(--cat-x,50%)}
+#room-only{position:fixed;inset:0;z-index:100;overflow:hidden;background:#09050f;display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#room-only:fullscreen{background:#09050f}
+#room-only-ambient{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(35px) brightness(.32);transform:scale(1.15);pointer-events:none}
+#room-only .room{position:relative;z-index:1;width:min(100%,calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))*4/3));height:auto;aspect-ratio:4/3!important;max-height:100%;margin:auto;border:0;border-radius:0}
+#room-only-exit{position:absolute;z-index:103;right:max(16px,env(safe-area-inset-right));top:max(16px,env(safe-area-inset-top));min-width:52px;min-height:52px;border:1px solid #ffffff6b;border-radius:15px;background:#1a0d21df;color:#fff;font:600 13px system-ui;box-shadow:0 5px 20px #0008;padding:10px 15px}
+#room-only-label{position:absolute;left:max(16px,env(safe-area-inset-left));top:max(17px,env(safe-area-inset-top));z-index:102;color:#fff;font:600 12px system-ui;background:#1a0d21bf;padding:12px 16px;border-radius:12px;max-width:calc(100% - 125px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.room-only-open{overflow:hidden!important}
+@media(max-width:720px){.room-tools{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}.room-tools #decoration-count{grid-column:1/-1}.room-tools button{min-width:0;width:100%;padding-inline:9px}}
+@media (prefers-reduced-motion:reduce){.room .pet-sprite{transition:none!important;animation:none!important}}

@@ -116,3 +116,5 @@ next "Enable Notifications" tap on that device re-subscribes it.
 
 Same pattern as "new letter" — a `triggerPush('robert', ...)` call added at
 each send point — happy to wire these up the same way whenever you want them.
+
+Pet integration, account access and authenticated backups: see [PET-INTEGRATION.md](PET-INTEGRATION.md).

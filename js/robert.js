@@ -276,12 +276,7 @@ function switchToAna(){
 window.switchToAna = switchToAna;
 
 function switchToLogin(){
-  document.getElementById('ROBERT').classList.remove('show');
-  closeProf();
-  const lg = document.getElementById('LOGIN');
-  lg.style.display = 'flex';
-  lg.classList.remove('gone');
-  currentUser = null;
+  window.HeartlyAuth.signOut();
 }
 window.switchToLogin = switchToLogin;
 
@@ -1056,9 +1051,10 @@ window.dvRenderPts = dvRenderPts;
 const BACKUP_FN_URL = `${SUPABASE_URL}/functions/v1/backup-state`;
 
 async function _callBackupFn(body){
+  const token=await window.HeartlyAuth.token();
   const res = await fetch(BACKUP_FN_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization':'Bearer '+token },
     body: JSON.stringify(body)
   });
   return res.json();

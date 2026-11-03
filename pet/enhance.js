@@ -1,0 +1,33 @@
+/* Care guidance and reusable room looks. All saved changes go through PetCore. */
+(function(){
+  'use strict';
+  const G=PetGame,C=PetCore,$=id=>document.getElementById(id);
+  let suggestion=null,busy=false,confirmId=null,confirmClear=false;
+  function guide(){const state=G.state,p=state?.pet;if(!p)return;const now=PetAdapter.now(state);
+    if(p.vacation)suggestion={title:'Your cat is on holiday.',copy:'Needs and rewards are paused until they come home.',label:'Return home',kind:'vacation'};
+    else if(p.sleeping)suggestion={title:'Let’s wake up gently.',copy:'Energy restores during sleep. Wake your cat when you are ready to care or play.',label:'Wake up',kind:'sleep'};
+    else if(p.daily.care.length===3&&!p.daily.claimed)suggestion={title:'You did the little things.',copy:'Today’s care reward is ready to collect.',label:'Collect '+C.RULES.claim+' points',kind:'claim'};
+    else{
+      const choices=[['feed','hunger','A little food would help.','Feed now'],['play','happiness','Your cat would enjoy some company.','Play now'],['clean','cleanliness','Time for a fresh space.','Clean now']].filter(([kind,key])=>p.needs[key]<99.999&&(p.cooldowns[kind]||0)<=now&&(kind!=='play'||p.needs.energy>=10)).sort((a,b)=>{const aMissing=!p.daily.care.includes(a[0]),bMissing=!p.daily.care.includes(b[0]);return Number(bMissing)-Number(aMissing)||p.needs[a[1]]-p.needs[b[1]];});
+      if(choices.length){const [kind,key,copy,label]=choices[0];suggestion={title:kind==='feed'?'Something tasty?':kind==='play'?'A little playtime?':'Fresh and cozy?',copy:copy+' '+Math.round(p.needs[key])+'% '+key+'.',label,kind};}
+      else if(p.needs.hunger<85&&(state.quantities.treat||state.quantities.snack)){const itemId=state.quantities.snack?'snack':'treat';suggestion={title:'A little snack?',copy:'Care is resting, but a treat from your collection is available.',label:'Give a treat',kind:'use',itemId};}
+      else suggestion={title:'All cozy for now.',copy:'Your cat is content. Enjoy the room together while care actions rest.',label:'',kind:null};
+    }
+    $('care-guide-title').textContent=suggestion.title;$('care-guide-copy').textContent=suggestion.copy;$('care-guide-action').textContent=suggestion.label;$('care-guide-action').hidden=!suggestion.kind;$('care-guide-action').disabled=busy;
+  }
+  $('care-guide-action').onclick=async()=>{if(!suggestion||busy)return;if(!suggestion.kind)return;busy=true;$('care-guide-action').disabled=true;try{await G.execute(suggestion.kind,suggestion.itemId?{itemId:suggestion.itemId}:{});}finally{busy=false;guide();}};
+  const filters=$('shop-filters'),picks=document.createElement('button');picks.dataset.filter='picks';picks.textContent='✦ Shop picks';picks.setAttribute('aria-pressed','true');filters.prepend(picks);filters.querySelector('[data-filter=all]').textContent='All items';filters.querySelector('[data-filter=all]').setAttribute('aria-pressed','false');for(const [id,label] of [['furniture','Furniture'],['beds','Beds'],['plants','Plants'],['wall','Wall art'],['rugs','Rugs'],['rooms','Backgrounds'],['bowls','Bowls']]){const button=document.createElement('button');button.dataset.filter=id;button.setAttribute('aria-pressed','false');button.textContent=label;filters.append(button);}
+  const open=document.createElement('button');open.id='open-room-looks';open.className='secondary';open.textContent='Room looks';document.querySelector('.room-tools').append(open);
+  const dialog=document.createElement('dialog');dialog.id='room-looks-dialog';dialog.innerHTML='<button class="dialog-x" id="close-room-looks" aria-label="Close room looks">×</button><p class="eyebrow">YOUR FAVORITE SPACES</p><h2>Room looks.</h2><p>Save up to three arrangements. Restore the background and decorations together, free of charge.</p><form id="save-look-form"><label for="look-name">Name this look</label><div class="look-form-row"><input id="look-name" maxlength="24" placeholder="Cozy afternoon" required><button id="save-look" class="primary">Save current room</button></div></form><div id="saved-look-list" class="saved-look-list"></div><button id="clear-current-room" class="secondary">Put away current decorations</button>';
+  document.body.append(dialog);open.onclick=()=>{renderLooks();dialog.showModal();};$('close-room-looks').onclick=()=>dialog.close();
+  function renderLooks(){const state=G.state;if(!state?.pet)return;const looks=state.savedLooks||[];$('save-look').disabled=busy||looks.length>=3;$('look-name').disabled=busy||looks.length>=3;$('clear-current-room').disabled=busy||!state.placements.length;$('clear-current-room').textContent=confirmClear?'Confirm put away':'Put away current decorations';$('saved-look-list').replaceChildren();
+    if(!looks.length){const empty=document.createElement('p');empty.className='fine';empty.textContent='No saved room looks yet. Arrange your room, then save your first one.';$('saved-look-list').append(empty);return;}
+    for(const look of looks){const row=document.createElement('article');row.className='saved-look';const info=document.createElement('div'),name=document.createElement('strong'),meta=document.createElement('small');name.textContent=look.name;meta.textContent=look.placements.length+' decorations';info.append(name,meta);const load=document.createElement('button');load.className='secondary';load.textContent='Restore';load.disabled=busy;load.onclick=async()=>{busy=true;renderLooks();try{if(await G.execute('loadLook',{lookId:look.id}))dialog.close();}finally{busy=false;renderLooks();}};
+      const remove=document.createElement('button');remove.className='text-button';remove.textContent=confirmId===look.id?'Confirm delete':'Delete';remove.disabled=busy;remove.onclick=async()=>{if(confirmId!==look.id){confirmId=look.id;renderLooks();return;}busy=true;renderLooks();try{await G.execute('deleteLook',{lookId:look.id});confirmId=null;}finally{busy=false;renderLooks();}};row.append(info,load,remove);$('saved-look-list').append(row);}
+  }
+  $('save-look-form').onsubmit=async event=>{event.preventDefault();if(busy)return;busy=true;renderLooks();try{if(await G.execute('saveLook',{name:$('look-name').value}))$('look-name').value='';}finally{busy=false;renderLooks();}};
+  $('clear-current-room').onclick=async()=>{if(busy||!G.state?.placements.length)return;if(!confirmClear){confirmClear=true;renderLooks();return;}busy=true;renderLooks();try{await G.execute('clearRoom');confirmClear=false;}finally{busy=false;renderLooks();}};
+  dialog.addEventListener('close',()=>{confirmId=null;confirmClear=false;});
+  window.addEventListener('pet-render',()=>{guide();if(dialog.open)renderLooks();});
+  if(G.state?.pet)guide();
+})();

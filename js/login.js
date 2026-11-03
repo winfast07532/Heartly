@@ -6,6 +6,7 @@ currentUser = null; // already declared above
 hasSeenWelcome = false; // already declared above
 
 async function doLogin(username){
+  if(!await window.HeartlyAuth.require(username==='developer.login'?'robert':null))return false;
   currentUser = username;
   const lg = document.getElementById('LOGIN');
   lg.classList.add('gone');
@@ -47,7 +48,8 @@ window.doLogin = doLogin;
 (function(){
   const _orig = window.doLogin;
   window.doLogin = async function(username){
-    await _orig(username);
+    if(await _orig(username)===false)return;
+    if(!currentUser)return;
     // State already loaded inside doLogin — just apply everything
     if(typeof applyTheme === 'function' && activeTheme) applyTheme(activeTheme);
     // Sync pts display

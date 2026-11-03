@@ -1,0 +1,5 @@
+#heartly-auth{width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:28px;border:1px solid var(--border, #6f394c);border-radius:24px;background:var(--bg,#180209);color:var(--tx,#fff);font:inherit}
+#heartly-auth::backdrop{background:rgba(0,0,0,.72)}
+#heartly-auth h2{font-size:24px;margin:12px 0}#heartly-auth p{font-size:14px;line-height:1.6}
+#heartly-auth label{display:block;margin:18px 0;font-size:14px}#heartly-auth input{display:block;box-sizing:border-box;width:100%;font:inherit;font-size:16px;color:inherit;background:rgba(255,255,255,.07);border:1px solid var(--border,#6f394c);border-radius:12px;padding:12px;margin-top:7px}
+#heartly-auth button{font:inherit;min-height:44px;border:0;border-radius:12px;padding:12px;cursor:pointer}#auth-submit{width:100%;background:var(--acc,#ed7098);color:#190b14;font-weight:700}#auth-signup,#auth-switch,#auth-cancel{background:transparent;color:inherit}#auth-cancel{float:right}#auth-message{min-height:24px}#heartly-auth button:disabled{opacity:.5;cursor:wait}

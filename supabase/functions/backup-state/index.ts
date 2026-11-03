@@ -26,7 +26,7 @@
 // service_role can call.
 // ═══════════════════════════════════════════════════════════
 
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
 const SUPABASE_URL              = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -69,6 +69,9 @@ function contentCounts(data: any) {
     letters: Array.isArray(ED.letters) ? ED.letters.length : 0,
     // Progress
     pts: data?.ptsVal ?? null,
+    pet: !!data?.petState?.pet,
+    petItems: data?.petState?.owned?.length || 0,
+    petRevision: data?.petState?.revision || 0,
     streak: data?.currentStreak ?? null,
     bestStreak: data?.bestStreak ?? null,
     achievements: data?.earnedAchievements ? Object.keys(data.earnedAchievements).length : 0,
@@ -176,7 +179,8 @@ async function restoreBackup(supabase: any, id: number) {
 
   // Safety snapshot of whatever is live RIGHT NOW, before we overwrite
   // it — so a restore can never itself be an unrecoverable mistake.
-  await runBackup(supabase, "pre-restore");
+  const safety = await runBackup(supabase, "pre-restore");
+  if (!safety.ok) return { ok: false, reason: "Safety backup failed. Nothing was restored." };
 
   const { error: updateErr } = await supabase
     .from(SYNC_TABLE)
@@ -195,6 +199,21 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const denied=(reason: string,status=401)=>new Response(JSON.stringify({ok:false,reason}),{status,headers:{...corsHeaders,"Content-Type":"application/json"}});
+  if(req.method!=="POST")return denied("Use POST.",405);
+  let cron=false,memberRole: string|null=null;
+  const cronKey=req.headers.get("x-heartly-backup-key");
+  if(cronKey){const result=await supabase.rpc("heartly_backup_cron_authorized",{candidate:cronKey});cron=!result.error&&result.data===true;}
+  if(!cron){
+    const authorization=req.headers.get("authorization")||"";
+    if(!authorization.startsWith("Bearer "))return denied("Sign in to manage Heartly backups.");
+    const userClient=createClient(SUPABASE_URL,"sb_publishable_uQzy4bdgclCGitmi0lEiyw_zralr47Z",{global:{headers:{Authorization:authorization}},auth:{persistSession:false}});
+    const {data,error}=await userClient.auth.getUser(authorization.slice(7));
+    if(error||!data.user?.email_confirmed_at||data.user.is_anonymous)return denied("Please sign in again.");
+    const membership=await userClient.rpc("heartly_member_role");
+    if(membership.error||!["robert","ana"].includes(membership.data))return denied("This account cannot access this Heartly home.",403);
+    memberRole=membership.data;
+  }
 
   let action = "run";
   let body: any = {};
@@ -206,6 +225,8 @@ Deno.serve(async (req) => {
   }
 
   let result;
+  if(cron && action!=="run")return denied("Scheduled backups cannot list or restore snapshots.",403);
+  if(["list","restore"].includes(action)&&memberRole!=="robert")return denied("Only a developer account can manage snapshots.",403);
   if (action === "list") {
     result = await listBackups(supabase);
   } else if (action === "restore") {

@@ -6,6 +6,9 @@
 ═══════════════════════════════════ */
 // Points & exchange
 var ptsVal = 0;
+var petState = null;
+var petWalletTotal = 0;
+var petEarnedTotal = 0;
 var pixelArtState = { version: 3, works: {}, custom: {}, deleted: {}, lastArtwork: null };
 var txHistoryOpen = false;
 var ptsLog = []; // [{ts, amt}] — real history for weekly change display
@@ -234,9 +237,9 @@ var blastLifetimeScore  = 0;
 const STORAGE_KEY = 'heartly_v1';
 let _saveTimer;
 
-function saveState(){
+function saveState(immediate = false){
   clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(function(){
+  const persist = function(){
     try {
       var themeUnlocks = {};
       if(typeof THEMES !== 'undefined'){
@@ -244,6 +247,9 @@ function saveState(){
       }
       var s = {
         ptsVal: ptsVal,
+        petState: petState,
+        petWalletTotal: petWalletTotal,
+        petEarnedTotal: petEarnedTotal,
         pixelArtState: window.PixelCore ? window.PixelCore.pack(pixelArtState) : pixelArtState,
         activeTheme: activeTheme,
         themeUnlocks: themeUnlocks,
@@ -332,9 +338,11 @@ function saveState(){
       // pictures can be larger than ordinary letters and game counters).
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
       catch(storageError) { console.warn('Local state cache is unavailable:', storageError); }
-      if(typeof window.pushRemoteState === 'function') window.pushRemoteState(s);
+      if(typeof window.pushRemoteState === 'function') return window.pushRemoteState(s);
     } catch(e){ console.warn('saveState failed:', e); }
-  }, 300);
+  };
+  if(immediate) return persist();
+  _saveTimer = setTimeout(persist, 300);
 }
 
 function loadState(){
@@ -351,6 +359,9 @@ function loadState(){
 function applyState(s){
   try {
     if(!s) return;
+    petState = s.petState || null;
+    petWalletTotal = Number(s.petWalletTotal || 0);
+    petEarnedTotal = Number(s.petEarnedTotal || 0);
     if(s.pixelArtState && window.PixelCore) pixelArtState = window.PixelCore.merge(pixelArtState, s.pixelArtState);
     if(s.ptsVal                    !== undefined) ptsVal                    = s.ptsVal;
     if(s.activeTheme               !== undefined) activeTheme               = s.activeTheme;
