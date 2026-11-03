@@ -2,7 +2,7 @@ const assert=require('node:assert/strict');
 const Config=require('../pet/config.js'),C=require('../pet/core.js');
 let now=Date.UTC(2026,10,3,12),s=C.empty(now),n=0;
 const run=(kind,extra={})=>{const r=C.transact(s,{id:'test_'+(++n),kind,...extra},now);s=r.state;return r;};
-assert.equal(s.balance,0);assert.equal(C.CATALOG.length,645);
+assert.equal(s.balance,0);assert.equal(C.CATALOG.length,650);
 assert.ok(C.CATALOG.every(i=>i.price===Config.items[i.id].price));
 run('adopt',{name:'Mochi'});s.balance=1000;
 const request={id:'one_purchase',kind:'purchase',itemId:'snack',price:25};

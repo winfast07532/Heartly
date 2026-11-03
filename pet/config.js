@@ -2,13 +2,13 @@
    Prices/rewards: whole points, 0–1000000. Names are labels for finding items. */
 (function(root){
   const config = {
-  "version": 2,
+  "version": 3,
   "dailyReward": 50,
   "xpPerCare": 5,
   "xpDailyCap": 20,
   "care": {
     "feed": {
-      "cooldownHours": 4,
+      "cooldownHours": 0,
       "gain": 30
     },
     "play": {
@@ -17,15 +17,21 @@
       "energy": 10
     },
     "clean": {
-      "cooldownHours": 2,
+      "cooldownHours": 0,
       "gain": 40
     }
   },
   "items": {
+    "kit1": {"name":"Care Kit 1", "price":25, "gain":20},
+    "kit2": {"name":"Care Kit 2", "price":55, "gain":50},
+    "kit3": {"name":"Care Kit 3", "price":90, "gain":90},
+    "fish": {"name":"Salmon supper", "price":45, "gain":50},
+    "chicken": {"name":"Chicken dinner", "price":65, "gain":70},
     "soap": {"name":"Cat shampoo", "price":35},
     "paper": {"name":"Toilet paper", "price":15},
     "snack": {
       "name": "Little crunchies",
+      "gain": 30,
       "price": 25
     },
     "treat": {
@@ -2600,6 +2606,7 @@
 };
   for(const v of [config.dailyReward,config.xpPerCare,config.xpDailyCap,...Object.values(config.items).map(i=>i.price)])if(!Number.isSafeInteger(v)||v<0||v>1000000)throw Error('Pet config values must be whole numbers between 0 and 1000000.');
   for(const care of Object.values(config.care))if(!Number.isFinite(care.cooldownHours)||care.cooldownHours<0||care.cooldownHours>168||!Number.isFinite(care.gain)||care.gain<0||care.gain>100)throw Error('Invalid pet care configuration.');
+  for(const item of Object.values(config.items))if(item.gain!==undefined&&(!Number.isInteger(item.gain)||item.gain<1||item.gain>100))throw Error("Supply gains must be whole numbers from 1 to 100.");
   root.PetConfig=config;
   if(typeof module!=="undefined")module.exports=config;
 })(globalThis);

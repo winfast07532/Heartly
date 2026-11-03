@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root=path.resolve(__dirname,'..'),C=require(root+'/pet/core.js');
-const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg'};
+const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 (async()=>{
  const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH});
  try{
@@ -52,7 +52,7 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
   assert.equal(await frame.locator('.test-tools').count(),0);
   assert.equal(await frame.locator('#memory-badges').count(),0);
   const catBox=await frame.locator('#pet-sprite').boundingBox();assert.ok(Math.abs(catBox.width-catBox.height)<2,'cat frames must stay square');
-  assert.equal(await frame.locator('#toilet').count(),1);
+  assert.equal(await frame.locator('#kit-select').count(),1);
   await frame.locator('#open-settings').click();assert.equal(await frame.locator('#theme-select').isDisabled(),true);await frame.locator('#settings-dialog [data-close]').click();
   let pet=page.frames().find(f=>f.url().includes('/pet/'));
   await pet.evaluate(()=>PetGame.execute('purchase',{itemId:'snack',price:25}));assert.equal(cloud.data.ptsVal,475);
@@ -77,6 +77,18 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
   await page.evaluate(s=>_applyIncoming(s,'backup-restore',new Date().toISOString()),snapshot);
   await page.waitForTimeout(100);assert.equal(await frame.locator('#balance').textContent(),'475');
   assert.equal(await page.evaluate(()=>petState.quantities.snack),1);
+  cloud.data=structuredClone(snapshot);cloud.data.petState.pet.needs.cleanliness=10;
+  await page.evaluate(s=>_applyIncoming(s,'backup-restore',new Date().toISOString()),cloud.data);
+  const reopened=page.frames().find(f=>f.url().includes('/pet/'));
+  await reopened.evaluate(()=>PetGame.execute('purchase',{itemId:'kit3',price:90}));
+  assert.equal(await frame.locator('#kit-select').inputValue(),'kit3');
+  assert.equal(await frame.locator('#kit-select option').count(),3);
+  await frame.locator('[data-care=clean]').click();await page.waitForTimeout(250);
+  assert.equal(cloud.data.petState.pet.needs.cleanliness,100);assert.equal(cloud.data.petState.quantities.kit3,0);
+  await reopened.evaluate(()=>location.hash='shop');
+  await reopened.waitForFunction(()=>[...document.querySelectorAll('.supply-icon')].length>=7&&[...document.querySelectorAll('.supply-icon')].every(i=>i.complete&&i.naturalWidth>0));
+  assert.equal(await frame.locator('[data-item=soap]').count(),0);assert.equal(await frame.locator('[data-item=paper]').count(),0);
+  await page.screenshot({path:path.resolve(__dirname,'pet-shop.png')});
   assert.deepEqual(errors,[]);console.log('PASS live pet: adoption, real wallet, purchase, normal save, lost-response idempotency, offline failure, themes, responsive room, fullscreen exit, reopen and restore.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

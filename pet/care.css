@@ -2,8 +2,9 @@
 .room .pet-sprite{aspect-ratio:1;width:22.5%;height:auto!important;background-repeat:no-repeat}
 .care-actions button>span,.bottom-nav a>span{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;line-height:1;font-style:normal}
 .details-grid>section:nth-child(2){display:none}.details-grid{grid-template-columns:1fr}
-.item-soap,.item-paper{width:54px;height:64px;background:none!important;border-radius:12px;background-color:var(--pet-accent)!important;display:grid;place-items:center;color:var(--pet-deep);font-size:24px;flex-shrink:0}
-.item-soap:after{content:'Wash';font-size:12px}.item-paper:after{content:'Roll';font-size:12px}.item-paper{border-radius:50%;background-color:#eee6dc!important}
 .pack-visual{flex-shrink:0}.room-tools{scroll-margin-top:16px}.site-footer{padding-bottom:20px}
 .app-header{position:sticky;top:0;z-index:20;background:var(--pet-deep);min-height:64px;height:64px}
 .care-actions button>span{aspect-ratio:1}.product-visual .item-sprite{flex-shrink:0}
+
+.supply-icon{display:block;width:96px;height:96px;object-fit:contain;image-rendering:pixelated;flex:none}
+.supply-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}.supply-choices label{font-size:12px;color:var(--pet-muted);min-width:0}.supply-choices select{display:block;width:100%;font:inherit;font-size:14px;color:var(--pet-text);background:var(--pet-deep);border:1px solid var(--pet-line);border-radius:12px;padding:12px 8px;margin-top:6px;min-height:44px}.supply-choices option{background:var(--pet-deep)}@media(max-width:520px){.supply-choices{grid-template-columns:1fr}.supply-choices select{font-size:16px}}
