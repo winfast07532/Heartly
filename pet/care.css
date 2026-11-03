@@ -8,6 +8,7 @@
 /* Lock interaction during care without dimming the animated character. */
 .room .pet-sprite,.room .pet-sprite:disabled{opacity:1}
 .room .pet-speech{background:transparent;border:0;box-shadow:none;padding:0;color:var(--pet-highlight);pointer-events:none;text-shadow:0 1px 2px var(--pet-deep)}
+.app-header{gap:10px}.app-header .brand{margin-right:auto}#open-help{font-size:20px;font-weight:800;flex:none}#help-dialog{max-width:520px;max-height:85dvh;overflow:auto}#help-dialog ol{padding-left:22px;color:var(--pet-muted);line-height:1.65}#help-dialog li{margin:14px 0}#help-dialog strong{color:var(--pet-text)}
 
 .supply-icon{display:block;width:96px;height:96px;object-fit:contain;image-rendering:pixelated;flex:none}
 .supply-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}.supply-choices label{font-size:12px;color:var(--pet-muted);min-width:0}.supply-choices select{display:block;width:100%;font:inherit;font-size:14px;color:var(--pet-text);background:var(--pet-deep);border:1px solid var(--pet-line);border-radius:12px;padding:12px 8px;margin-top:6px;min-height:44px}.supply-choices option{background:var(--pet-deep)}@media(max-width:520px){.supply-choices{grid-template-columns:1fr}.supply-choices select{font-size:16px}}

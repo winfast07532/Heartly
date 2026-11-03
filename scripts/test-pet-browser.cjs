@@ -57,6 +57,10 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
   assert.equal(await frame.locator('#memory-badges').count(),0);
   const catBox=await frame.locator('#pet-sprite').boundingBox();assert.ok(Math.abs(catBox.width-catBox.height)<2,'cat frames must stay square');
   assert.equal(await frame.locator('#kit-select').count(),1);
+  assert.equal(await frame.locator('#toy-select').count(),1);
+  await frame.locator('#open-help').click();await frame.locator('#help-dialog').waitFor();
+  assert.ok((await frame.locator('#help-dialog').textContent()).includes('single-use cat toys'));
+  await frame.locator('#help-dialog .dialog-x').click();
   await frame.locator('#open-settings').click();assert.equal(await frame.locator('#theme-select').isDisabled(),true);await frame.locator('#settings-dialog [data-close]').click();
   let pet=page.frames().find(f=>f.url().includes('/pet/'));
   await pet.evaluate(()=>PetGame.execute('purchase',{itemId:'snack',price:25}));assert.equal(cloud.data.ptsVal,475);
@@ -90,7 +94,7 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
   await frame.locator('[data-care=clean]').click();await page.waitForTimeout(250);
   assert.equal(cloud.data.petState.pet.needs.cleanliness,100);assert.equal(cloud.data.petState.quantities.kit3,0);
   await reopened.evaluate(()=>location.hash='shop');
-  await reopened.waitForFunction(()=>[...document.querySelectorAll('.supply-icon')].length>=7&&[...document.querySelectorAll('.supply-icon')].every(i=>i.complete&&i.naturalWidth>0));
+  await reopened.waitForFunction(()=>[...document.querySelectorAll('.supply-icon')].length>=3&&[...document.querySelectorAll('.supply-icon')].every(i=>i.complete&&i.naturalWidth>0));
   assert.equal(await frame.locator('[data-item=soap]').count(),0);assert.equal(await frame.locator('[data-item=paper]').count(),0);
   await page.screenshot({path:path.resolve(__dirname,'pet-shop.png')});
   assert.deepEqual(errors,[]);console.log('PASS live pet: adoption, real wallet, purchase, normal save, lost-response idempotency, offline failure, themes, responsive room, fullscreen exit, reopen and restore.');

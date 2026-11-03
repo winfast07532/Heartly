@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),C=require('../pet/core.js');const now=Date.now();let i=0,s=C.empty(now);
+const run=(kind,extra={})=>{s=C.transact(s,{id:'play_'+(++i),kind,...extra},now).state;};
+run('adopt',{name:'Mochi'});s.balance=1000;s.pet.needs.happiness=10;
+assert.throws(()=>run('play'),/cat toy/);assert.throws(()=>run('pet'),/cat toy/);
+run('purchase',{itemId:'play_yarn',price:20});run('purchase',{itemId:'play_yarn',price:20});
+run('play',{itemId:'play_yarn'});assert.equal(s.quantities.play_yarn,1);assert.equal(s.pet.needs.happiness,30);
+run('pet',{itemId:'play_yarn'});assert.equal(s.quantities.play_yarn,0);assert.equal(s.pet.needs.happiness,50);assert.equal(s.pet.cooldowns.play,0);
+assert.throws(()=>run('play'),/cat toy/);
+run('purchase',{itemId:'play_mouse',price:40});s.pet.needs.happiness=100;assert.throws(()=>run('play',{itemId:'play_mouse'}),/does not need/);assert.equal(s.quantities.play_mouse,1);
+delete s.careVersion;s.pet.cooldowns.play=now+999999;assert.equal(C.validate(s).pet.cooldowns.play,0);
+console.log('PASS: cat taps and Play both consume toys, repeated play has no cooldown, missing/full needs cannot waste toys, legacy timers cleared.');

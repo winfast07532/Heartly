@@ -16,8 +16,7 @@
   }
   async function execute(kind,extra={}){
     if(busy)return false;
-    if(['feed','play','clean','sleep','pet','water','use'].includes(kind)&&performance.now()<lockedUntil){toast('One little moment…');return false;}
-    if((kind==='feed'||kind==='clean')&&!extra.itemId)extra.itemId=$(kind==='feed'?'food-select':'kit-select').value||undefined;
+    if((['feed','play','clean'].includes(kind))&&!extra.itemId)extra.itemId=$({feed:'food-select',clean:'kit-select',play:'toy-select'}[kind]).value||undefined;
     busy=true;renderCare();
     try{const result=await A.execute({id:A.id(),kind,...extra});state=A.load();$('save-status').textContent='Synced with Heartly';render();toast(result.message);
       if(['feed','play','clean','pet','water','sleep','use'].includes(kind)){
@@ -29,7 +28,9 @@
     finally{busy=false;renderCare();}
   }
   function visual(item){
-    if(['food','treat','fish','chicken','kit1','kit2','kit3'].includes(item.visual)){const im=document.createElement('img');im.className='supply-icon';im.src='assets/supplies/'+item.visual+'.svg';im.alt='';return im;}
+    const crops={snack:[396,672,34,64],fish:[432,672,36,64],chicken:[576,704,32,32],treat:[468,688,24,32],play_yarn:[576,544,32,32],play_mouse:[392,624,56,40],play_ball:[608,544,32,32]};
+    if(crops[item.id])item={...item,sprite:{file:'assets/pack/Furnitures,Playgrounds,Toys.png',crop:crops[item.id],width:1024,height:1184}};
+    if(['kit1','kit2','kit3'].includes(item.visual)){const im=document.createElement('img');im.className='supply-icon';im.src='assets/supplies/'+item.visual+'.svg';im.alt='';return im;}
     if(item.sprite){const spec=item.sprite,[x,y,w,h]=spec.crop,ratio=Math.min(110/w,115/h);const el=document.createElement('div');el.className='pack-visual';el.style.cssText='width:'+Math.round(w*ratio)+'px;height:'+Math.round(h*ratio)+'px;background-image:url("'+encodeURI(spec.file)+'");background-size:'+spec.width*ratio+'px '+spec.height*ratio+'px;background-position:-'+x*ratio+'px -'+y*ratio+'px';el.setAttribute('aria-hidden','true');return el;}
 const v=document.createElement('div');v.className='item-sprite item-'+item.visual;v.setAttribute('aria-hidden','true');return v;}
   function button(text,fn){const el=document.createElement('button');el.className='secondary';el.textContent=text;el.onclick=fn;return el;}
@@ -38,7 +39,7 @@ const v=document.createElement('div');v.className='item-sprite item-'+item.visua
     const art=document.createElement('div');art.className='product-visual';art.append(visual(item));const favorite=document.createElement('button');favorite.type='button';favorite.className='favorite-button';favorite.textContent=state.favoriteIds.includes(item.id)?'♥':'♡';favorite.setAttribute('aria-label',(state.favoriteIds.includes(item.id)?'Remove ':'Add ')+item.name+(state.favoriteIds.includes(item.id)?' from favorites':' to favorites'));favorite.setAttribute('aria-pressed',String(state.favoriteIds.includes(item.id)));favorite.onclick=()=>execute('toggleFavorite',{itemId:item.id});art.append(favorite);const copy=document.createElement('div');copy.className='product-copy';const title=document.createElement('h3');title.textContent=item.name;const desc=document.createElement('p');desc.textContent=item.description;
     const bottom=document.createElement('div');bottom.className='product-bottom';const price=document.createElement('strong');price.textContent=inventory?(item.kind==='consumable'?`${state.quantities[item.id]} in your cupboard`:'Yours to keep'):`✦ ${item.price} Heartly points`;
     let action;
-    if(inventory){if(item.kind==='consumable'){const kind=item.careAction;action=button(kind?({feed:'Serve food',clean:'Use care kit'})[kind]:'Give a treat',()=>kind?execute(kind):execute('use',{itemId:item.id}));}else{const equipped=state.equipped[item.slot]===item.id;action=button(item.slot==='theme'?(equipped?'In your room':'Use room'):'Arrange in room',()=>{if(item.slot==='theme')execute('equip',{slot:'theme',itemId:item.id});else window.PetRoomEditor?.open(item.id);});if(item.slot==='theme')action.disabled=equipped;}}
+    if(inventory){if(item.kind==='consumable'){const kind=item.careAction;action=button(kind?({feed:'Serve food',clean:'Use care kit',play:'Play once'})[kind]:'Give a treat',()=>kind?execute(kind):execute('use',{itemId:item.id}));}else{const equipped=state.equipped[item.slot]===item.id;action=button(item.slot==='theme'?(equipped?'In your room':'Use room'):'Arrange in room',()=>{if(item.slot==='theme')execute('equip',{slot:'theme',itemId:item.id});else window.PetRoomEditor?.open(item.id);});if(item.slot==='theme')action.disabled=equipped;}}
     else{const owned=state.owned.includes(item.id);action=button(owned?'Owned':'Take a look',()=>openPurchase(item));action.disabled=owned;}
     bottom.append(price,action);copy.append(title,desc,bottom);card.append(art,copy);return card;
   }
@@ -52,19 +53,19 @@ const v=document.createElement('div');v.className='item-sprite item-'+item.visua
     finally{busy=false;}
   }
   function renderCare(){
-    if(!state?.pet)return;const p=state.pet,now=A.now(state),locked=busy||performance.now()<lockedUntil;
+    if(!state?.pet)return;const p=state.pet,now=A.now(state),locked=busy;
     document.querySelectorAll('#inventory-view .product button').forEach(button=>button.disabled=busy);
     $('claim').disabled=busy||p.vacation||p.daily.claimed||p.daily.care.length<3;
-    for(const b of document.querySelectorAll('[data-care]')){const kind=b.dataset.care,until=p.cooldowns[kind]||0;const asleep=p.sleeping||p.vacation;const key={feed:'hunger',play:'happiness',clean:'cleanliness'}[kind];let label=({feed:'FOOD × '+(state.quantities[$('food-select').value]||0),clean:'KIT × '+(state.quantities[$('kit-select').value]||0),sleep:p.sleeping?'WAKE':'BED REQUIRED'})[kind]||'FREE';
+    for(const b of document.querySelectorAll('[data-care]')){const kind=b.dataset.care,until=p.cooldowns[kind]||0;const asleep=p.sleeping||p.vacation;const key={feed:'hunger',play:'happiness',clean:'cleanliness'}[kind];let label=({feed:'FOOD × '+(state.quantities[$('food-select').value]||0),play:'TOY × '+(state.quantities[$('toy-select').value]||0),clean:'KIT × '+(state.quantities[$('kit-select').value]||0),sleep:p.sleeping?'WAKE':'BED REQUIRED'})[kind]||'FREE';
       if(kind!=='sleep'&&until>now)label=duration(until-now);else if(kind!=='sleep'&&p.needs[key]>=99.999)label='CONTENT';
-      b.disabled=locked||p.vacation||(kind!=='sleep'&&(asleep||until>now||p.needs[key]>=99.999||(kind==='play'&&p.needs.energy<10)));b.querySelector('small').textContent=label;
+      b.disabled=locked||p.vacation||(kind!=='sleep'&&(asleep||until>now||p.needs[key]>=99.999||(kind==='play'&&p.needs.energy<C.RULES.play.energy)));b.querySelector('small').textContent=label;
     }
     if(!p.sleeping&&state.owned.some(id=>id==='bed'||C.CATALOG.find(i=>i.id===id)?.category==='beds'))document.querySelector('[data-care=sleep] small').textContent='BED READY';
     $('sleep-label').textContent=p.sleeping?'Wake':'Sleep';$('water').disabled=locked||p.sleeping||p.vacation||p.cooldowns.water>now;$('water').lastElementChild.textContent=p.cooldowns.water>now?'Fresh for '+duration(p.cooldowns.water-now):'Free';
     $('pet-sprite').disabled=locked||p.sleeping||p.vacation;
   }
   function renderSupplies(){
-    for(const [id,kind] of [['food-select','feed'],['kit-select','clean']]){
+    for(const [id,kind] of [['food-select','feed'],['kit-select','clean'],['toy-select','play']]){
       const select=$(id),previous=select.value,items=C.CATALOG.filter(i=>i.careAction===kind);
       const signature=items.map(i=>i.id+':'+(state.quantities[i.id]||0)).join('|');if(select.dataset.signature===signature)continue;select.dataset.signature=signature;
       select.replaceChildren(...items.map(i=>{const o=document.createElement('option');o.value=i.id;o.textContent=i.name+' · +'+i.gain+' · '+(state.quantities[i.id]||0)+' owned';return o;}));
@@ -74,7 +75,7 @@ const v=document.createElement('div');v.className='item-sprite item-'+item.visua
   function render(){
     const p=state.pet;renderSupplies();$('welcome').hidden=!!p;$('game').hidden=!p;$('bottom-nav').hidden=!p;$('recovery').hidden=true;
     if(!p){window.dispatchEvent(new Event('pet-render'));return;}
-    $('balance').textContent=state.balance.toLocaleString();$('pet-display-name').textContent=p.name;$('pet-sprite').setAttribute('aria-label','Pet '+p.name);$('pet-mood').textContent=C.mood(p);$('mood-copy').textContent=personality(p,A.now(state));$('page-description').textContent=p.vacation?'A little holiday. Your friend is safe and cozy.':p.sleeping?'Quiet paws. Someone’s having a little nap.':'There’s someone happy to see you.';
+    $('balance').textContent=state.balance.toLocaleString();$('pet-display-name').textContent=p.name;$('pet-sprite').setAttribute('aria-label','Play with '+p.name);$('pet-mood').textContent=C.mood(p);$('mood-copy').textContent=personality(p,A.now(state));$('page-description').textContent=p.vacation?'A little holiday. Your friend is safe and cozy.':p.sleeping?'Quiet paws. Someone’s having a little nap.':'There’s someone happy to see you.';
     const hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Bucharest',hour:'numeric',hourCycle:'h23'}).format(A.now(state)));$('room-weather').textContent=p.sleeping?'Sweet dreams ☾':hour<11?'Morning light ☀':hour<18?'A cozy afternoon ✦':'Evening glow ☾';
     $('room').dataset.theme=state.equipped.theme;$('room-name');document.querySelector('.room-name').textContent={starter:'THE SUNNY ROOM',rose:'PEACH AFTERNOON',sand:'SUNDAY LINEN'}[state.equipped.theme];
     $('room-bed').hidden=!state.equipped.bed;$('room-plant').hidden=!state.equipped.plant;const toy=state.equipped.toy;$('room-toy').hidden=!toy;$('room-toy').className='item-sprite item-'+(toy==='mouse'?'mouse':'yarn');$('room-mess').hidden=p.needs.cleanliness>=45;$('pet-state-badge').textContent=p.vacation?'ON HOLIDAY':p.sleeping?'SLEEPING':'AT HOME';
@@ -118,7 +119,7 @@ const v=document.createElement('div');v.className='item-sprite item-'+item.visua
     frameHandle=requestAnimationFrame(animate);
   }
   $('adopt-form').onsubmit=async e=>{e.preventDefault();const button=e.submitter;button.disabled=true;const okay=await execute('adopt',{name:$('pet-name').value});button.disabled=false;if(okay){location.hash='room';route();}};
-  document.querySelectorAll('[data-care]').forEach(b=>b.onclick=()=>execute(b.dataset.care));$('water').onclick=()=>execute('water');$('pet-sprite').onclick=()=>execute('pet');$('claim').onclick=()=>execute('claim');
+  document.querySelectorAll('[data-care]').forEach(b=>b.onclick=()=>execute(b.dataset.care));$('water').onclick=()=>execute('water');$('pet-sprite').onclick=()=>execute('play');$('claim').onclick=()=>execute('claim');
   $('shop-filters').onclick=e=>{const b=e.target.closest('[data-filter]');if(!b)return;filter=b.dataset.filter;shopPage=0;shopSignature='';document.querySelectorAll('[data-filter]').forEach(el=>el.setAttribute('aria-pressed',String(el===b)));renderShop();};
   $('shop-sort').onchange=()=>{shopPage=0;shopSignature='';renderShop();};$('inventory-favorites-only').onchange=()=>{inventoryPage=0;inventorySignature='';renderInventory();};
   $('confirm-purchase').onclick=buy;$('purchase-dialog').addEventListener('close',()=>purchase=null);

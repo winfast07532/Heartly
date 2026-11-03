@@ -2,7 +2,7 @@
    Prices/rewards: whole points, 0–1000000. Names are labels for finding items. */
 (function(root){
   const config = {
-  "version": 3,
+  "version": 4,
   "dailyReward": 50,
   "xpPerCare": 5,
   "xpDailyCap": 20,
@@ -12,9 +12,9 @@
       "gain": 30
     },
     "play": {
-      "cooldownHours": 1,
+      "cooldownHours": 0,
       "gain": 20,
-      "energy": 10
+      "energy": 0
     },
     "clean": {
       "cooldownHours": 0,
@@ -22,10 +22,13 @@
     }
   },
   "items": {
+    "play_yarn":{"name":"Cat yarn ball","price":20,"gain":20},
+    "play_mouse":{"name":"Cat toy mouse","price":40,"gain":40},
+    "play_ball":{"name":"Cat chase ball","price":60,"gain":60},
     "kit1": {"name":"Care Kit 1", "price":25, "gain":20},
     "kit2": {"name":"Care Kit 2", "price":55, "gain":50},
     "kit3": {"name":"Care Kit 3", "price":90, "gain":90},
-    "fish": {"name":"Salmon supper", "price":45, "gain":50},
+    "fish": {"name":"Hearty cat food", "price":45, "gain":50},
     "chicken": {"name":"Chicken dinner", "price":65, "gain":70},
     "soap": {"name":"Cat shampoo", "price":35},
     "paper": {"name":"Toilet paper", "price":15},
