@@ -1,10 +1,10 @@
 # Little Home in Heartly
 
-Robert and Ana share one pink-ribbon cat, room, collection and Heartly points balance. Open it from Play → Little Home. Basic care is free. The standalone prototype remains separate; its test wallet and saves are never imported.
+Robert and Ana share one pink-ribbon cat, room, collection and Heartly points balance. Open it from Play → Little Home. Feeding consumes purchased food, washing consumes shampoo, toilet visits consume a roll, and sleeping requires an owned bed. Play, petting and fresh water remain free. The standalone prototype remains separate; its test wallet and saves are never imported.
 
 ## Change prices and rewards
 
-Edit **pet/config.js**. `dailyReward` controls the daily feed/play/clean reward; `care` contains cooldown hours and gains; `xpPerCare` and `xpDailyCap` control bond progress. `items` lists every item ID, readable name and price. Edit the price, not the ID. All 643 items are included. Changing a price never removes something already owned.
+Edit **pet/config.js**. `dailyReward` controls the daily feed/play/clean reward; `care` contains cooldown hours and gains; `xpPerCare` and `xpDailyCap` control bond progress. `items` lists every item ID, readable name and price. Edit the price, not the ID. All 645 items are included. Changing a price never removes something already owned.
 
 Increment `version` whenever changing rules. Publish the site AND redeploy `pet-action` with this same file. A mismatched version is rejected instead of charging an outdated price. The browser cannot set the server’s price or mint points.
 

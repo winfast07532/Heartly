@@ -24,8 +24,8 @@ function load(name){
  for(const [token,status] of [[null,401],['invalid',401],['unconfirmed',401],['anonymous',401],['outsider',403]])assert.equal((await pet.call(token)).status,status);
  assert.equal(pet.commits,0,'unauthorized calls never touch state');
  const command={id:Date.now()+'_adopt',kind:'adopt',name:'Mochi'};
- assert.equal((await pet.call('member',{configVersion:1,command})).status,200);assert.equal(pet.commits,1);
- await pet.call('member',{configVersion:1,command});assert.equal(pet.commits,1,'retry does not commit twice');
+ assert.equal((await pet.call('member',{configVersion:Config.version,command})).status,200);assert.equal(pet.commits,1);
+ await pet.call('member',{configVersion:Config.version,command});assert.equal(pet.commits,1,'retry does not commit twice');
  const backups=load('backup-state');
  for(const [token,status] of [[null,401],['invalid',401],['outsider',403],['member',403]])assert.equal((await backups.call(token,{action:'restore',id:1})).status,status);
  assert.equal((await backups.call(null,{action:'restore',id:1},{'x-heartly-backup-key':'cron-test-token'})).status,403,'cron cannot restore');

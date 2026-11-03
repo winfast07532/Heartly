@@ -50,6 +50,9 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
   let frame=page.frameLocator('#pet-frame');await frame.locator('#pet-name').fill('Mochi');await frame.locator('#adopt-form button').click();await frame.locator('#game').waitFor();
   assert.equal(cloud.data.ptsVal,500,'no sandbox grant');assert.equal(cloud.data.petState.pet.species,'cat');
   assert.equal(await frame.locator('.test-tools').count(),0);
+  assert.equal(await frame.locator('#memory-badges').count(),0);
+  const catBox=await frame.locator('#pet-sprite').boundingBox();assert.ok(Math.abs(catBox.width-catBox.height)<2,'cat frames must stay square');
+  assert.equal(await frame.locator('#toilet').count(),1);
   await frame.locator('#open-settings').click();assert.equal(await frame.locator('#theme-select').isDisabled(),true);await frame.locator('#settings-dialog [data-close]').click();
   let pet=page.frames().find(f=>f.url().includes('/pet/'));
   await pet.evaluate(()=>PetGame.execute('purchase',{itemId:'snack',price:25}));assert.equal(cloud.data.ptsVal,475);
