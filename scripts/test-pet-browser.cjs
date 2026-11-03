@@ -50,6 +50,10 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
   let frame=page.frameLocator('#pet-frame');await frame.locator('#pet-name').fill('Mochi');await frame.locator('#adopt-form button').click();await frame.locator('#game').waitFor();
   assert.equal(cloud.data.ptsVal,500,'no sandbox grant');assert.equal(cloud.data.petState.pet.species,'cat');
   assert.equal(await frame.locator('.test-tools').count(),0);
+  const reactionFrame=page.frames().find(f=>f.url().includes('/pet/'));
+  await reactionFrame.evaluate(()=>PetGame.react('Excited','♡'));
+  assert.equal(await frame.locator('#pet-sprite').evaluate(el=>getComputedStyle(el).opacity),'1','reaction lock must not fade cat');
+  assert.equal(await frame.locator('#pet-speech').evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(0, 0, 0, 0)','reaction must not have a white bubble');
   assert.equal(await frame.locator('#memory-badges').count(),0);
   const catBox=await frame.locator('#pet-sprite').boundingBox();assert.ok(Math.abs(catBox.width-catBox.height)<2,'cat frames must stay square');
   assert.equal(await frame.locator('#kit-select').count(),1);
