@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),C=require('../pet/core.js'),N=require('../pet/notifications.js');
+const now=Date.now();let s=C.transact(C.empty(now),{id:'test_adopt',kind:'adopt',name:'Mochi'},now).state;
+s.pet.needs={hunger:29,happiness:30,cleanliness:15,energy:29.9};
+const before=JSON.stringify(s),checks=N.evaluate(s,now,C);
+assert.deepEqual(checks.filter(x=>x.low).map(x=>x.metric),['hunger','cleanliness','energy']);
+assert.equal(new Set(checks.map(x=>x.tag)).size,4);
+assert.equal(JSON.stringify(s),before,'scan must not write progress');
+s.pet.needs.happiness=29;assert.equal(N.evaluate(s,now,C).filter(x=>x.low).length,4);
+s.pet.vacation=true;assert.deepEqual(N.evaluate(s,now+3600000,C),[]);
+assert.deepEqual(N.evaluate(null,now,C),[]);
+s.pet.vacation=false;s.pet.sleeping=true;s.pet.needs.energy=25;
+assert.equal(N.evaluate(s,now+3600000,C).find(x=>x.metric==='energy').low,false);
+s.pet.sleeping=false;s.pet.needs.hunger=32;
+assert.equal(N.evaluate(s,now+3600000,C).find(x=>x.metric==='hunger').low,true);
+console.log('PASS: independent <30 thresholds, exact boundary, offline decay, sleeping recovery, vacation, no pet, no save mutation.');

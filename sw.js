@@ -42,13 +42,16 @@ self.addEventListener('notificationclick', e => {
   e.notification.close();
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      const target = new URL('index.html', self.registration.scope);
+      const petAlert = e.notification.data?.url === 'index.html?pet=1';
+      if (petAlert) target.searchParams.set('pet', '1');
       for (const client of list) {
-        if (client.url.includes('index.html') || client.url.endsWith('/')) {
-          client.focus();
-          return;
+        if (new URL(client.url).origin === target.origin) {
+          if (petAlert) client.postMessage({type:'heartly-open-pet'});
+          return client.focus();
         }
       }
-      clients.openWindow(self.registration.scope);
+      return clients.openWindow(target.href);
     })
   );
 });

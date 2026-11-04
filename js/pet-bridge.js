@@ -62,3 +62,14 @@
   };
   window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('pet-overlay').hidden)window.closePetGame();});
 })();
+
+// Push taps wait for login and cloud sync before opening Little Home.
+(function(){
+  let requested=new URLSearchParams(location.search).get('pet')==='1',opening=false;
+  navigator.serviceWorker?.addEventListener('message',event=>{if(event.data?.type==='heartly-open-pet')requested=true;});
+  setInterval(async()=>{
+    if(!requested||opening||typeof currentUser==='undefined'||!currentUser||typeof _realDataConfirmed==='undefined'||!_realDataConfirmed)return;
+    requested=false;opening=true;
+    try{await window.openPetGame();const url=new URL(location.href);url.searchParams.delete('pet');history.replaceState(history.state,'',url);}finally{opening=false;}
+  },1000);
+})();

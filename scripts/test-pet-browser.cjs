@@ -80,7 +80,8 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
   await frame.locator('#room-only-exit').click();assert.equal(await pet.evaluate(()=>PetRoomView.active),false);
   await pet.evaluate(()=>{document.getElementById('room-only').requestFullscreen=undefined;return PetRoomView.open();});
   await page.locator('#close-pet').click();assert.equal(await page.locator('#pet-overlay').isHidden(),true);assert.equal(await page.locator('#pet-frame').getAttribute('src'),'about:blank');
-  await page.evaluate(()=>openPetGame());frame=page.frameLocator('#pet-frame');await frame.locator('#game').waitFor();assert.equal(await frame.locator('#balance').textContent(),'450');
+  await page.evaluate(()=>navigator.serviceWorker.dispatchEvent(new MessageEvent('message',{data:{type:'heartly-open-pet'}})));
+  await page.locator('#pet-overlay').waitFor({state:'visible'});frame=page.frameLocator('#pet-frame');await frame.locator('#game').waitFor();assert.equal(await frame.locator('#balance').textContent(),'450');
   // A restore must replace, not merge, pet inventory and wallet.
   await page.evaluate(s=>_applyIncoming(s,'backup-restore',new Date().toISOString()),snapshot);
   await page.waitForTimeout(100);assert.equal(await frame.locator('#balance').textContent(),'475');
