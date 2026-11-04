@@ -10,8 +10,8 @@
     else{
       const choices=[['feed','hunger','A little food would help.','Feed now'],['play','happiness','Your cat would enjoy some company.','Play now'],['clean','cleanliness','Time for a fresh space.','Clean now']].filter(([kind,key])=>p.needs[key]<99.999&&(p.cooldowns[kind]||0)<=now&&(kind!=='play'||p.needs.energy>=C.RULES.play.energy)).sort((a,b)=>{const aMissing=!p.daily.care.includes(a[0]),bMissing=!p.daily.care.includes(b[0]);return Number(bMissing)-Number(aMissing)||p.needs[a[1]]-p.needs[b[1]];});
       if(choices.length){const [kind,key,copy,label]=choices[0];suggestion={title:kind==='feed'?'Something tasty?':kind==='play'?'A little playtime?':'Fresh and cozy?',copy:copy+' '+Math.round(p.needs[key])+'% '+key+'.',label,kind};}
-      else if(p.needs.hunger<85&&(state.quantities.treat||state.quantities.snack)){const itemId=state.quantities.snack?'snack':'treat';suggestion={title:'A little snack?',copy:'Care is resting, but a treat from your collection is available.',label:'Give a treat',kind:'use',itemId};}
-      else suggestion={title:'All cozy for now.',copy:'Your cat is content. Enjoy the room together while care actions rest.',label:'',kind:null};
+      else if(p.needs.hunger<85&&(state.quantities.treat||state.quantities.snack)){const itemId=state.quantities.snack?'snack':'treat';suggestion={title:'A little snack?',copy:'A treat from your collection is available.',label:'Give a treat',kind:'use',itemId};}
+      else suggestion={title:'All cozy for now.',copy:'Your cat is content. Enjoy your room together, or browse the shop for something new.',label:'',kind:null};
     }
     $('care-guide-title').textContent=suggestion.title;$('care-guide-copy').textContent=suggestion.copy;$('care-guide-action').textContent=suggestion.label;$('care-guide-action').hidden=!suggestion.kind;$('care-guide-action').disabled=busy;
   }

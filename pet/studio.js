@@ -15,7 +15,7 @@
    ctx.fillStyle='rgba(0,0,0,.06)';ctx.fillRect(0,330,640,150);
    const placements=[...(state?.placements||[])].sort((a,b)=>a.y+a.h-b.y-b.h);
    for(const p of placements){if(designing&&window.PetDesigner?.editing&&p.id===window.PetDesigner.selectedId)continue;const item=C.CATALOG.find(i=>i.id===p.itemId);if(item)drawSprite(ctx,item,p);}
-   const bowl=image('assets/bowls.png');if(bowl.complete&&bowl.naturalWidth)ctx.drawImage(bowl,0,0,64,64,L.BOWL.x,L.BOWL.y,L.BOWL.w,L.BOWL.h);
+
  }
  function drawRoom(){const state=G.state;if(!state?.pet)return;const canvas=$('room-scene');if(!canvas)return;scene(canvas.getContext('2d'),state,{designing:true});const room=C.CATALOG.find(i=>i.id===state.equipped.theme);document.querySelector('.room-name').textContent=(room?.name||'Your Heartly room').toUpperCase();$('decoration-count').textContent=(state.placements?.length||0)+' decorations';}
  window.PetStudio={drawRoom,drawSprite,image};
@@ -31,7 +31,7 @@
  $('save-room-photo').onclick=async()=>{const button=$('save-room-photo'),state=G.state;if(!state?.pet||button.disabled)return;button.disabled=true;try{
    const photo=document.createElement('canvas');photo.width=640;photo.height=480;const ctx=photo.getContext('2d');ctx.imageSmoothingEnabled=false;
    const kind=state.pet.sleeping?'Sleep':state.pet.vacation?'LayDown':state.pet.xp>=50?'Idle2':'Idle',cat=image('assets/cat/'+kind+'.png');
-   const files=[roomBackground(state),'assets/bowls.png','assets/cat/'+kind+'.png',...(state.placements||[]).map(p=>{const item=C.CATALOG.find(i=>i.id===p.itemId);return item?.sprite?.file||'assets/furniture.png';})];await Promise.all([...new Set(files)].map(file=>image(file).decode().catch(()=>{})));
+   const files=[roomBackground(state),'assets/cat/'+kind+'.png',...(state.placements||[]).map(p=>{const item=C.CATALOG.find(i=>i.id===p.itemId);return item?.sprite?.file||'assets/furniture.png';})];await Promise.all([...new Set(files)].map(file=>image(file).decode().catch(()=>{})));
    scene(ctx,state);if(!cat.naturalWidth)throw Error('The cat art is still loading. Try again.');ctx.drawImage(cat,0,0,32,32,248,254,144,144);
    const shade=ctx.createLinearGradient(0,385,0,480);shade.addColorStop(0,'transparent');shade.addColorStop(1,'rgba(9,4,14,.8)');ctx.fillStyle=shade;ctx.fillRect(0,380,640,100);ctx.fillStyle='#fff';ctx.font='bold 20px system-ui';ctx.fillText(state.pet.name+'’s little home',24,452);ctx.font='12px system-ui';ctx.textAlign='right';ctx.fillText('♥ HEARTLY PET',616,451);
    const data=photo.toDataURL('image/png');if(!data.startsWith('data:image/png;base64,'))throw Error('The room photo could not be created.');const link=document.createElement('a');link.href=data;link.download='little-home-'+(state.pet.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,24)||'cat')+'.png';document.body.append(link);link.click();link.remove();G.toast('Room photo saved to your downloads.');

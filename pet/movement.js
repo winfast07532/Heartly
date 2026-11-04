@@ -6,7 +6,7 @@
   function safe(center,placements=[]){
     if(!Number.isFinite(center)||center<MIN||center>MAX)return false;
     const frame={x:center-L.PET.w/2,y:L.PET.y,w:L.PET.w,h:L.PET.h};
-    return !L.overlaps(frame,L.BOWL)&&!placements.some(p=>L.overlaps(frame,p));
+    return !placements.some(p=>L.overlaps(frame,p));
   }
   function reachable(start,target,placements=[]){
     if(!safe(start,placements))start=CENTER;

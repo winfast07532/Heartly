@@ -27,7 +27,7 @@
   }
   function care(kind,respond){
     const state=G.state;if(!state?.pet||document.getElementById('room-view').hidden)return false;
-    if(kind==='feed'||kind==='use'||kind==='water')return move(L.BOWL.x+L.BOWL.w+L.PET.w/2+L.GAP+10,respond);
+    if(kind==='feed'||kind==='use'||kind==='water')return false;
     if(kind==='play'){
       const toy=state.placements.find(p=>/toy|yarn|mouse/i.test(PetCore.CATALOG.find(i=>i.id===p.itemId)?.category||p.itemId));
       if(toy)return visit(toy,respond);

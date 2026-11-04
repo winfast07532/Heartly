@@ -93,6 +93,15 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
   assert.equal(await frame.locator('#kit-select option').count(),3);
   await frame.locator('[data-care=clean]').click();await page.waitForTimeout(250);
   assert.equal(cloud.data.petState.pet.needs.cleanliness,100);assert.equal(cloud.data.petState.quantities.kit3,0);
+  // Collection actions must use the clicked item, not the Home selector.
+  await reopened.evaluate(()=>PetGame.execute('purchase',{itemId:'fish',price:45}));
+  await reopened.evaluate(()=>{document.getElementById('food-select').value='snack';location.hash='inventory';});
+  await frame.locator('#inventory-grid [data-item=fish] .secondary').click();
+  await page.waitForTimeout(250);
+  assert.equal(cloud.data.petState.quantities.fish,0,'clicked food consumed');
+  assert.equal(cloud.data.petState.quantities.snack,1,'other selected food preserved');
+  assert.equal(await frame.locator('.bowl-sprite').count(),0,'no default bowl element');
+  assert.equal(await reopened.evaluate(()=>PetLayout.explain({x:145,y:390,w:40,h:40},[],null,{zone:'floor'})),'','former bowl area is usable');
   await reopened.evaluate(()=>location.hash='shop');
   await reopened.waitForFunction(()=>[...document.querySelectorAll('.supply-icon')].length>=3&&[...document.querySelectorAll('.supply-icon')].every(i=>i.complete&&i.naturalWidth>0));
   assert.equal(await frame.locator('[data-item=soap]').count(),0);assert.equal(await frame.locator('[data-item=paper]').count(),0);

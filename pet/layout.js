@@ -9,7 +9,7 @@
    if(!['x','y','w','h'].every(k=>Number.isFinite(rect[k]))||rect.w<12||rect.h<12||rect.w>200||rect.h>240)return 'Choose a supported item size.';
    if(rect.x<12||rect.y<52||rect.x+rect.w>628||rect.y+rect.h>450)return 'Keep the whole item inside the room.';
    if(overlaps(rect,PET))return 'Leave this space clear for your cat and its animations.';
-   if(overlaps(rect,BOWL))return 'Leave the food bowl clear.';
+
    if(item&&(item.zone||'floor')==='floor'&&rect.y+rect.h<390)return 'Place floor furniture on the floor, not on the wall.';
    if(item?.zone==='wall'&&rect.y+rect.h>315)return 'Keep wall decorations above the floor.';
    if(placements.some(p=>p.id!==ignoreId&&overlaps(rect,p)))return 'This item would overlap another decoration.';
