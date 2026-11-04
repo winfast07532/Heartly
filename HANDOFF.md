@@ -34,6 +34,8 @@ Repository: `winfast07532/Heartly`, branch `main`. Production: https://heartly10
 2. `b4de3de`: mobile UI polish, default bowl removal, Collection actions consume the clicked item rather than the Home selector.
 3. Current notification change: independent below-30% alerts for hunger, happiness, cleanliness and energy; five-minute server checks; per-device deduplication and recovery rearming; notification taps open Little Home after login/sync.
 
+**Deployment verified:** `8501f90` is published on Netlify (deploy `6aeb7aa3721e671d6da3519b`, ready on 4 November 2026). The following documentation-only commit uses `[skip netlify]`; the live application code remains `8501f90`. The notification worker is version 2 and its five-minute cron is active.
+
 The previous Netlify build for `b4de3de` failed because the Git contributor was unrecognized for a private repository. **A successful Git push is not proof of a successful deployment.** Check the exact latest commit against the published Netlify deploy; see `docs/OPERATIONS.md`.
 
 ## Validation
