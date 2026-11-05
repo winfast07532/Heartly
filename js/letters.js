@@ -126,7 +126,7 @@ function openBuySheet(index, category){
 
   buyPending = {index, category};
 
-  const price = it.price || 1000;
+  const price = it.price ?? 1000;
   const title = it.l.replace('\n',' ');
   const canAfford = ptsVal >= price;
 
@@ -211,7 +211,7 @@ function confirmBuyLetter(){
   const it = ED[category][index];
   if(!it) return;
 
-  const price = it.price || 1000;
+  const price = it.price ?? 1000;
   if(ptsVal < price){ T('❌ Not enough points!'); return; }
 
   // Deduct points
@@ -647,7 +647,11 @@ renderProfileFavs();
   const _origConfirm = window.confirmBuyLetter;
   if(!_origConfirm) return;
   window.confirmBuyLetter = function(){
+    const pending=buyPending;
+    const item=pending&&ED[pending.category]?.[pending.index];
+    const wasLocked=!!item?.lk;
     _origConfirm();
+    if(!wasLocked||item.lk)return;
     setTimeout(()=>{
       showUnlockShimmer();
       showSuccess('🔓', 'Unlocked!', 'rgba(245,200,112,.2)');

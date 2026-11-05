@@ -710,12 +710,6 @@ function spawnConfetti(){
     }
 
     bridgeState.totalScore = (bridgeState.totalScore || 0) + (finalScore || 0);
-    LIFETIME_MILESTONES.forEach(m => {
-      if(!bridgeState.milestones[m.threshold] && bridgeState.totalScore >= m.threshold){
-        bridgeState.milestones[m.threshold] = true;
-        awardToHeartly(m.pts, m.label, '🏆');
-      }
-    });
     saveBridge();
 
     // Report the real session to the main app's persisted state (separate
@@ -724,6 +718,7 @@ function spawnConfetti(){
       const p = window.parent;
       if(p && p !== window && typeof p.reportClickerSession === 'function'){
         p.reportClickerSession(finalScore, isNewBest);
+        p.claimGameMilestones?.('clicker',bridgeState.milestones);
       }
     } catch(e){}
   }

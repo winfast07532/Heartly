@@ -288,7 +288,7 @@ const SHOP_ITEMS = [
   { id:'streak_shield',    cat:'boosts',       ico:'🛡️', name:'Streak Shield',         desc:'If Ana misses a day, her streak is automatically protected. Once per week.',         cost:500,  stateKey:'shopStreakShield'     },
   { id:'daily_bonus',      cat:'boosts',       ico:'⚡', name:'Daily Bonus',            desc:'Unlocks a daily +50 pts tap on Ana\'s home screen. Collect every day.',             cost:900,  stateKey:'shopDailyBonus'      },
   { id:'hot_streak',       cat:'boosts',       ico:'🔥', name:'Hot Streak Bonus',       desc:'When your streak hits 7 days, an automatic +100 pts reward is triggered.',         cost:1000, stateKey:'shopHotStreak'       },
-  { id:'daily_gift_box',   cat:'boosts',       ico:'🎁', name:'Daily Gift Box',         desc:'A mystery box unlocks every 24 hrs — win between +10 and +200 bonus pts.',         cost:1200, stateKey:'shopDailyGiftBox'    },
+  { id:'daily_gift_box',   cat:'boosts',       ico:'🎁', name:'Daily Gift Box',         desc:'A mystery box unlocks once each calendar day — win between +10 and +200 bonus pts.',         cost:1200, stateKey:'shopDailyGiftBox'    },
   { id:'lucky_spin',       cat:'boosts',       ico:'🎰', name:'Lucky Spin',             desc:'A slot-machine daily spin for bonus pts. Could win 50, 100, 200 or even 500 pts.', cost:1600, stateKey:'shopLuckySpin'       },
   // ── RELATIONSHIP ── (the emotional core of the app — highest tier, the big long-term saves)
   { id:'good_night',       cat:'relationship', ico:'🌙', name:'Good Night Mode',        desc:'Robert sets a time. A soft goodnight card appears on Ana\'s screen every night.',  cost:1200, stateKey:'shopGoodNight',      hasConfig:true },

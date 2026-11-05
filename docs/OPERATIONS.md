@@ -57,3 +57,11 @@ Run from `Heartly-publish`. The test mocks backend traffic. Generated screenshot
 The existing six-hour backup job snapshots all `couple_state.data`, including the pet and shared wallet, and mirrors to the private backup repository. Keep this mechanism intact. Notification changes do not require replacing the backup function.
 
 Only perform resets/restores when explicitly requested. A pet-only reset must preserve every other JSON field, including point reconciliation totals, and be verified afterward. Never restore a prototype save over production.
+
+## Safe shared writes and milestone migration
+
+Apply `supabase/sql/safe-state-writes.sql`, `shared-game-rewards.sql`, and the updated `pet-integration.sql`. Publish the frontend, verify the exact deploy, then activate `heartly_require_safe_write` (the commented trigger statement in the SQL). The guard requires old tabs to refresh; service-role pet and backup operations remain supported. Apply `backfill-pet-history.sql` once to reconstruct retained pet ledger entries without changing money.
+
+`heartly_save_state` uses the last confirmed baseline, merges distinct object fields, combines transaction logs, rejects incompatible field/list changes, and keeps the last 100 request receipts. Pet accounting is normalized during merge and reconstructed from authoritative totals. A same-field conflict is intentional protection, not a silent failed save: the UI offers a local JSON download and reload of the latest cloud save. The saved conflict copy survives refresh and is archived when the user loads the cloud version.
+
+Milestone receipts are in `couple_state.data.gameMilestoneReceipts`, so existing full-state backups include them. Do not pay milestones in iframe localStorage code. Legacy receipts are imported without paying again; the migration seeds thresholds already reached by shared lifetime totals.

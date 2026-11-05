@@ -2,7 +2,7 @@
    Prices/rewards: whole points, 0–1000000. Names are labels for finding items. */
 (function(root){
   const config = {
-  "version": 4,
+  "version": 5,
   "dailyReward": 50,
   "xpPerCare": 5,
   "xpDailyCap": 20,

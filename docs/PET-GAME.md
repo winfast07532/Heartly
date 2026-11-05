@@ -12,7 +12,7 @@ The shared save is `public.couple_state`, row `heartly-couple`. Pet progress is 
 
 | File | Responsibility |
 | --- | --- |
-| `pet/config.js` | Editable prices/rewards; currently version 4 |
+| `pet/config.js` | Editable prices/rewards; currently version 5 |
 | `pet/core.js` | Validation, decay, transactions, catalog and migration |
 | `pet/game.js` | UI rendering, selections and actions |
 | `pet/care.css` | Final UI overrides, square/opaque cat frames, readable controls |
@@ -50,3 +50,5 @@ When changing config/core/layout, deploy matching files with the server worker(s
 - Tapping an alert focuses Heartly and requests the pet screen after login/cloud sync. New windows use `index.html?pet=1`.
 
 Delivery bookkeeping lives in `pet_alert_delivery`, separately from gameplay. It is not included in the full-state GitHub backup and contains no game inventory/wallet. Restoring gameplay can rearm needs; a restore is not a restore of past notification delivery.
+
+Offline decay is continuous (no 24-hour elapsed-time cap), with the existing gentle 20% minimum. Pet wallet transactions now also populate main Exchange history and weekly points logs atomically.

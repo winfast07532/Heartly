@@ -237,15 +237,12 @@ var blastLifetimeScore  = 0;
 const STORAGE_KEY = 'heartly_v1';
 let _saveTimer;
 
-function saveState(immediate = false){
-  clearTimeout(_saveTimer);
-  const persist = function(){
-    try {
+function getStateSnapshot(){
       var themeUnlocks = {};
       if(typeof THEMES !== 'undefined'){
         Object.keys(THEMES).forEach(function(k){ themeUnlocks[k] = !!THEMES[k].unlocked; });
       }
-      var s = {
+      return {
         ptsVal: ptsVal,
         petState: petState,
         petWalletTotal: petWalletTotal,
@@ -334,6 +331,16 @@ function saveState(immediate = false){
         achievementRewards: (typeof achievementRewards !== 'undefined') ? achievementRewards : undefined,
         ED: (typeof ED !== 'undefined') ? ED : undefined
       };
+
+}
+window.getStateSnapshot=getStateSnapshot;
+
+function saveState(immediate = false){
+  window.heartlyMarkDirty?.();
+  clearTimeout(_saveTimer);
+  const persist = function(){
+    try {
+      var s = getStateSnapshot();
       // A full device cache must not prevent a valid cloud save (custom pixel
       // pictures can be larger than ordinary letters and game counters).
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }

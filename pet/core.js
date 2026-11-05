@@ -55,7 +55,7 @@
   function nextLevel(xp){return [50,150,300].find(n=>n>xp)||null;}
   function advance(state,now){
     const s=clone(state),p=s.pet;if(!p)return s;
-    now=Math.max(now,p.lastAt);const hours=Math.min(DAY,now-p.lastAt)/HOUR;
+    now=Math.max(now,p.lastAt);const hours=(now-p.lastAt)/HOUR;
     if(!p.vacation){for(const [key,rate] of [['hunger',3],['happiness',2],['cleanliness',2]])p.needs[key]=Math.max(Math.min(p.needs[key],20),p.needs[key]-rate*hours);
       p.needs.energy=p.sleeping?clamp(p.needs.energy+hours*12):Math.max(Math.min(p.needs.energy,20),p.needs.energy-hours);
     }

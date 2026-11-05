@@ -23,7 +23,7 @@ for each row execute function public.heartly_preserve_pet();
 create or replace function public.heartly_pet_context()
 returns jsonb language sql security invoker set search_path = '' as $$
  select jsonb_build_object('petState',data->'petState','balance',data->'ptsVal',
-   'petWalletTotal',coalesce(data->'petWalletTotal','0'::jsonb),'petEarnedTotal',coalesce(data->'petEarnedTotal','0'::jsonb),'updatedAt',updated_at)
+   'txLog',data->'txLog','ptsLog',data->'ptsLog','petWalletTotal',coalesce(data->'petWalletTotal','0'::jsonb),'petEarnedTotal',coalesce(data->'petEarnedTotal','0'::jsonb),'updatedAt',updated_at)
  from public.couple_state where id='heartly-couple';
 $$;
 
@@ -42,6 +42,16 @@ begin
  if wallet_delta > 0 then
    next_data := next_data || jsonb_build_object('totalPtsEarned',coalesce((next_data->>'totalPtsEarned')::numeric,0)+wallet_delta,'petEarnedTotal',coalesce((next_data->>'petEarnedTotal')::numeric,0)+wallet_delta);
  end if;
+ if wallet_delta<>0 then
+   next_data:=jsonb_set(next_data,'{txLog}',jsonb_build_array(jsonb_build_object(
+     'id','pet:'||(next_pet->'pet'->>'id')||':'||(next_pet->>'revision'),'ts',(next_pet->>'updatedAt')::numeric,
+     'title','Little Home: '||coalesce(next_pet->'ledger'->0->>'label','Pet transaction'),'icon','🐾',
+     'amt',case when wallet_delta>0 then '+' else '' end||wallet_delta::text,'type',case when wallet_delta>0 then 'earn' else 'spend' end))||coalesce(next_data->'txLog','[]'));
+   next_data:=jsonb_set(next_data,'{ptsLog}',coalesce(next_data->'ptsLog','[]')||jsonb_build_array(jsonb_build_object(
+     'id','pet:'||(next_pet->'pet'->>'id')||':'||(next_pet->>'revision'),'ts',(next_pet->>'updatedAt')::numeric,'amt',wallet_delta)));
+ end if;
+ next_data:=jsonb_set(next_data,'{txLog}',(select coalesce(jsonb_agg(value),'[]') from (select value from jsonb_array_elements(coalesce(next_data->'txLog','[]')) order by (value->>'ts')::numeric desc limit 100)t));
+ next_data:=jsonb_set(next_data,'{ptsLog}',(select coalesce(jsonb_agg(value),'[]') from jsonb_array_elements(coalesce(next_data->'ptsLog','[]')) where (value->>'ts')::numeric>=extract(epoch from now()-interval '30 days')*1000));
  update public.couple_state set data=next_data,updated_by='pet-game',updated_at=clock_timestamp() where id=current_row.id;
  return public.heartly_pet_context();
 end $$;

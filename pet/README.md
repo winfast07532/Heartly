@@ -4,13 +4,13 @@ Robert and Ana share one pink-ribbon cat, room, collection and Heartly points ba
 
 ## Change prices and rewards
 
-Edit **pet/config.js**. `dailyReward` controls the daily feed/play/clean reward; `care` contains cooldown hours and gains; `xpPerCare` and `xpDailyCap` control bond progress. `items` lists every item ID, readable name and price. Edit the price, not the ID. All original sprite items are included. Changing a price never removes something already owned. Supply `gain` sets hunger or cleanliness restored (1–100). Kits default to +20/+50/+90 cleanliness. Cat toys restore +20/+40/+60 happiness and are consumed once per play. No care action has a cooldown; full needs reject consumption. Food and play-item artwork uses crops from the supplied Furnitures,Playgrounds,Toys.png sheet. The ? button next to Settings explains the game. Legacy toilet rolls convert to Kit 1 and shampoo bottles to Kit 2, once per saved unit. Purchased food and kits can be used whenever the relevant need is below full; no old free-care cooldown is carried forward.
+Edit **pet/config.js**. `dailyReward` controls the daily feed/play/clean reward; `care` retains legacy fields; item `gain` values control care effects and action cooldowns remain disabled; `xpPerCare` and `xpDailyCap` control bond progress. `items` lists every item ID, readable name and price. Edit the price, not the ID. All original sprite items are included. Changing a price never removes something already owned. Supply `gain` sets hunger, happiness or cleanliness restored (1–100). Kits default to +20/+50/+90 cleanliness. Cat toys restore +20/+40/+60 happiness and are consumed once per play. No care action has a cooldown; full needs reject consumption. Food and play-item artwork uses crops from the supplied Furnitures,Playgrounds,Toys.png sheet. The ? button next to Settings explains the game. Legacy toilet rolls convert to Kit 1 and shampoo bottles to Kit 2, once per saved unit. Purchased food and kits can be used whenever the relevant need is below full; no old free-care cooldown is carried forward.
 
 Increment `version` whenever changing rules. Publish the site AND redeploy `pet-action` with this same file. A mismatched version is rejected instead of charging an outdated price. The browser cannot set the server’s price or mint points.
 
 From the repository root, after signing in to the Supabase CLI:
 
-    supabase functions deploy pet-action --remote=kwtcdaapoqknerwvplze --use-api
+    supabase functions deploy pet-action --project-ref kwtcdaapoqknerwvplze --use-api
 
 The function requires a verified Supabase user session and checks the confirmed email against the private account allowlist. No service key belongs in this repository. Then commit and push to main to publish the frontend through Netlify.
 
@@ -29,3 +29,5 @@ Create an account using an approved email, confirm the email, then sign in. The 
 Live actions require connectivity. Reading the last cached room is allowed; spending, rewards and care are never queued speculatively offline. Fullscreen uses native fullscreen where supported and an in-game room-only view on iPhone.
 
 Run `node scripts/test-pet.cjs` for rule/config tests and `node scripts/test-pet-auth.cjs` on Node 22.6+ for endpoint authorization checks. `scripts/test-pet-browser.cjs` runs the integrated browser regression with Playwright (set `PLAYWRIGHT_MODULE` and `CHROME_PATH` when using an existing local installation). These tests mock cloud traffic and never change real progress.
+
+Needs decay continuously while away, with a gentle floor of 20%. Vacation pauses decay. Deploy matching shared rules to both `pet-action` and `pet-notifications`. Prices and the 50-point daily reward are intentionally unchanged: Little Home is a points sink.

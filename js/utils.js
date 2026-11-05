@@ -18,7 +18,7 @@ function updateGoodnight(){
     return;
   }
 
-  const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD, local
+  const todayStr = new Date().toLocaleDateString('en-CA', {timeZone:'Europe/Bucharest'}); // YYYY-MM-DD, local
   if(dateStr <= todayStr){
     if(lbl) lbl.textContent = 'Letter available';
     el.textContent = 'Tonight 🌹';
@@ -472,7 +472,7 @@ window.setupSwipeDismiss = setupSwipeDismiss;
 
     const gridItems = items.map((it,i)=>{
       const origIdx = it._origIdx !== undefined ? it._origIdx : i;
-      const price   = it.price || 1000;
+      const price   = it.price ?? 1000;
       const isSecret = it.secret && !it.lk;
 
       let ch;

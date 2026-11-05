@@ -93,7 +93,7 @@ function renderRobGoodnight(){
     statusEl.textContent = 'Nothing scheduled — Ana\'s home card will say so';
     return;
   }
-  const todayStr = new Date().toLocaleDateString('en-CA');
+  const todayStr = new Date().toLocaleDateString('en-CA', {timeZone:'Europe/Bucharest'});
   if(dateStr <= todayStr){
     statusEl.textContent = '🌙 Live now — Ana sees "Letter available, Tonight"';
   } else {
@@ -114,7 +114,7 @@ function _saveGoodnightDate(dateStr){
   // this one — sent no notification of its own. Fixed by triggering an
   // accurate, one-time push right here, the moment this date actually
   // goes live, completely decoupled from shopGoodNight.
-  const todayStr = new Date().toLocaleDateString('en-CA');
+  const todayStr = new Date().toLocaleDateString('en-CA', {timeZone:'Europe/Bucharest'});
   const wasLive = !!(goodnightLetterNextDate && goodnightLetterNextDate <= todayStr);
   goodnightLetterNextDate = dateStr || null;
   const isLiveNow = !!(goodnightLetterNextDate && goodnightLetterNextDate <= todayStr);
@@ -136,7 +136,7 @@ function dvSetGoodnightLetter(){
 window.dvSetGoodnightLetter = dvSetGoodnightLetter;
 
 function dvGoodnightTonight(){
-  _saveGoodnightDate(new Date().toLocaleDateString('en-CA'));
+  _saveGoodnightDate(new Date().toLocaleDateString('en-CA', {timeZone:'Europe/Bucharest'}));
   T('🌙 Marked ready for tonight');
 }
 window.dvGoodnightTonight = dvGoodnightTonight;

@@ -791,12 +791,6 @@ function equipSkin(category, id){
     }
 
     bridgeState.totalScore = (bridgeState.totalScore || 0) + (finalScore || 0);
-    LIFETIME_MILESTONES.forEach(m => {
-      if(!bridgeState.milestones[m.threshold] && bridgeState.totalScore >= m.threshold){
-        bridgeState.milestones[m.threshold] = true;
-        awardToHeartly(m.pts, m.label, '🏆');
-      }
-    });
     saveBridge();
 
     // Report games-played/best-score/lifetime-score into the parent app —
@@ -806,6 +800,7 @@ function equipSkin(category, id){
       const p = window.parent;
       if(p && p !== window && typeof p.reportBlastSession === 'function'){
         p.reportBlastSession(finalScore, isNewBest);
+        p.claimGameMilestones?.('blast',bridgeState.milestones);
       }
     } catch(e){}
   }

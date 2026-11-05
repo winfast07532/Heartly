@@ -28,6 +28,20 @@ let _lastPullTime = 0;
 let _initPromise = null;
 let _isPushing = false;
 let _pushQueued = false; // was: the actual stale stateObj — see _flushPendingPushIfAny for why that was unsafe
+let _conflictNoticeShown=false;
+let _syncBase=null,_syncDirty=false,_editVersion=0,_syncConflict=false,_pendingStateWrite=null;
+window.heartlyMarkDirty=()=>{_syncDirty=true;_editVersion++;};
+function showSaveConflict(snapshot,message){
+  _syncConflict=true;
+  try{localStorage.setItem('heartly_unsynced_conflict',JSON.stringify({at:Date.now(),data:snapshot,message}));}catch(_){}
+  let box=document.getElementById('save-conflict');
+  if(!box){box=document.createElement('div');box.id='save-conflict';box.setAttribute('role','alert');box.style.cssText='position:fixed;bottom:90px;left:16px;right:16px;z-index:99999;padding:16px;border-radius:14px;background:#321727;color:white;border:1px solid #e05578;font:14px/1.5 system-ui';document.body.append(box);}
+  box.replaceChildren();const text=document.createElement('p');text.textContent='Another device changed the same information. Your local changes are kept here; cloud data was not overwritten.';
+  const download=document.createElement('button');download.textContent='Download my local copy';download.onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({data:snapshot},null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='heartly-unsynced-changes.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+  const refresh=document.createElement('button');refresh.textContent='Load latest cloud save';refresh.onclick=async()=>{_syncConflict=false;_syncDirty=false;_pendingStateWrite=null;_pushQueued=false;clearTimeout(_saveTimer);_lastAppliedUpdatedAt=null;try{localStorage.setItem('heartly_conflict_archive',localStorage.getItem('heartly_unsynced_conflict')||'');localStorage.removeItem('heartly_unsynced_conflict');}catch(_){}await _pullRemoteState(true);box.remove();};
+  box.append(text,download,refresh);
+}
+
 
 // Flushes any push that got queued (via pushRemoteState) while we
 // didn't yet know what was really in the cloud.
@@ -182,6 +196,7 @@ async function _pullRemoteState(force = false){
       console.log('[Heartly sync] pulled remote state, last updated by', data.updated_by || '(unknown)');
       _applyIncoming(data.data, data.updated_by, data.updated_at);
       _realDataConfirmed = true;
+      if(!_conflictNoticeShown){_conflictNoticeShown=true;try{const copy=JSON.parse(localStorage.getItem('heartly_unsynced_conflict')||'null');if(copy?.data)showSaveConflict(copy.data,copy.message);}catch(_){}}
       updateSyncIndicator('synced');
       _flushPendingPushIfAny();
     } else {
@@ -218,14 +233,6 @@ function _subscribeToRemote(){
           return;
         }
 
-        // Skip our OWN write echoing back.
-        const sameUser = payload.new.updated_by && typeof currentUser !== 'undefined' && payload.new.updated_by === currentUser;
-        const justPushed = (Date.now() - _lastPushedAt) < 4000;
-        if(sameUser && justPushed){
-          console.log('[Heartly sync] ignoring echo of our own write');
-          return;
-        }
-
         console.log('[Heartly sync] incoming remote change from', payload.new.updated_by || '(unknown)');
         updateSyncIndicator('syncing');
         _applyIncoming(incoming, payload.new.updated_by, payload.new.updated_at);
@@ -243,32 +250,17 @@ function _subscribeToRemote(){
 }
 
 function _applyIncoming(dataBlob, updatedBy, updatedAt){
-  // BUG (fixed) — this is the real, deterministic cause of "every
-  // refresh reverts to old data." This function used to bail out
-  // whenever _isLocalDirty()/_isPushing/_pushQueued was true —
-  // intended to avoid clobbering an in-flight local edit with a
-  // stale echo of our own write. But _isLocalDirty() goes true for
-  // 8 seconds after ANY saveState() call, and checkAndUpdateStreak()
-  // calls saveState() on every single login, right after this sync
-  // step. So the sequence was: pull succeeds → tries to apply the
-  // real cloud data → blocked, because a save from moments earlier
-  // was still "dirty" → the real data never actually lands in
-  // memory → the queued save (still holding stale/default values)
-  // gets flushed right after and pushed to the cloud, overwriting
-  // the correct data that had just arrived but was silently
-  // dropped. This happened on very close to every login, not as a
-  // rare race. The actual echo-prevention this was trying to
-  // provide already exists correctly, upstream: _pullRemoteState
-  // compares the pulled updated_at against _lastAppliedUpdatedAt
-  // and skips re-processing our own just-pushed write. That's the
-  // right mechanism — genuinely fresh cloud data should always be
-  // applied, full stop.
+  if(_realDataConfirmed&&updatedBy!=='backup-restore'&&(_syncDirty||_isPushing||_syncConflict)&&updatedBy!=='pet-game')return;
+  if(updatedBy==='backup-restore'){_syncDirty=false;_syncConflict=false;_pendingStateWrite=null;document.getElementById('save-conflict')?.remove();}
+
+  // Apply confirmed cloud data only when it cannot replace pending edits.
+  // Pending edits are merged by the row-locked save RPC; pet deltas remain live.
   _applyingRemote = true;
   try {
     const petOnly=updatedBy==='pet-game' && _realDataConfirmed && typeof window.petCloudAcknowledged==='function';
     if(petOnly){
       window.petCloudAcknowledged(dataBlob);
-    }else applyState(dataBlob);
+    }else {applyState(dataBlob);_syncBase=structuredClone(dataBlob);if(!_realDataConfirmed)_syncDirty=false;}
     window.dispatchEvent(new Event('heartly-pet-state'));
     if(!petOnly && typeof window.pixelArtCloudReceived === 'function') window.pixelArtCloudReceived(dataBlob.pixelArtState);
     const cached=petOnly?Object.assign(JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}'),{petState,petWalletTotal,petEarnedTotal,ptsVal,totalPtsEarned}):dataBlob;
@@ -310,7 +302,7 @@ function _applyIncoming(dataBlob, updatedBy, updatedAt){
 
 // Called by state.js's saveState() every time it writes to localStorage
 async function pushRemoteState(stateObj){
-  if(!_syncReady || _applyingRemote) return;
+  if(!_syncReady || _applyingRemote || _syncConflict) return false;
   if(!_realDataConfirmed){
     // BUG (fixed): this used to check _initialSyncCompleted, which a
     // timed-out (not actually successful) pull could also set — see
@@ -330,33 +322,32 @@ async function pushRemoteState(stateObj){
   _isPushing = true;
   _lastPushedAt = Date.now();
   updateSyncIndicator('syncing');
-  const nowStr = new Date().toISOString();
-  
+  const version=_editVersion;
+  const request=_pendingStateWrite||{base_data:_syncBase||{},next_data:structuredClone(stateObj),request_id:crypto.randomUUID()};
+  _pendingStateWrite=request;
   try {
-    const { data: savedRow, error } = await _sb
-      .from(SYNC_TABLE)
-      .upsert({
-        id: SYNC_ROW_ID,
-        data: stateObj,
-        updated_by: (typeof currentUser !== 'undefined' ? currentUser : null),
-        updated_at: nowStr,
-      }).select('data,updated_at').single();
+    const {data:savedRow,error}=await _sb.rpc('heartly_save_state',request);
     if(error){
-      console.warn('[Heartly sync] push FAILED —', error.message, error);
-      updateSyncIndicator('offline');
-      if(error.message?.includes('HEARTLY_REFRESH_REQUIRED') && typeof T==='function') T('Refresh Heartly to keep your pet and points in sync.');
-      return false;
-    } else {
-      if(savedRow?.data && typeof window.petCloudAcknowledged==='function') window.petCloudAcknowledged(savedRow.data);
-      console.log('[Heartly sync] pushed state to cloud ✓');
-      _lastAppliedUpdatedAt = nowStr; // this IS the real echo guard: _pullRemoteState
-      // compares an incoming updated_at against this value and skips
-      // re-processing our own just-pushed write. That's sufficient on
-      // its own — no separate "dirty" window is needed on top of it.
-      if(typeof window.pixelArtCloudAcknowledged === 'function') window.pixelArtCloudAcknowledged(stateObj.pixelArtState);
-      updateSyncIndicator('synced');
-      return true;
+      if(error.message?.includes('SAVE_CONFLICT')){_pendingStateWrite=null;showSaveConflict(getStateSnapshot(),error.message);}
+      updateSyncIndicator('offline');return false;
     }
+    if(!savedRow?.data)throw Error('Save response is incomplete');
+    _pendingStateWrite=null;
+    const current=getStateSnapshot();
+    const newer=_editVersion!==version||JSON.stringify(request.next_data)!==JSON.stringify(stateObj);
+    let display=savedRow.data;
+    if(newer){try{display=HeartlyMerge.state(request.next_data,current,savedRow.data);}catch(e){_syncBase=structuredClone(savedRow.data);showSaveConflict(current,e.message);return false;}}
+    if((current.petState?.revision||0)>(display.petState?.revision||0)){
+      display={...display,petState:current.petState,ptsVal:display.ptsVal+current.petWalletTotal-(display.petWalletTotal||0),totalPtsEarned:display.totalPtsEarned+current.petEarnedTotal-(display.petEarnedTotal||0),petWalletTotal:current.petWalletTotal,petEarnedTotal:current.petEarnedTotal,txLog:HeartlyMerge.merge([],display.txLog||[],current.txLog||[],'txLog'),ptsLog:HeartlyMerge.merge([],display.ptsLog||[],current.ptsLog||[],'ptsLog')};
+    }
+    _syncBase=structuredClone(savedRow.data);_lastAppliedUpdatedAt=savedRow.updated_at;
+    _applyingRemote=true;try{applyState(display);localStorage.setItem(LOCAL_KEY,JSON.stringify(display));}finally{_applyingRemote=false;}
+    _syncDirty=newer;_pushQueued=newer;
+    if(typeof window.pixelArtCloudAcknowledged==='function')window.pixelArtCloudAcknowledged(savedRow.data.pixelArtState);
+    window.dispatchEvent(new Event('heartly-pet-state'));
+    if(typeof refreshPtsChg==='function')refreshPtsChg();if(typeof renderTxHistory==='function')renderTxHistory();
+    const balance=document.getElementById('pts-display');if(balance)balance.textContent=Math.floor(ptsVal).toLocaleString();
+    updateSyncIndicator('synced');return true;
   } catch(e){
     console.warn('[Heartly sync] push error —', e);
     updateSyncIndicator('offline');
@@ -366,7 +357,7 @@ async function pushRemoteState(stateObj){
     // Same staleness fix as _flushPendingPushIfAny: re-run saveState()
     // fresh rather than replaying the stateObj captured whenever this
     // call started queuing.
-    if(_pushQueued){
+    if(_pushQueued&&!_syncConflict){
       _pushQueued = false;
       setTimeout(() => { if(typeof saveState === 'function') saveState(); }, 50);
     }
@@ -385,3 +376,16 @@ async function _pushLocalNow(){
 
 window.initSync = initSync;
 window.pushRemoteState = pushRemoteState;
+
+// Milestone receipts and bonuses are committed once under the shared row lock.
+let _milestoneQueue=Promise.resolve();
+window.claimGameMilestones=function(game,legacy){
+  _milestoneQueue=_milestoneQueue.then(async()=>{
+    if(await saveState(true)!==true)return;
+    const {data,error}=await _sb.rpc('heartly_claim_game_milestones',{game_name:game,legacy_claims:legacy||{}});
+    if(error){T('Milestone reward could not sync. It will be retried next time you play.');return;}
+    _applyIncoming(data.data,'game-milestone',data.updated_at);
+    if(data.awarded)T('🏆 +'+data.awarded+' points — shared game milestone!');
+  }).catch(error=>console.warn('Milestone sync:',error));
+  return _milestoneQueue;
+};

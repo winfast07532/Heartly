@@ -1,6 +1,6 @@
 # Heartly — start here
 
-Last updated: **4 November 2026**, Europe/Bucharest.
+Last updated: **5 November 2026**, Europe/Bucharest.
 
 This is the production Heartly app, including **Little Home**, a shared cat game. Read this file, `docs/PET-GAME.md`, and `docs/OPERATIONS.md` before changing it. Older prototype notes may describe behavior that no longer exists.
 
@@ -45,3 +45,15 @@ Run the relevant scripts in `scripts/`: `test-pet.cjs`, `test-play.cjs`, `test-c
 The integrated browser test uses mocked cloud requests; it does not spend real points. It covers login dismissal, adoption, shared wallet, lost-response retries, offline errors, responsive widths, fullscreen exit, restore, care kits and correct Collection consumption. It generates two screenshots in `scripts/`; inspect/remove those before committing.
 
 No framework or build-system migration is needed. Follow `claude.md`: plain HTML/CSS/JavaScript, preserve working features, avoid broad rewrites.
+
+## Audit fixes — 5 November
+
+The user explicitly wants Little Home to cost points, not generate income. Keep all prices and rewards unchanged: the cheapest care cycle costs 70 and rewards 50.
+
+- Normal saves now use `heartly_save_state(base_data,next_data,request_id)`: row-locked three-way merge, retry receipts and explicit conflicts. The browser keeps a downloadable local conflict copy; it does not overwrite the cloud. Direct legacy writes are blocked after publishing the compatible frontend. Never revert to whole-row upserts.
+- `js/state-merge.js` mirrors the server merge rules. Pet fields and shared milestone receipts are protected. Simultaneous changes to the same list/field can require manual reconciliation; separate fields merge automatically.
+- Pet decay now continues beyond 24 hours, still with a 20% floor. Config version is **5**. Both pet functions must carry the same core/config.
+- Milestones use `heartly_claim_game_milestones`; existing lifetime thresholds are marked already claimed without paying again. Session payouts and all milestone amounts remain unchanged.
+- Pet wallet events also write main transaction and weekly logs. Retained historical ledger entries are backfilled without awarding or refunding points.
+- Zero prices use a missing-value fallback; failed purchases no longer show success. Goodnight eligibility uses Bucharest dates; Gift Box says once per calendar day.
+- Added `scripts/test-audit-fixes.cjs` and `scripts/test-app-saves.cjs`. Database tests use transactions that roll back all simulated data changes.

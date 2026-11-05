@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const root=path.resolve(__dirname,'..'),C=require(root+'/pet/core.js');
+const root=path.resolve(__dirname,'..'),C=require(root+'/pet/core.js'),M=require(root+'/js/state-merge.js');
 const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 (async()=>{
  const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH});
@@ -12,7 +12,7 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
    if(u.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'application/javascript',body:`window.supabase={createClient(){
      return {
        auth:{async getSession(){return {data:{session:window.__signedOut?null:{access_token:'verified-test-session'}}}},async signOut(){window.__signedOut=true;return {}},async signInWithPassword(){window.__signedOut=false;return {data:{session:{access_token:'verified-test-session'}}}}},
-       async rpc(){return {data:'ana',error:null}},
+       async rpc(name,args){if(name==='heartly_save_state')return (await fetch('/__save',{method:'POST',body:JSON.stringify(args)})).json();return {data:'ana',error:null}},
        from(){return {
          select(){return this},eq(){return this},
          async maybeSingle(){return (await fetch('/__db')).json()},
@@ -32,6 +32,10 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
     }catch(e){return route.fulfill({status:400,json:{error:e.message}});}
    }
    if(u.hostname!=='127.0.0.1')return route.abort();
+   if(u.pathname==='/__save'){
+    const args=JSON.parse(route.request().postData());
+    try{if(!cloud.data.stateWriteReceipts?.[args.request_id]){cloud.data=M.state(args.base_data,args.next_data,cloud.data);cloud.data.stateWriteReceipts={...cloud.data.stateWriteReceipts,[args.request_id]:Date.now()};cloud.updated_at=new Date().toISOString();}return route.fulfill({json:{data:cloud,error:null}});}catch(e){return route.fulfill({json:{data:null,error:{message:e.message}}});}
+   }
    if(u.pathname==='/__db'){
     if(route.request().method()==='POST'){
      const next=JSON.parse(route.request().postData());next.data.ptsVal+=cloud.data.petWalletTotal-(next.data.petWalletTotal||0);next.data.petState=cloud.data.petState;next.data.petWalletTotal=cloud.data.petWalletTotal;cloud=next;

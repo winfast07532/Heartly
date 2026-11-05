@@ -9,6 +9,10 @@
     const total=Number(data.petWalletTotal||0);
     ptsVal+=total-petWalletTotal;petWalletTotal=total;petState=data.petState||null;
     const earned=Number(data.petEarnedTotal||0);totalPtsEarned+=earned-petEarnedTotal;petEarnedTotal=earned;
+    if(data.txLog)txLog=HeartlyMerge.merge([],txLog,data.txLog,'txLog');
+    if(data.ptsLog)ptsLog=HeartlyMerge.merge([],ptsLog,data.ptsLog,'ptsLog');
+    if(typeof renderTxHistory==='function')renderTxHistory();
+    if(typeof refreshPtsChg==='function')refreshPtsChg();
     const el=document.getElementById('pts-display');if(el)el.textContent=Math.floor(ptsVal).toLocaleString();
     notify();
   };
