@@ -17,4 +17,5 @@ begin
  select coalesce(jsonb_agg(value order by (value->>'ts')::numeric desc),'[]') into tx from (select value from jsonb_array_elements(tx) order by (value->>'ts')::numeric desc limit 100)t;
  select coalesce(jsonb_agg(value),'[]') into pts from jsonb_array_elements(pts) where (value->>'ts')::numeric>=extract(epoch from now()-interval '30 days')*1000;
  update public.couple_state set data=data||jsonb_build_object('txLog',tx,'ptsLog',pts),updated_at=clock_timestamp(),updated_by='pet-history' where id=r.id;
+  if (select data-'txLog'-'ptsLog' from public.couple_state where id=r.id) is distinct from (r.data-'txLog'-'ptsLog') then raise exception 'History backfill changed gameplay data'; end if;
 end $$;

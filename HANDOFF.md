@@ -1,6 +1,6 @@
 # Heartly — start here
 
-Last updated: **5 November 2026**, Europe/Bucharest.
+Last updated: **6 November 2026**, Europe/Bucharest.
 
 This is the production Heartly app, including **Little Home**, a shared cat game. Read this file, `docs/PET-GAME.md`, and `docs/OPERATIONS.md` before changing it. Older prototype notes may describe behavior that no longer exists.
 
@@ -57,3 +57,9 @@ The user explicitly wants Little Home to cost points, not generate income. Keep 
 - Pet wallet events also write main transaction and weekly logs. Retained historical ledger entries are backfilled without awarding or refunding points.
 - Zero prices use a missing-value fallback; failed purchases no longer show success. Goodnight eligibility uses Bucharest dates; Gift Box says once per calendar day.
 - Added `scripts/test-audit-fixes.cjs` and `scripts/test-app-saves.cjs`. Database tests use transactions that roll back all simulated data changes.
+
+## Completed rollout — 6 November 2026
+
+Production application commit `3201a93` is verified ready on Netlify, deploy `6aecc44b5efe99c37040ffec` (published 5 November). The database safe-write guard was activated on 6 November after verifying that deployment. Authenticated safe saves passed a rolled-back test; legacy direct saves were rejected as intended. Retained pet ledger history was backfilled with an assertion that all non-history fields stayed unchanged. All prices and rewards remain unchanged. Existing open tabs must refresh.
+
+Pet action worker: version 7. Pet notification worker: version 3. Shared pet config: version 5. The final rollout-record commit changes documentation/SQL safety checks only and skips Netlify; production app code remains `3201a93`.
