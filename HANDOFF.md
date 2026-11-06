@@ -63,3 +63,8 @@ The user explicitly wants Little Home to cost points, not generate income. Keep 
 Production application commit `3201a93` is verified ready on Netlify, deploy `6aecc44b5efe99c37040ffec` (published 5 November). The database safe-write guard was activated on 6 November after verifying that deployment. Authenticated safe saves passed a rolled-back test; legacy direct saves were rejected as intended. Retained pet ledger history was backfilled with an assertion that all non-history fields stayed unchanged. All prices and rewards remain unchanged. Existing open tabs must refresh.
 
 Pet action worker: version 7. Pet notification worker: version 3. Shared pet config: version 5. The final rollout-record commit changes documentation/SQL safety checks only and skips Netlify; production app code remains `3201a93`.
+
+
+## Screen fixes — 6 November 2026
+
+Fixed the seven confirmed screen-audit findings and pet wording/supply guidance. Date/time choices now persist per device and format date-bearing UI/new messages; legacy preformatted records remain readable unchanged. Favourites start empty on fresh state, without modifying saved favourites. Economy unchanged. New regression: scripts/test-screen-fixes.cjs. Pet-action deployed version 8 (JWT verification retained). No schema migration, reset or backup-format change.

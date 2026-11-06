@@ -555,12 +555,7 @@ document.getElementById('MOD').addEventListener('click', e=>{
 /* ═══════════════════════════════════
    FAVOURITES SYSTEM
 ═══════════════════════════════════ */
-// favourites seeded below
-favourites = [
-  {title:'Missing Your Laugh', from:'From Robert', body:'There are moments in every ordinary day — a misheard lyric, a clumsy coincidence, something small and weightless — when my first instinct is still to turn and tell you.<br><br>I miss your laugh specifically. Not just laughter — <em>yours</em>. The way it starts reluctant, like it\'s trying to stay small, and then escapes you entirely.<br><br>Save this for a quiet evening. Read it slowly. You deserve that unhurried kind of moment.', sig:'— Always yours, Robert 🌹', savedDate:'May 15'},
-  {title:'Counting Stars', from:'From Robert', body:'Last night I counted three stars before the clouds came. Three felt like enough.<br><br>The first I named after your courage — the quiet kind that simply shows up. The second, your kindness. The third — the sound of my name in your voice. The specific way you say it. Like it matters.<br><br>Three stars. More than enough.', sig:'— Under the same sky, Robert ✨', savedDate:'May 12'},
-  {title:'Saturday Morning', from:'From Robert', body:'Saturday mornings used to feel like waiting for something that never quite arrived.<br><br>Now they feel like potential. Like the specific kind of quiet that\'s not empty — it\'s holding its breath.<br><br>Somewhere across the distance you\'re doing something ordinary. And somehow that\'s enough to make Saturday mornings feel like the best part of the week.', sig:'— Thinking of you always, Robert ☀️', savedDate:'May 10'},
-];
+// Favourites start empty in state.js; saved favourites are restored by sync.
 
 function saveToFavourites(){
   if(!currentLetter) return;
@@ -569,8 +564,8 @@ function saveToFavourites(){
     T('♥ Already in your favourites!');
     return;
   }
-  const today = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-  favourites.unshift({...currentLetter, savedDate: today});
+  const today = HeartlyFormat.date(new Date());
+  favourites.unshift({...currentLetter, savedDate: today, savedAt: Date.now()});
   T('♥ Saved to Favourites!');
   // Update button
   const favBtn = document.getElementById('fav-btn');
@@ -600,7 +595,7 @@ function renderProfileFavs(){
       <div class="fav-ico" style="background:${bg}">${icon}</div>
       <div style="flex:1">
         <div data-no-iconify style="font-size:13px;font-weight:700;color:#fff">"${f.title}"</div>
-        <div style="font-size:11px;color:var(--tx2);margin-top:2px">From Robert · Saved ${f.savedDate}</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:2px">From Robert · Saved ${f.savedAt ? HeartlyFormat.date(f.savedAt) : f.savedDate}</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </div>`;
@@ -699,8 +694,8 @@ function pickReaction(title, emoji, label){
     T('Reaction removed');
   } else {
     var now = new Date();
-    var time = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    match.reaction = {emoji:emoji, label:label, time:'Today, ' + time};
+    var time = HeartlyFormat.time(now);
+    match.reaction = {emoji:emoji, label:label, time:'Today, ' + time, at:now.getTime()};
     showSuccess(emoji, label, 'rgba(224,85,120,.15)');
     T(emoji + ' ' + label + '!');
   }

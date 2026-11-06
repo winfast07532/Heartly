@@ -62,6 +62,10 @@ const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css'
   const catBox=await frame.locator('#pet-sprite').boundingBox();assert.ok(Math.abs(catBox.width-catBox.height)<2,'cat frames must stay square');
   assert.equal(await frame.locator('#kit-select').count(),1);
   assert.equal(await frame.locator('#toy-select').count(),1);
+  assert.equal(await frame.locator('#care-guide-action').textContent(),'Visit the shop');
+  await frame.locator('#care-guide-action').click();
+  await frame.locator('#shop-view').waitFor({state:'visible'});
+  await page.frames().find(f=>f.url().includes('/pet/')).evaluate(()=>location.hash='room');
   await frame.locator('#open-help').click();await frame.locator('#help-dialog').waitFor();
   assert.ok((await frame.locator('#help-dialog').textContent()).includes('single-use cat toys'));
   await frame.locator('#help-dialog .dialog-x').click();

@@ -65,3 +65,12 @@ Apply `supabase/sql/safe-state-writes.sql`, `shared-game-rewards.sql`, and the u
 `heartly_save_state` uses the last confirmed baseline, merges distinct object fields, combines transaction logs, rejects incompatible field/list changes, and keeps the last 100 request receipts. Pet accounting is normalized during merge and reconstructed from authoritative totals. A same-field conflict is intentional protection, not a silent failed save: the UI offers a local JSON download and reload of the latest cloud save. The saved conflict copy survives refresh and is archived when the user loads the cloud version.
 
 Milestone receipts are in `couple_state.data.gameMilestoneReceipts`, so existing full-state backups include them. Do not pay milestones in iframe localStorage code. Legacy receipts are imported without paying again; the migration seeds thresholds already reached by shared lifetime totals.
+
+
+## Screen-audit corrections — 6 November 2026
+
+Date/time display preferences are local to each device, persisted as heartly.dateFormat and heartly.timeFormat. Calendar-day keys remain Bucharest-based and unchanged. New messages/favourites include timestamps for reformatting; legacy display-only date strings are preserved rather than guessed. Existing favourites are never deleted; only the default example seeding was removed. Both Profile read counters now use unlocked, read Explore content.
+
+The locked-letter preview preference controls the purchase-sheet preview; its label now explicitly says so. Background privacy blur is not screenshot blocking. Favourites do not award points. All prices, rewards and pet gains remain unchanged; only actual capped care gain is reported. Pet guide routes missing-supply actions to the shop and chooses owned supplies. Water is explicitly cosmetic. Deploy pet-action with the updated core.js; no database migration or reset is needed.
+
+Regression: scripts/test-screen-fixes.cjs plus existing app-save, pet-browser, care/play and notification suites.

@@ -346,7 +346,7 @@
         </div>
         <div class="prof-ach-preview" onclick="go('logs');closeProf()">
           <div class="prof-ach-icons" id="prof-ach-icons"><!-- filled by JS --></div>
-          <div class="prof-ach-cta">View all 30 achievements <span style="color:var(--rose-b)">›</span></div>
+          <div class="prof-ach-cta">View all achievements <span style="color:var(--rose-b)">›</span></div>
         </div>
       </div>
 
@@ -713,7 +713,7 @@
           <div class="pts-chg" id="pts-chg">↑ +450 this week</div>
           <!-- Rate row -->
           <div class="pts-rate-row">
-            <div class="pts-rate"><div class="pts-rate-val">+35</div><div class="pts-rate-lbl">per favourite</div></div>
+            <div class="pts-rate"><div class="pts-rate-val">Free</div><div class="pts-rate-lbl">save favourites</div></div>
             <div class="pts-rate"><div class="pts-rate-val">+1–150</div><div class="pts-rate-lbl">Love Blast</div></div>
             <div class="pts-rate"><div class="pts-rate-val">+1–150</div><div class="pts-rate-lbl">Love Clicker</div></div>
             <div class="pts-rate"><div class="pts-rate-val spend">350+</div><div class="pts-rate-lbl">shop items</div></div>
@@ -1953,8 +1953,8 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
           </div>
           <div class="settings-row-info">
-            <div class="settings-row-title">Hide letter previews</div>
-            <div class="settings-row-sub">Don't show letter content in notifications</div>
+            <div class="settings-row-title">Hide locked-letter previews</div>
+            <div class="settings-row-sub">Hide the preview in the letter purchase sheet</div>
           </div>
           <div class="toggle-switch rw" id="tog-hideprev" onclick="toggleHidePreviews(this);R(event,this)"></div>
         </div>
@@ -1964,7 +1964,7 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose-b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
           <div class="settings-row-info">
-            <div class="settings-row-title">Screenshot protection</div>
+            <div class="settings-row-title">Background privacy blur</div>
             <div class="settings-row-sub">Blur content when app is in background</div>
           </div>
           <div class="toggle-switch on rw" id="tog-screenshot" onclick="toggleScreenshotProtection(this);R(event,this)"></div>
@@ -2104,6 +2104,7 @@
 <script src="pixelart/core.js"></script>
 <script src="pixelart/catalog.js"></script>
 <script src="pixelart/importer.js"></script>
+<script src="js/display-format.js"></script>
 <script src="js/state.js"></script>
 <script src="js/pixelart-bridge.js"></script>
 <script src="js/pet-bridge.js"></script>

@@ -152,8 +152,8 @@ function sendAnaMessage(){
   if(!text || text.length < 2){ T('⚠️ Write something first 💕'); return; }
 
   const now = new Date();
-  const time = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-  anaMessages.unshift({ text, time: 'Today, ' + time, read: false });
+  const time = HeartlyFormat.time(now);
+  anaMessages.unshift({ text, time: 'Today, ' + time, at: now.getTime(), read: false });
 
   input.value = '';
   document.getElementById('ana-write-count').textContent = '0';
@@ -177,7 +177,7 @@ function renderRobAnaMessages(){
     <div class="ana-msg-row" style="animation-delay:${i*.04}s">
       <div class="ana-msg-text">"${m.text}"</div>
       <div class="ana-msg-meta">
-        <div class="ana-msg-time">${m.time}</div>
+        <div class="ana-msg-time">${m.at ? HeartlyFormat.dateTime(m.at) : m.time}</div>
         ${!m.read ? '<div class="ana-msg-unread">New</div>' : ''}
       </div>
     </div>
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function(){
           <div class="lp-pop-row">
             <div class="lp-pop-emoji">${m.emoji}</div>
             <div class="lp-pop-label">${m.label}</div>
-            <div class="lp-pop-time">${m.time}</div>
+            <div class="lp-pop-time">${m.at ? HeartlyFormat.dateTime(m.at) : m.time}</div>
           </div>`).join('');
         showLpPop(`<div class="lp-pop-title">Your Mood History</div>${rows}`, el);
       }, 600);
@@ -346,22 +346,9 @@ window.cbnAddLevel = cbnAddLevel;
    SETTINGS HELPERS
 ═══════════════════════════════════════════ */
 
-var _dateFmts = ['DD / MM / YYYY', 'MM / DD / YYYY', 'YYYY-MM-DD'];
-var _dateFmtIdx = 0;
-function cycleDate(row){
-  _dateFmtIdx = (_dateFmtIdx + 1) % _dateFmts.length;
-  var el = document.getElementById('sett-date-fmt');
-  if(el) el.textContent = _dateFmts[_dateFmtIdx];
-}
+function cycleDate(){ HeartlyFormat.cycleDate(); }
 window.cycleDate = cycleDate;
-
-var _timeFmts = ['24-hour clock', '12-hour (AM / PM)'];
-var _timeFmtIdx = 0;
-function cycleTimeFmt(row){
-  _timeFmtIdx = (_timeFmtIdx + 1) % _timeFmts.length;
-  var el = document.getElementById('sett-time-fmt');
-  if(el) el.textContent = _timeFmts[_timeFmtIdx];
-}
+function cycleTimeFmt(){ HeartlyFormat.cycleTime(); }
 window.cycleTimeFmt = cycleTimeFmt;
 
 function toggleReduceMotion(el){

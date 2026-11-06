@@ -73,7 +73,7 @@ function calendarDiff(start, end){
 }
 function formatRelDatePretty(dateStr){
   const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US',{month:'long', day:'numeric', year:'numeric'});
+  return HeartlyFormat.date(d);
 }
 // profTimerInt already declared above
 
@@ -144,7 +144,7 @@ function updateProfStats(){
 
   // Letters read (sent letters that are read)
   const readEl = document.getElementById('prof-stat-read');
-  const readCount = (sentLetters || []).filter(l => l.read).length;
+  const readCount = ['notes','surprises','letters'].reduce((sum,cat) => sum + (ED[cat] || []).filter(i => !i.lk && i.read).length, 0);
   if(readEl) readEl.textContent = readCount;
 
   // Streak — real value from state
@@ -154,9 +154,7 @@ function updateProfStats(){
   // Second stats grid (.pstat) — real values, same sources as above
   const pRead = document.getElementById('pstat-read');
   if(pRead){
-    const exploreReadCount = ['notes','surprises','letters'].reduce((sum, cat) =>
-      sum + ((typeof ED!=='undefined' && ED[cat]) ? ED[cat].filter(i => !i.lk && i.read).length : 0), 0);
-    pRead.textContent = exploreReadCount.toLocaleString();
+    pRead.textContent = readCount.toLocaleString();
   }
   const pPts = document.getElementById('pstat-pts');
   if(pPts) pPts.textContent = Math.floor(ptsVal).toLocaleString();

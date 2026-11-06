@@ -98,7 +98,7 @@ function renderRobGoodnight(){
     statusEl.textContent = '🌙 Live now — Ana sees "Letter available, Tonight"';
   } else {
     const target = new Date(dateStr + 'T00:00:00');
-    statusEl.textContent = '📅 Scheduled for ' + target.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+    statusEl.textContent = '📅 Scheduled for ' + HeartlyFormat.date(target);
   }
 }
 window.renderRobGoodnight = renderRobGoodnight;
@@ -1111,7 +1111,7 @@ async function dvRenderBackups(){
     if(status) status.textContent = 'Last backup: ' + _backupAgeLabel(result.items[0].takenAt) + ' · ' + result.items.length + ' snapshot' + (result.items.length!==1?'s':'') + ' kept';
     list.innerHTML = result.items.map(b=>{
       const c = b.counts;
-      const when = new Date(b.takenAt).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      const when = HeartlyFormat.dateTime(b.takenAt);
       return `<div class="dev-item">
         <div class="dev-item-head">
           <div class="dev-item-title">${when}</div>

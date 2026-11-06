@@ -41,7 +41,7 @@
     {id:'plant',name:'A little green',category:'room',price:200,slot:'plant',description:'A leafy corner to make the room feel like home.',visual:'plant'},
     {id:'rose',name:'Peach afternoon',category:'room',price:500,slot:'theme',description:'Warm walls for the room you share.',visual:'rose'},
     {id:'sand',name:'Sunday linen',category:'room',price:500,slot:'theme',description:'A quiet, sandy room for slower days.',visual:'sand'}
-  ].map(i=>({...i,featured:true})).concat(Content.items.map(i=>FEATURED[i.id]?{...i,...FEATURED[i.id],featured:true}:i)).map(i=>({...i,price:Config.items[i.id]?.price??i.price,gain:Config.items[i.id]?.gain??i.gain,description:i.careAction?'One use · +'+Config.items[i.id].gain+' '+(i.careAction==='clean'?'cleanliness':i.careAction==='play'?'happiness':'hunger')+'.':i.description})));
+  ].map(i=>({...i,featured:true})).concat(Content.items.map(i=>FEATURED[i.id]?{...i,...FEATURED[i.id],featured:true}:i)).map(i=>({...i,price:Config.items[i.id]?.price??i.price,gain:Config.items[i.id]?.gain??i.gain,description:i.careAction?'One use · up to +'+Config.items[i.id].gain+' '+(i.careAction==='clean'?'cleanliness':i.careAction==='play'?'happiness':'hunger')+'.':i.description})));
   const clone=v=>JSON.parse(JSON.stringify(v));
   const clamp=(v,lo=0,hi=100)=>Math.max(lo,Math.min(hi,v));
   const integer=(v,min,max)=>Number.isSafeInteger(v)&&v>=min&&v<=max;
@@ -79,7 +79,7 @@
     // Old standalone saves can contain retired mini-game records. Keep the pet,
     // room and test balance, while removing the games and their visible history.
     delete clean.arcade;delete clean.memory;
-    if(clean.badges!==undefined&&!Array.isArray(clean.badges))throw Error('The memory book is invalid.');
+    if(clean.badges!==undefined&&!Array.isArray(clean.badges))throw Error('The care badges are invalid.');
     clean.badges=Array.isArray(clean.badges)?clean.badges.filter(b=>BADGES.includes(b)):[];
     if(!clean.badges.length&&clean.pet){
       if(clean.pet.daily.care.length===3)clean.badges.push('dailyCare');
@@ -87,7 +87,7 @@
       if(clean.placements.length)clean.badges.push('firstDecoration');
       if(clean.pet.xp>=300)clean.badges.push('bond4');
     }
-    if(new Set(clean.badges).size!==clean.badges.length)throw Error('The memory book is invalid.');
+    if(new Set(clean.badges).size!==clean.badges.length)throw Error('The care badges are invalid.');
     if(clean.pet)clean.pet.history=clean.pet.history.filter(e=>!['arcade','memoryFinish'].includes(e.kind));
     clean.ledger=clean.ledger.filter(e=>!['Paw Chase daily reward','Memory Match daily reward'].includes(e.label));
     clean.receipts=Object.fromEntries(Object.entries(clean.receipts).filter(([,r])=>!['arcade','memoryFinish'].includes(r.command)));
@@ -101,7 +101,7 @@
     if(request.kind==='pet')request={...request,kind:'play'};
     if(!safeId(request.id))throw Error('This action needs a valid ID.');
     if(state.receipts[request.id]){if(state.receipts[request.id].command!==request.kind)throw Error('This action ID was already used for a different action.');return {state:clone(state),message:'Already saved.',duplicate:true};}
-    if(Object.keys(state.receipts).length>=10000)throw Error('Too many actions today. Please come back tomorrow.');
+    if(Object.keys(state.receipts).length>=10000)throw Error('Too many recent actions. Please try again later.');
     const s=advance(state,now);now=Math.max(now,s.pet?.lastAt||s.updatedAt);let p=s.pet,message='',reaction='Excited';
     const kind=request.kind;
     if(kind==='adopt'){
@@ -114,15 +114,15 @@
       if(['feed','play','clean'].includes(kind)){
 
         const key={feed:'hunger',play:'happiness',clean:'cleanliness'}[kind];if(p.needs[key]>=99.999)throw Error(`${p.name} does not need that right now.`);
-        if(kind==='play'&&p.needs.energy<RULES.play.energy)throw Error('A little nap first. Playing needs 10 energy.');
+        if(kind==='play'&&p.needs.energy<RULES.play.energy)throw Error('A little nap first. Playing needs '+RULES.play.energy+' energy.');
         let gain=RULES[kind].gain;if(['feed','play','clean'].includes(kind)){const item=request.itemId?CATALOG.find(i=>i.id===request.itemId):CATALOG.find(i=>i.careAction===kind&&s.quantities[i.id]>0);if(!item||item.careAction!==kind||!(s.quantities[item.id]>0))throw Error(kind==='feed'?'Choose food you own, or buy some in the shop.':kind==='play'?'Buy a single-use cat toy in the shop first.':'Choose a care kit you own, or buy one in the shop.');s.quantities[item.id]--;gain=item.gain;}
-        p.needs[key]=clamp(p.needs[key]+gain);if(kind==='play')p.needs.energy-=RULES.play.energy;
+        const actualGain=Math.round((clamp(p.needs[key]+gain)-p.needs[key])*10)/10;p.needs[key]=clamp(p.needs[key]+gain);if(kind==='play')p.needs.energy-=RULES.play.energy;
         p.cooldowns[kind]=0;const d=day(p,now);if(!d.care.includes(kind))d.care.push(kind);const xp=Math.max(0,Math.min(RULES.xpPerCare,RULES.xpCap-d.xp));p.xp+=xp;d.xp+=xp;
         if(level(p.xp)>=3&&!s.owned.includes('plant'))s.owned.push('plant');
 
-        reaction=kind==='feed'?'Eating':kind==='play'?'Dance':'Surprised';message=kind==='feed'?'Dinner is served. +'+gain+' hunger.':kind==='clean'?'Fresh and cozy. +'+gain+' cleanliness.':'A little playtime. +'+gain+' happiness.';
+        reaction=kind==='feed'?'Eating':kind==='play'?'Dance':'Surprised';message=kind==='feed'?'Dinner is served. +'+actualGain+' hunger.':kind==='clean'?'Fresh and cozy. +'+actualGain+' cleanliness.':'A little playtime. +'+actualGain+' happiness.';
       }else if(kind==='water'){
-        p.cooldowns.water=0;message='Fresh water. On the house.';
+        p.cooldowns.water=0;message='Fresh water. A free room ritual; needs stay the same.';
       }else if(kind==='pet'){
         p.cooldowns.pet=0;message='A little love goes a long way.';
       }else if(kind==='sleep'){if(!p.sleeping&&!s.owned.some(id=>id==='bed'||CATALOG.find(i=>i.id===id)?.slot==='bed'||CATALOG.find(i=>i.id===id)?.category==='beds'))throw Error('Buy a bed from the shop before bedtime.');if(p.vacation)throw Error('Return from vacation first.');p.sleeping=!p.sleeping;reaction=p.sleeping?'Sleep':'Sleepy';message=p.sleeping?'Sweet dreams. Energy restores while you are away.':'Good morning, little friend.';
@@ -170,7 +170,7 @@
         }
         s.equipped[slot]=slot==='theme'&&request.itemId===null?'starter':request.itemId;message='A little room refresh. No points spent.';
       }else if(kind==='use'){
-        if(['soap','paper'].includes(request.itemId))throw Error('Use this supply with Wash or Toilet on the Home screen.');if(!['snack','treat'].includes(request.itemId)||!s.quantities[request.itemId])throw Error('That treat is not in your cupboard.');if(p.needs.hunger>=99.999&&p.needs.happiness>=99.999)throw Error('Save that treat for later. Your cat is already content.');
+        if(['soap','paper'].includes(request.itemId))throw Error('Use a care kit from the Home screen instead.');if(!['snack','treat'].includes(request.itemId)||!s.quantities[request.itemId])throw Error('That treat is not in your cupboard.');if(p.needs.hunger>=99.999&&p.needs.happiness>=99.999)throw Error('Save that treat for later. Your cat is already content.');
         s.quantities[request.itemId]--;p.needs.hunger=clamp(p.needs.hunger+(request.itemId==='snack'?10:20));if(request.itemId==='treat')p.needs.happiness=clamp(p.needs.happiness+15);reaction='Eating';message='A tiny treat, a very happy cat.';
       }else throw Error('That action is not supported.');
     }

@@ -449,7 +449,7 @@ function achTap(id){
   var a = ACH_DATA.find(function(x){ return x.id === id; });
   if(!a) return;
   if(earnedAchievements[a.id]){
-    var when = new Date(earnedAchievements[a.id]).toLocaleDateString();
+    var when = HeartlyFormat.date(earnedAchievements[a.id]);
     T('Earned ' + when + ': ' + a.name + ' — ' + a.desc);
   } else {
     T('Locked: ' + a.desc);
